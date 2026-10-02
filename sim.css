@@ -1,0 +1,161 @@
+/* Playground view (builder B). Tokens from styles.css only. */
+.sim{display:block}
+.sim-head h2{max-width:22ch}
+.sim-grid{display:grid;grid-template-columns:236px minmax(0,1fr) 284px;grid-template-areas:"left centre right";gap:20px;align-items:start}
+.sim-left{grid-area:left;display:grid;gap:10px;min-width:0}
+.sim-centre{grid-area:centre;display:grid;gap:12px;min-width:0}
+.sim-right{grid-area:right;display:grid;gap:12px;min-width:0}
+@media (min-width:1101px){
+  .sim-left,.sim-right{position:sticky;top:calc(var(--bar-h) + 12px);max-height:calc(100vh - var(--bar-h) - 24px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding-right:2px}
+}
+@media (max-width:1100px){
+  .sim-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"centre centre" "left right"}
+}
+@media (max-width:760px){
+  .sim-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"centre" "right" "left"}
+}
+
+/* ---- phone scenario select ---- */
+.sim-pickrow{display:none}
+@media (max-width:760px){
+  .sim-pickrow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center}
+  .sim-pickrow select{font-size:14px}
+}
+.sim .eyebrow{margin:0}
+
+/* ---- controls ---- */
+.sim-controls{padding:10px 12px}
+.sim-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.sim-toolbar .btn{padding:6px 12px}
+.sim-seedrow label{font-size:12.5px;color:var(--ink-3)}
+.sim-seedrow input{width:84px;padding:5px 8px;font-family:var(--mono);font-size:12.5px}
+.sim-clock{margin-left:auto;font-size:12.5px;color:var(--ink-2);background:var(--surface-2);border-radius:99px;padding:4px 10px}
+.sim-seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--rule);border-radius:8px;padding:2px;gap:2px}
+.sim-seg button{font:inherit;font-size:12.5px;font-family:var(--mono);border:0;background:transparent;color:var(--ink-2);padding:4px 9px;border-radius:6px;cursor:pointer}
+.sim-seg button:hover{color:var(--ink)}
+.sim-seg button[aria-pressed="true"],.sim-seg button[aria-checked="true"]{background:var(--surface);color:var(--accent);box-shadow:0 0 0 1px var(--rule-strong)}
+
+/* ---- stage ---- */
+.sim-stage{margin:0;padding:8px 8px 10px;overflow:hidden}
+.sim-svg{--k:1;display:block;width:100%;height:auto;max-height:62vh}
+.sim-svg text[font-size="9"],.sim-svg text[font-size="9.5"],.sim-svg text[font-size="10"]{font-size:calc(10px * var(--k))}
+.sim-svg text[font-size="10.5"]{font-size:calc(10.5px * var(--k))}
+.sim-svg text[font-size="11"]{font-size:calc(11px * var(--k))}
+.sim-svg text[font-size="12"]{font-size:calc(12px * var(--k))}
+.sim-svg .vesicle circle,.sim-svg .sim-owner circle{r:calc(9px * var(--k))}
+@media (max-width:600px){
+  .sim-svg .glyph-agent > text + text,.sim-svg .sim-owner-name{display:none}
+}
+.sim-stage-note{font-size:12px;line-height:1.45;padding:2px 8px 0;margin:0}
+.sim-membrane{transition:filter .2s var(--ease)}
+.sim-membrane.is-active{filter:drop-shadow(0 0 3px var(--lipid)) drop-shadow(0 0 1px var(--lipid))}
+.sim-env{will-change:transform}
+
+/* ---- gate step strip ---- */
+.sim-strip{background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius);padding:10px 14px;min-height:64px}
+.sim-strip-empty{margin:6px 0;font-size:13px}
+.sim-strip-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;margin-bottom:8px}
+.sim-strip-route{font-weight:600}
+.sim-strip-out{margin-left:auto;display:inline-flex;gap:6px;align-items:center;font-size:12px;color:var(--ink-3)}
+.sim-strip-out code{font-size:11.5px}
+.sim-steps{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px}
+.sim-st{font-family:var(--mono);font-size:10.5px;line-height:1;padding:4px 6px;border-radius:5px;background:var(--surface-2);color:var(--ink-3);border:1px solid transparent;transition:background .15s var(--ease),color .15s var(--ease)}
+.sim-st.is-skip{background:transparent;border:1px dashed var(--rule-strong);color:var(--ink-3)}
+.sim-st-skip{margin-left:3px}
+.sim-st.is-flag{background:var(--lipid-soft);color:var(--ink-2);border-color:var(--lipid)}
+.sim-st.is-ok{background:var(--accent-soft);color:var(--accent)}
+.sim-st.is-now{border-color:var(--accent)}
+.sim-steps[data-outcome="refused"] .sim-st.is-fail{background:var(--refused-bg);color:var(--refused)}
+.sim-steps[data-outcome="held"] .sim-st.is-fail{background:var(--held-bg);color:var(--held)}
+.sim-steps[data-outcome="expired"] .sim-st.is-fail{background:var(--expired-bg);color:var(--expired)}
+.sim-steps .sim-st.is-fail{background:var(--surface-3);color:var(--ink)}
+.sim-steps[data-outcome="refused"] .sim-st.is-fail,.sim-steps[data-outcome="held"] .sim-st.is-fail,.sim-steps[data-outcome="expired"] .sim-st.is-fail{font-weight:600}
+.sim-strip-note{margin:8px 0 0;font-size:12.5px;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:6px;align-items:center;max-width:none}
+
+/* ---- what this shows ---- */
+.sim-shows{display:grid;gap:6px;padding:0 2px}
+.sim-shows-line{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sim-shows-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.sim-shows-note{margin:0;font-size:13px}
+.sim-shows-fail{margin:0;font-size:13.5px;max-width:none;display:flex;flex-wrap:wrap;gap:6px;align-items:center;border-left:3px solid var(--ink);padding:6px 10px;background:var(--surface);border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+.sim-culprit{display:inline-flex;flex-wrap:wrap;gap:5px;align-items:center;font-size:12.5px}
+.sim-chiprow{display:flex;flex-wrap:wrap;gap:5px}
+
+/* ---- scenarios ---- */
+.sim-scenarios{display:grid;gap:4px}
+.sim-scn{border:1px solid transparent;border-radius:var(--radius-sm);transition:background .15s var(--ease)}
+.sim-scn:hover{background:var(--surface-2)}
+.sim-scn.is-selected{background:var(--surface);border-color:var(--rule);box-shadow:var(--shadow)}
+.sim-scn-pick{font:inherit;width:100%;text-align:left;background:transparent;border:0;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius-sm)}
+.sim-scn-title{font-size:13.5px;font-weight:500;flex:1;min-width:0}
+.sim-scn.is-selected .sim-scn-title{font-weight:600}
+.sim-avatars{display:inline-flex}
+.sim-avatar{width:18px;height:18px;border-radius:50%;display:inline-grid;place-items:center;font-size:9.5px;font-weight:600;color:var(--surface);background:var(--agent);border:1.5px solid var(--surface);margin-left:-5px}
+.sim-avatar:first-child{margin-left:0}
+.sim-scn-body{display:grid;gap:8px;padding:0 10px 10px}
+.sim-scn-pass{margin:0;font-size:12.5px;line-height:1.45;color:var(--ink-2)}
+.sim-scn-actions .btn{padding:5px 10px;font-size:12.5px}
+.sim-break{border-color:var(--ink);color:var(--ink);font-weight:600}
+.sim-break:hover{background:var(--surface-3)}
+.sim-nobreak{font-size:12px}
+
+/* ---- knobs ---- */
+.sim-knobs-head{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
+.sim-restore{padding:3px 8px;font-size:12px}
+.sim-restore[aria-disabled="true"]{opacity:.5;cursor:default}
+.sim-rm-hint{font-size:12px}
+.sim-knobs{display:grid;gap:2px}
+.sim-knob{display:grid;gap:5px;padding:8px 10px;border-radius:var(--radius-sm);border-left:2px solid transparent}
+.sim-knob.is-changed{background:var(--surface);border-left-color:var(--accent)}
+.sim-knob-head{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.sim-knob-label{font-size:12.5px;color:var(--ink);flex:1 1 120px;min-width:0}
+.sim-knob-val{font-size:11.5px;color:var(--accent)}
+.sim-knob .chip{font-size:10.5px;padding:3px 6px}
+.sim-q{font:inherit;font-size:11px;font-weight:600;width:18px;height:18px;border-radius:50%;border:1px solid var(--rule-strong);background:var(--surface);color:var(--ink-2);cursor:pointer;display:inline-grid;place-items:center;padding:0}
+.sim-q[aria-expanded="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.sim-knob-why{margin:0;font-size:12px;line-height:1.45;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.sim-knob .sim-seg{justify-self:start}
+.sim-knob input[type=range]{margin:0}
+
+/* ---- verdict ---- */
+.sim-verdict{display:grid;gap:6px;border-left:3px solid var(--rule-strong)}
+.sim-verdict[data-state="pass"]{border-left-color:var(--accent)}
+.sim-verdict[data-state="fail"]{border-left-color:var(--ink)}
+.sim-vstate{font-size:14px;line-height:1.4}
+.sim-vstate strong{font-weight:600}
+.sim-verdict[data-state="pass"] .sim-vstate strong{color:var(--accent)}
+.sim-verdict[data-state="fail"] .sim-vstate strong{background:var(--ink);color:var(--ground);padding:1px 7px;border-radius:99px;font-size:12.5px}
+.sim-verdict[data-state="running"] .sim-vstate{color:var(--ink-3)}
+.sim-vcrit{margin:0;font-size:12.5px;color:var(--ink-3)}
+
+/* ---- metrics ---- */
+.sim-metrics-card{padding:14px 16px}
+.sim-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin:10px 0 0}
+.sim-metric{display:grid;gap:0;min-width:0}
+.sim-metric dt{font-size:11.5px;color:var(--ink-3)}
+.sim-metric dd{margin:0;font-size:18px;font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.sim-metric.is-bad dd{color:var(--ink);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}
+.sim-metric-sub{font-size:10px;color:var(--ink-3);overflow-wrap:anywhere}
+
+/* ---- event log ---- */
+.sim-log{padding:14px 12px 10px 16px}
+.sim-log-list{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:0;max-height:440px;overflow-y:auto;scrollbar-width:thin}
+.sim-row{display:grid;grid-template-columns:62px minmax(0,1fr);gap:1px 8px;padding:7px 0;border-top:1px solid var(--rule);font-size:12.5px;animation:sim-in .35s var(--ease)}
+.sim-row:first-child{border-top:0}
+.sim-t{grid-row:span 3;font-size:11px;color:var(--ink-3);padding-top:2px}
+.sim-route{font-weight:500;overflow-wrap:anywhere}
+.sim-form{font-size:11px;color:var(--ink-3)}
+.sim-disp{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.sim-disp code{font-size:11px}
+.sim-disp .d,.sim-disp .chip{font-size:10.5px;padding:2px 7px}
+.sim-why{font-size:11.5px}
+.sim-note{grid-column:2;font-size:11.5px;color:var(--ink-3)}
+.sim-row.is-system .sim-t{grid-row:auto}
+.sim-sys{color:var(--ink-2);grid-column:2}
+.sim-row.is-system .sim-why{grid-column:2;justify-self:start}
+.sim-row.is-failure .sim-sys,.sim-row.is-failure .sim-note{color:var(--ink);font-weight:600}
+.sim-row.is-failure .sim-route::before,.sim-row.is-failure .sim-sys::before{content:"! ";font-weight:700}
+.sim-row.is-page .sim-sys{color:var(--accent)}
+.sim-chip-logged,.sim-chip-lost,.sim-chip-unread,.sim-chip-duplicate{font-size:10.5px;padding:2px 7px;background:var(--surface-2);color:var(--ink-3)}
+@keyframes sim-in{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){ .sim-row{animation:none} .sim-membrane{transition:none} }

@@ -1,0 +1,54 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>Membrane Playground</title>
+<meta name="description" content="Membrane contract v0.3: interactive abstract, agent simulation, gatekeeper game and open decisions.">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300;0,7..72,400;1,7..72,300;1,7..72,400&family=Instrument+Sans:wght@400;500;600&family=Fragment+Mono&display=swap">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="sim.css">
+<link rel="stylesheet" href="game.css">
+
+<header class="bar">
+  <div class="bar-in">
+    <a class="brand" href="#/abstract"><b>Membrane</b><span id="version-chip">v0.3 draft</span></a>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#/abstract" data-view="abstract">Abstract</a>
+      <a href="#/contract" data-view="contract">Contract</a>
+      <a href="#/playground" data-view="playground">Playground</a>
+      <a href="#/gatekeeper" data-view="gatekeeper">Gatekeeper</a>
+      <a href="#/decisions" data-view="decisions">Decisions</a>
+      <a href="#/sources" data-view="sources">Sources</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="view" id="view-abstract" data-view="abstract"></section>
+  <section class="view" id="view-contract" data-view="contract" hidden></section>
+  <section class="view" id="view-playground" data-view="playground" hidden></section>
+  <section class="view" id="view-gatekeeper" data-view="gatekeeper" hidden></section>
+  <section class="view" id="view-decisions" data-view="decisions" hidden></section>
+  <section class="view" id="view-sources" data-view="sources" hidden></section>
+</main>
+
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Item detail"></aside>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<footer class="foot">
+  <span>Membrane contract v0.3 draft · 14 September 2026 · for Vlad Nicolescu and Sal</span>
+  <span>Paper: <a id="paper-link" href="#" target="_blank" rel="noopener">working draft 0.2</a></span>
+  <span>Nothing here has run between the test pair yet.</span>
+</footer>
+
+<script src="spec.js"></script>
+<script src="glyphs.js"></script>
+<script src="store.js"></script>
+<script src="gate.js"></script>
+<script src="app.js"></script>
+<script src="sim.js"></script>
+<script src="game.js"></script>
+
+</body></html>
