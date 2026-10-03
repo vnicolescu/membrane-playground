@@ -18,7 +18,7 @@ Course.lesson({
     { t: "p", text: "When an agent calls a tool, one owner stands behind both sides. The same person installed the tool, granted its credentials and reads its output." },
     { t: "p", text: "When Hermes writes to brainboi, two owners, two models, two memory stores and two sets of credentials meet at a line neither of them controls [[P§1.1]]. Every message that crosses the line is text produced by another optimizer and read by a model that cannot reliably tell data from instruction (Greshake et al. 2023, [[R3·F1]]). The rest of the course assumes you know why a model reading hostile text is a problem in itself; [[lesson:injection|the foundation on injection]] is where to get that if you lack it." },
     { t: "define", terms: [
-      { term: "agent", def: "A program running a language model with tools, memory and credentials, on a schedule or on demand." },
+      { term: "agent", def: "A program running a language model with tools, memory and credentials." },
       { term: "owner", def: "The person whose machine, keys and word an agent treats as authority." },
       { term: "kernel", def: "An agent's goals, rules, credentials and long-term memory.", ref: "P§1.1" },
       { term: "boundary", def: "The line where one agent's text enters another agent." },

@@ -1,6 +1,6 @@
 Course.lesson({
   id: "standing", part: "time", title: "Identity and standing",
-  kicker: "Cryptography settles who signed; a record settles what happened; how good a peer is stays a local judgment",
+  kicker: "Who signed is cryptography; how good a peer is stays a local judgment",
   minutes: 11,
   refs: ["P§9.1", "P§9.2", "P§9.3", "P§9.4", "P§9.5", "R7·F1", "R7·F2", "R7·F3", "R7·F10", "R7·F11", "R7·F13", "R7·F14", "R7·F16", "R7·F17", "R7·F19", "Rev02·#23", "Rev02·#24"],
   objectives: [
@@ -14,7 +14,8 @@ Course.lesson({
   summary: "An unhackable reputation splits into three claims: identity integrity (this message was signed by the controller of this identifier, and a stolen key cannot take the identifier), record integrity (the history cannot be rewritten or shown differently to different readers), and reputation meaning (this agent is good), which is always a judgment. Membrane makes the first two strong with pre-rotation and append-only hash-chained logs, and keeps the third local, asymmetric and recoverable. Standing S0 to S3 is computed by each agent for each peer. Promotion follows clean countersigned receipts; one contradicted receipt lowers a peer one level for thirty days; a clean thirty days restores it; the record stays. Newcomers start at S0 and only the receiver's own owner can introduce one, at S1 at most.",
   blocks: [
     { t: "gate", title: "Cold case", intro: "Before the rule: an agent called Iris, whom brainboi has never heard of, sends a well-formed claim with a record behind it. Predict the disposition and the standing the gate reads.", preset: { base: "claim", header: { from: "iris", evidence: "record" }, msg: { signer: "iris", lane: "iris", recordOk: true } }, predict: ["disposition", "standing"], expect: { disposition: "held", reason: "awaiting-owner", standing: "S0", flags: { unknownSigner: true } }, explain: "Held for Vlad at S0, with the trace noting an unknown identifier. A correct envelope and a record that checks out bought nothing. The lesson is about why that is the right starting point." },
-    { t: "p", text: "For the pilot week, Hermes stands at S1 with brainboi, fixed by both owners. That one level is what lets the gate release the ask at T1 without asking Vlad. The seed list that began the paper asked for an unhackable reputation, and the paper's first move was to split that phrase into three claims that cryptography treats very differently [[P§9.1]]." },
+    { t: "p", text: "For the pilot week, Hermes stands at S1 with brainboi, fixed by both owners. That one level is what lets the gate release the ask at T1 without asking Vlad." },
+    { t: "p", text: "The seed list that began the paper asked for an unhackable reputation, and the paper's first move was to split that phrase into three claims that cryptography treats very differently [[P§9.1]]." },
     { t: "h", text: "Three separate claims" },
     { t: "list", items: [
       "**Identity integrity**: this message was signed by the controller of this identifier, and a stolen key cannot take the identifier. Achievable with cryptography.",
@@ -38,8 +39,8 @@ Course.lesson({
     ] },
     { t: "p", text: "The pilot approximates all of this with one SSH signing key per agent, an `allowed_signers` file with validity windows pinned outside the transport, and rotations signed by owner keys held on hardware that requires a touch for each signature [[P§9.2]]. Which identity mechanism the pair adopts after the pilot is decision D4." },
     { t: "h", text: "The countersigned receipt" },
-    { t: "p", text: "The unit of evidence for standing is a receipt signed by both parties: the request's hash and acceptance line, the deliverable's hash, the provider's verdict and latest log head, and the counterparty's `met`, `unmet` or contradiction with its own signature and log head [[P§9.3]]. The head is the head of the agent's Membrane log, an append-only file of the hashes of every message it sent and received, kept in its own lane. It is never the head of a working repository that allows rebasing; the paper's second reviewer pointed out that brainboi's own rebases would otherwise read as duplicity [[Rev02·#19]]. Because each receipt carries both heads, each party witnesses the other's history, and a head that fails to extend an earlier one is evidence. Certificate Transparency rests on the same property." },
-    { t: "p", text: "A counterparty may withhold its signature on good work. An unsigned receipt is a sender-side state called `offered`; unanswered past the next cycle it climbs the ladder no further than R2, and the withholding is recorded against the withholder. Receipts are written only by the two parties to an exchange, and there is no operation for rating a stranger: the 2019 keyserver flooding showed what a store accepting third-party attestations without the subject's consent becomes [[R7·F17]]." },
+    { t: "p", text: "Standing is built from receipts. The unit of evidence is a receipt signed by both parties: the request's hash and acceptance line, the deliverable's hash, the provider's verdict and latest log head, and the counterparty's `met`, `unmet` or contradiction with its own signature and log head [[P§9.3]]. The head is the head of the agent's Membrane log, an append-only file of the hashes of every message it sent and received, kept in its own lane. It is never the head of a working repository that allows rebasing; the paper's second reviewer pointed out that brainboi's own rebases would otherwise read as duplicity [[Rev02·#19]]. Because each receipt carries both heads, each party witnesses the other's history, and a head that fails to extend an earlier one is evidence. Certificate Transparency rests on the same property." },
+    { t: "p", text: "Signatures can be withheld. A counterparty may withhold its signature on good work. An unsigned receipt is a sender-side state called `offered`; unanswered past the next cycle it climbs the ladder no further than R2, and the withholding is recorded against the withholder. Receipts are written only by the two parties to an exchange, and there is no operation for rating a stranger: the 2019 keyserver flooding showed what a store accepting third-party attestations without the subject's consent becomes [[R7·F17]]." },
     { t: "h", text: "Standing" },
     { t: "table", head: ["Level", "Meaning", "Reached by"], rows: [
       ["{{st.S0}}", "full quarantine: nothing released without the owner", "every unknown identifier, whatever it claims"],
@@ -85,10 +86,11 @@ Course.lesson({
     { t: "takeaways", items: [
       "Identity and record integrity can be made strong with keys and append-only logs; reputation meaning stays a local judgment.",
       "Pre-rotation: commit to the next key by digest; a thief with the current key cannot move the identifier.",
-      "Standing S0 to S3 is per receiver, per peer, and never published; one contradicted receipt is one level down for thirty days.",
-      "Newcomers start at S0; only the owner introduces, to S1 at most; a fresh identity never outranks a demoted one."
+      "Standing S0 to S3 is per receiver and per peer, kept unpublished; one contradicted receipt is one level down for thirty days.",
+      "Newcomers start at S0; only the owner introduces, to S1 at most; a fresh identity never outranks a demoted one.",
+      "A public chain is an optional anchor; three named conditions would make it core, and none holds today."
     ] },
     { t: "deeper", links: [ { ref: "P§9" }, { scenario: "newcomer" }, { scenario: "authority-spoof" }, { research: "R7", label: "R7 · identity, reputation, the ledger question" }, { href: "https://arxiv.org/abs/1907.02143", label: "Smith · Key Event Receipt Infrastructure (KERI)" } ] },
-    { t: "tutor", prompts: [ "Why can an introduction reach S1 and never S2?", "What makes a Membrane log head safe to use as duplicity evidence where a repository head is not?", "Under which of the three flip conditions would the pilot's standing need a chain?" ] }
+    { t: "tutor", prompts: [ "Why does an introduction stop at S1?", "What makes a Membrane log head safe to use as duplicity evidence where a repository head is not?", "Under which of the three flip conditions would the pilot's standing need a chain?" ] }
   ]
 });

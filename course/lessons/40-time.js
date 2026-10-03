@@ -1,6 +1,6 @@
 Course.lesson({
   id: "time", part: "time", title: "Time",
-  kicker: "Who may interrupt whom, what silence means, and a ladder whose clock runs outside the agent",
+  kicker: "A ceiling the receiver owns, and a ladder whose clock runs outside the agent",
   minutes: 12,
   refs: ["P§7.1", "P§7.2", "P§7.3", "P§7.4", "R6·F1", "R6·F2", "R6·F3", "R6·F5", "R6·F6", "R6·F12", "R6·F13", "R6·F14", "R6·F17", "R6·F18", "R6·F19", "Rev02·#16", "Rev02·#18", "RFC 6710"],
   objectives: [
@@ -35,7 +35,8 @@ Course.lesson({
     ] },
     { t: "h", text: "Urgency, severity, certainty" },
     { t: "p", text: "An alert's urgency claim has three fields, taken from the OASIS Common Alerting Protocol, which keeps them apart: {{ext.urgency}} (how soon), {{ext.severity}} (how bad) and {{ext.certainty}} (how sure) [[R6·F3]]. Military signalling makes the same separation in words: importance does not imply urgency [[R6·F1]]. Eligibility to interrupt is computed from all three, with the thresholds of the US Wireless Emergency Alert system: urgency Immediate or Expected, severity Extreme or Severe, certainty Observed or Likely." },
-    { t: "p", text: "The receiver keeps a {{ext.ceiling}} per sender. It starts at `cycle`, rises to `prompt` after a clean record, and reaches `interrupt` only by the owner's explicit grant; a sender may always lower its own claim. The SMTP priority extension forbids a server from accepting a raised priority from an unauthorized sender and names \"always ask for top priority\" as a denial-of-service attack (RFC 6710, [[R6·F2]]). Law {{L4}}: the sender claims urgency; the receiver caps it. The cold case was the ceiling at its starting value." },
+    { t: "p", text: "The receiver keeps a {{ext.ceiling}} per sender. It starts at `cycle`, rises to `prompt` after a clean record, and reaches `interrupt` only by the owner's explicit grant; a sender may always lower its own claim. The SMTP priority extension forbids a server from accepting a raised priority from an unauthorized sender and names \"always ask for top priority\" as a denial-of-service attack (RFC 6710, [[R6·F2]]). Law {{L4}}: the sender claims urgency; the receiver caps it." },
+    { t: "p", text: "The cold case was the ceiling at its starting value." },
     { t: "h", text: "Staked interrupts" },
     { t: "p", text: "Cheap urgency turns into noise. The Joint Commission estimated that 85 to 99 percent of hospital alarm signals need no clinical action and recorded 80 deaths among 98 alarm-related adverse events [[R6·F19]]; interrupted work resumed the same day took 25 minutes 26 seconds on average to resume [[R6·F14]]. So the right to interrupt is staked [[P§7.2]]:" },
     { t: "list", items: [
@@ -73,8 +74,7 @@ Course.lesson({
       "**Gated on progress.** In the paper's own record one warning flag fired in 55 of 91 receipts without effect, so repeated sending earns nothing and the passes change the form of any signal left unacted three times."
     ] },
     { t: "h", text: "Liveness" },
-    { t: "p", text: "A `pulse` renews a lease with a stated term (Gray and Cheriton 1989, [[R6·F13]]). One missed term makes the peer suspect; two hold its inbound traffic until it presents again. A declared `quiet` exempts the peer, and a quiet renewed indefinitely is itself a signal. Expiry caused while a peer was held this way does not count against its resends [[P§7.4]]. Law {{L5}}: absence is a signal." },
-    { t: "p", text: "A scheduled message that did not arrive is written down as `missed`. In the paper's deployed channel, two nights on which a scheduled run never fired looked identical to two perfect nights until missing runs were recorded as rows. The same channel showed that silence binds both sides: the stronger party imposed the acknowledgement rule and then broke it for 26 days. Membrane's obligations are symmetric, and each side keeps a per-peer count of days since the last inbound message." },
+    { t: "p", text: "A `pulse` renews a lease with a stated term (Gray and Cheriton 1989, [[R6·F13]]). One missed term makes the peer suspect; two hold its inbound traffic until it presents again. A declared `quiet` exempts the peer, and a quiet renewed indefinitely is itself a signal. Expiry caused while a peer was held this way does not count against its resends [[P§7.4]]. Law {{L5}}: absence is a signal. A scheduled message that did not arrive is written down as `missed`. In the paper's deployed channel, two nights on which a scheduled run never fired looked identical to two perfect nights until missing runs were recorded as rows, and the same channel showed that silence binds both sides: the stronger party imposed the acknowledgement rule and then broke it for 26 days. Membrane's obligations are symmetric, and each side keeps a per-peer count of days since the last inbound message." },
     { t: "gate", title: "Clocks, expiry, pulses", intro: "The alert evaluated as a message, then the ask with its clock moved, then a pulse and a quiet. Predict the disposition and the deciding step. One case recalls the dispositions lesson.",
       preset: { base: "alert" }, predict: ["disposition", "decisiveStep"], expect: { disposition: "held", reason: "awaiting-signal", evidence: "measured", decisiveStep: "release" },
       explain: "The alert claims a measured result from a probe named `push-probe`. brainboi's contract names only `lease-probe`, so step 17 treats the claim as synthesis and step 21 holds it for a second signal. The alert reached brainboi; its content is not yet a fact.",
@@ -97,6 +97,6 @@ Course.lesson({
       "A pulse renews a lease; silence past it has a name; a night with no message is a row."
     ] },
     { t: "deeper", links: [ { ref: "P§7" }, { scenario: "alarmist" }, { scenario: "escalation" }, { research: "R6", label: "R6 · channels, urgency, escalation" }, { href: "https://www.rfc-editor.org/rfc/rfc6710.html", label: "RFC 6710 · SMTP message priority" } ] },
-    { t: "tutor", prompts: [ "Why may a sender always lower its own urgency claim and never raise it?", "What is the difference between R2 probing the lease and R1 resending the message?", "Why does a `by` shorter than the receiver's cycle bind the receiver to nothing?" ] }
+    { t: "tutor", prompts: [ "Why may a sender lower its own urgency claim, and why can it not raise it?", "What is the difference between R2 probing the lease and R1 resending the message?", "Why does a `by` shorter than the receiver's cycle bind the receiver to nothing?" ] }
   ]
 });

@@ -1,6 +1,6 @@
 Course.lesson({
   id: "acts", part: "waist", title: "Acts and commitments",
-  kicker: "Four verbs, defined by what they do to a record anyone can check",
+  kicker: "Verbs defined by what they do to a record anyone can check",
   minutes: 10,
   refs: ["P§5.1", "P§5.2", "P§5.3", "P§5.4", "R2·F3", "R2·F5", "R2·F6", "R2·F14", "R8·F13", "R9·F2"],
   objectives: [
@@ -14,7 +14,8 @@ Course.lesson({
   summary: "Membrane has four acts, taken from Searle's illocutionary classes with expressives dropped: assert stakes the truth of content with an evidence kind; request asks the receiver to create a commitment and creates none itself; commit creates a commitment C(sender, receiver, antecedent, consequent, by); declare changes a fact the sender has standing over. Acts are defined by their effect on a public store of commitments, which anyone can check from the record; FIPA's 22 acts were defined by private beliefs and could not be verified. Forms are named compositions of acts; a receiver that does not know a form still knows its act. Completion takes two parties: the provider asserts done, the requester declares the verdict. context groups a conversation; turn counts depth under a cap.",
   blocks: [
     { t: "gate", title: "Cold case", intro: "Before the rule: brainboi's accept, the message it will send back if it takes the ask on. Say what Hermes' gate does with it and what it enters the record as.", preset: { base: "accept" }, predict: ["disposition", "admittedAs"], expect: { disposition: "admitted", admittedAs: "commitment", tier: "T0" }, explain: "Admitted as a commitment at step 21. The rest of the lesson says what that word costs the sender." },
-    { t: "p", text: "The ask is a `request`. If brainboi takes it on, it answers with two messages: an `accept`, which is a `commit`, and a `reply`, which is an `assert`. Hermes closes the loop with a verdict, which is a `declare`. Four verbs carry the exchange, and each is defined by something a third party can check from the record." },
+    { t: "p", text: "The ask is a `request`. If brainboi takes it on, it answers with two messages: an `accept`, which is a `commit`, and a `reply`, which is an `assert`. Hermes closes the loop with a verdict, which is a `declare`." },
+    { t: "p", text: "Four verbs carry the exchange, and each is defined by something a third party can check from the record." },
     { t: "h", text: "Four acts" },
     { t: "table", head: ["Act", "Effect on the commitment store", "Examples"], rows: [
       ["{{act.assert}}", "the sender stakes the truth of the content, with an evidence kind", "a report, an answer, a pulse, an alert"],

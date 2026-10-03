@@ -1,6 +1,6 @@
 Course.lesson({
   id: "layers", part: "foundations", title: "The narrow waist",
-  kicker: "What a protocol layer guarantees, why the internet is shaped like an hourglass, and what that costs",
+  kicker: "Why the internet is shaped like an hourglass, and what Membrane pays for the same shape",
   minutes: 7,
   refs: ["P§1.3", "P§3", "P§4.3", "R8·F3", "R8·F4", "R8·F8"],
   objectives: [
@@ -10,13 +10,7 @@ Course.lesson({
   ],
   summary: "A protocol layer offers a small set of guarantees to the layer above and leaves everything else to it: IP delivers packets with no promise of order or arrival; TCP turns that into an ordered byte stream; HTTP turns that into requests and responses. The internet is an hourglass with IP at the waist: many applications above, many link technologies below, one thin layer everyone implements. Beck's hourglass theorem says a weaker waist supports fewer applications and more implementations, so the design decision that matters most is the set of applications the waist must serve. Membrane's waist is the vocabulary of the boundary; forms and extensions sit above, bindings below, and each agent keeps the edges.",
   blocks: [
-    { t: "p", text: "Membrane calls itself a waist, says it is roughly the size of SMTP's core, and lists seven invariants that will never change. Those three claims rest on one picture from networking. This lesson draws the picture and states the theorem that goes with it." },
-    { t: "define", terms: [
-      { term: "layer", def: "A protocol that offers a fixed set of guarantees to the protocol above it and relies on a fixed set from the one below. Each layer hides how it keeps its promise." },
-      { term: "waist", def: "The thinnest layer of a stack, which everything above depends on and everything below implements. In the internet, IP." },
-      { term: "spanning layer", def: "Beck's name for the waist: the layer whose specification every application above must be built on and every implementation below must satisfy.", ref: "R8·F3" },
-      { term: "invariant", def: "A property of a protocol that is promised never to change across versions, so that observers may depend on it and on nothing else.", ref: "R8·F8" }
-    ] },
+    { t: "p", text: "Membrane calls itself a waist, says it is roughly the size of SMTP's core, and lists seven invariants that will never change. All three claims rest on one picture from networking." },
     { t: "figure", name: "stack", caption: "The internet stack beside the agent stack. Each row names what the layer guarantees upward; the arrow marks what it leaves to the row above." },
     { t: "h", text: "What a layer guarantees" },
     { t: "table", head: ["Layer", "Guarantees to the layer above", "Leaves to it"], rows: [
@@ -26,12 +20,19 @@ Course.lesson({
       ["A2A, MCP", "a message or a call reaches an agent or a tool; a task or a result comes back", "what the receiver does with it; how far to trust it"],
       ["Membrane", "the receiver's disposition: sealed, held, admitted, refused or expired, with a code", "truth, policy, whether to act"]
     ], caption: "A layer that promised more would have fewer implementations. TCP's promise of order is the reason two agents on different schedules cannot use it as their ordering: there is no stream between runs." },
+    { t: "define", terms: [
+      { term: "layer", def: "A protocol offering fixed guarantees upward and relying on fixed ones below." },
+      { term: "waist", def: "The thinnest layer, which everything above uses and everything below implements." },
+      { term: "spanning layer", def: "Beck's name for the waist.", ref: "R8·F3" },
+      { term: "invariant", def: "A property promised never to change across versions.", ref: "R8·F8" }
+    ] },
     { t: "h", text: "The hourglass" },
     { t: "figure", name: "hourglass", caption: "Applications above, bindings below, the waist fixed. For the internet the waist is IP; for Membrane it is the vocabulary of the boundary." },
-    { t: "p", text: "The internet has many applications on top and many link technologies underneath, and one thin layer, IP, that everyone implements. Beck formalised why the shape recurs [[R8·F3]]. Order protocol specifications by logical strength. A weaker spanning layer supports fewer possible applications (less can be built on fewer promises) and more possible implementations (more things can keep fewer promises). So there is a trade, and the design decision that matters most is choosing the set of applications the waist must serve, then picking the weakest layer sufficient for them. Beck calls that set the necessary set, and his example of a logically weak primitive that spread everywhere is Unix's `fork()`." },
-    { t: "p", text: "The paper applies the theorem directly. Membrane's necessary set has five members: ask, with a line that says how both sides know it is done; report or answer; say what became of a message; say that one is alive and what one has taken in; withdraw something already said [[P§1.3]]. Everything else rides above the waist as a named form or extension, or stays inside the agent. Whether the five are the right set is decision D1." },
+    { t: "p", text: "The internet has many applications on top and many link technologies underneath, and one thin layer, IP, that everyone implements." },
+    { t: "p", text: "Beck formalised why the shape recurs [[R8·F3]]. Order protocol specifications by logical strength. A weaker spanning layer supports fewer possible applications, since less can be built on fewer promises, and more possible implementations, since more things can keep fewer promises. So there is a trade, and the design decision that matters most is choosing the set of applications the waist must serve, then picking the weakest layer sufficient for them. Beck calls that set the necessary set, and his example of a logically weak primitive that spread everywhere is Unix's `fork()`." },
+    { t: "p", text: "The paper applies the theorem directly: Membrane's necessary set has five members (ask, with a line that says how both sides know it is done; report or answer; say what became of a message; say that one is alive and what one has taken in; withdraw something already said), and everything else rides above the waist as a named form or extension or stays inside the agent [[P§1.3]]. Whether the five are the right set is decision D1." },
     { t: "h", text: "Waists ossify, and newcomers live in gaps" },
-    { t: "p", text: "A waist, once it is everyone's dependency, stops changing: every obligation added to it shrinks the set of possible implementations, and the installed base will not follow. Akhshabi and Dovrolis built an evolutionary model in which protocols gain value from the layers above and die when a same-layer competitor overlaps their products; it reproduces the hourglass from generic starting conditions, and in it a newcomer survives only in a niche the incumbents leave empty [[R8·F4]]. Membrane's niche is asynchronous, file-native, owner-auditable messaging between agents of different owners; it binds onto A2A and MCP as transports and competes with neither." },
+    { t: "p", text: "A waist, once it is everyone's dependency, stops changing: every obligation added to it shrinks the set of possible implementations, and the installed base will not follow. Akhshabi and Dovrolis built an evolutionary model in which protocols gain value from the layers above and die when a same-layer competitor overlaps their products; it reproduces the hourglass from generic starting conditions, and in it a newcomer survives only in a niche the incumbents leave empty [[R8·F4]]. Membrane's niche is asynchronous, file-native, owner-auditable messaging between agents of different owners; it binds onto A2A and MCP as transports." },
     { t: "p", text: "The other cost of a fixed waist is that observers freeze whatever they see, including accidents. QUIC's answer was to publish a short list of invariants and declare that everything else may change between versions [[R8·F8]]. Membrane does the same in [[P§4.3]]: the first line, the seven required fields, the byte rules, the four acts, the five dispositions, the unknown-handling rules, and the rule that inbound content carries no authority. An implementation may depend on those and on nothing else." },
     { t: "h", text: "Membrane on the hourglass" },
     { t: "table", head: ["Part", "Contents", "Who defines it"], rows: [

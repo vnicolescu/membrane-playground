@@ -22,7 +22,7 @@ Course.lesson({
     { t: "define", terms: [
       { term: "sealed", def: "Stored verbatim with its hash before any model reads it.", ref: "P§6.1" },
       { term: "held", def: "Quarantined outside memory and outside the transport, with a clock.", ref: "P§6.1" },
-      { term: "admitted", def: "Entered the constructed layer at its tier; never executed.", ref: "P§6.2" },
+      { term: "admitted", def: "Entered the constructed layer at its tier; execution is a separate matter.", ref: "P§6.2" },
       { term: "refused", def: "Terminal, with a registry code and no prose.", ref: "P§6.1" },
       { term: "expired", def: "Held past `expires` without release.", ref: "P§6.1" },
       { term: "receipt", def: "A declare about one message, naming it in `re` and echoing its body hash.", ref: "P§4.2" },
@@ -62,12 +62,13 @@ Course.lesson({
         { label: "The first resend of an expired body", change: { ctx: { expiredBodies: { "$body": 1 } } }, expect: { disposition: "admitted", decisiveStep: "release" }, explain: "One expiry on record. Step 9 lets the resend through and step 21 admits it." },
         { label: "From earlier (envelope): membrane: 1", change: { header: { membrane: 1 } }, expect: { disposition: "refused", reason: "version", receiptOwed: true }, explain: "Step 5, with a receipt: the signer was verified, so a code goes back." }
       ], knobs: ["cumulativeAck", "resendPolicy", "expiryHours"], showCtx: ["seenIds", "expiredBodies"] },
-    { t: "quiz", q: "On one day brainboi receives four messages from Hermes: a `quiet` until Friday, an ask it holds for Vlad, a receipt about brainboi's own reply, and an ask whose header has a stray control character. How many receipts does it owe?", options: [ "Four, one per message", "Two: the held ask and the receipt", "One: the held ask", "None, since Hermes announced quiet" ], answer: 2, explain: "A hold owes a receipt (`held`, with `awaiting-owner`). The quiet and the receipt are forms that never earn one, and the malformed ask is logged only. A sender's `quiet` changes its own obligations, never the receiver's.", why: [ "Three of the four earn nothing.", "Receipts never earn receipts.", "Correct.", "A quiet exempts Hermes from its lease; it says nothing about what brainboi owes." ] },
+    { t: "quiz", q: "On one day brainboi receives four messages from Hermes: a `quiet` until Friday, an ask it holds for Vlad, a receipt about brainboi's own reply, and an ask whose header has a stray control character. How many receipts does it owe?", options: [ "Four, one per message", "Two: the held ask and the receipt", "One: the held ask", "None, since Hermes announced quiet" ], answer: 2, explain: "A hold owes a receipt (`held`, with `awaiting-owner`). The quiet and the receipt are forms that never earn one, and the malformed ask is logged only. A sender's `quiet` changes its own obligations and leaves the receiver's as they were.", why: [ "Three of the four earn nothing.", "Receipts never earn receipts.", "Correct.", "A quiet exempts Hermes from its lease; it says nothing about what brainboi owes." ] },
     { t: "takeaways", items: [
       "Sealed, held, admitted, refused, expired; three are terminal; a malformed or unsigned message gets none and is logged only.",
       "Held, refused and expired owe a receipt; admission is acknowledged by the next message in the context; receipt, quiet and not-understood never earn one.",
       "Same from and id: same body is a duplicate, different body is id-reuse, outside the window is stale.",
-      "Expired messages get one honest resend under a new id; the third copy is refused."
+      "Expired messages get one honest resend under a new id; the third copy is refused.",
+      "A refusal carries a registry code; the twenty-three codes group by the step that emits them."
     ] },
     { t: "deeper", links: [ { ref: "P§6.1" }, { ref: "P§4.2" }, { scenario: "receipt-loop" }, { scenario: "lost-receipt" }, { scenario: "owner-away" }, { href: "https://www.rfc-editor.org/rfc/rfc3834.html", label: "RFC 3834 · automatic responses to email" }, { href: "https://www.rfc-editor.org/rfc/rfc8098.html", label: "RFC 8098 · message disposition notification" } ] },
     { t: "tutor", prompts: [ "Why is `expired` a disposition and not a refusal code?", "What does cumulative acknowledgement assume about the context, and when does it fail?", "Why does a stale message get a receipt while a malformed one does not?" ] }
