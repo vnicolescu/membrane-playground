@@ -439,3 +439,22 @@ button.wk{background:none;padding:0;text-decoration:none;border-bottom:1px dotte
 .lcards{grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr))}
 .lesson-meta .chip,.cx-deeper .chip,.refs .chip{white-space:normal;max-width:100%;line-height:1.3;text-align:left}
 @media (max-width:480px){ .progress .num{display:none} .brand span{display:none} }
+.af-row{display:grid;grid-template-columns:70px minmax(0,1fr);gap:10px;align-items:center;margin:4px 0}
+.af-p{font-size:12px;color:var(--ink-2)}
+.af-ticks{display:flex;flex-wrap:wrap;gap:3px}
+.af-t{display:inline-grid;place-items:center;width:20px;height:20px;padding:0;border-radius:4px;font-size:11px;font-weight:700}
+.af-meter{height:10px;border-radius:99px;background:var(--surface-3);overflow:hidden;margin:12px 0 8px}
+.af-meter span{display:block;height:100%;background:var(--accent);transition:width .3s var(--ease)}
+.af-meter.over span{background:var(--refused)}
+.pr-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:10px;margin:10px 0}
+@media (max-width:640px){ .pr-grid{grid-template-columns:1fr} }
+.pr-card{background:var(--accent-soft);border-radius:var(--radius-sm);padding:12px 14px}
+.pr-att{background:var(--refused-bg);border-radius:var(--radius-sm);padding:12px 14px}
+.pr-log{margin:10px 0 0;padding-left:20px;font-size:13.5px;display:grid;gap:4px}
+.pr-log li.no b{color:var(--refused)}
+.pr-log li.ok b{color:var(--admitted)}
+.af-t.d.admitted{background:var(--admitted);color:var(--surface)}
+.af-t.d.held{background:var(--held);color:var(--surface)}
+.af-t.d.refused{background:var(--refused);color:var(--surface)}
+.af-t.d.expired{background:var(--expired);color:var(--surface)}
+.af-legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--ink-3);margin-top:4px}

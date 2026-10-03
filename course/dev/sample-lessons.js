@@ -37,7 +37,7 @@ Course.lesson({ id: "dev-blocks", part: "waist", title: "Every block", kicker: "
     { t: "tutor", prompts: ["Why does a CR make a message malformed?"] }
   ] });
 Course.lesson({ id: "dev-widgets", part: "membrane", title: "Every widget", kicker: "Widgets and figures", minutes: 12, stamps: ["effect", "contract"],
-  blocks: ["hourglass", "dispositions", "mcpArch", "a2aArch", "stack", "twoParents"].map((n) => ({ t: "figure", name: n, caption: "Figure " + n }))
-    .concat(["tierCalc", "pageCalc", "sensorLab", "relayChain", "receiptLoop", "ladder", "standingClock", "bspl", "bindings", "vectors", "redteam"].map((n) => ({ t: "widget", name: n })))
+  blocks: ["hourglass", "dispositions", "mcpArch", "a2aArch", "stack", "twoParents", "twoOwners"].map((n) => ({ t: "figure", name: n, caption: "Figure " + n }))
+    .concat(["tierCalc", "pageCalc", "sensorLab", "relayChain", "receiptLoop", "ladder", "standingClock", "bspl", "bindings", "vectors", "redteam", "attentionFlow", "mailQueue", "preRotation"].map((n) => ({ t: "widget", name: n })))
     .concat([{ t: "widget", name: "notBuiltYet", spec: "A spec for a widget that does not exist." }]) });
 Course.lesson({ id: "dev-graph", part: "annex-net", title: "Networks", kicker: "Graphs and Sybils", minutes: 10, blocks: [{ t: "widget", name: "graphLab" }] });

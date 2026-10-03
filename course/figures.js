@@ -189,4 +189,50 @@
     render();
     return h("div", null, h("div", { class: "w-row" }, filt, h("span", { class: "small muted" }, "borrowed · extended · breaks (holds inside one owner, fails between two) · absent")), box, ex);
   });
+
+  /* ---------- twoOwners: the threat surface of a two-owner exchange, each entry point with the gate step that covers it ---------- */
+  C.widget("twoOwners", () => {
+    const W = 700, H = 380;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "w-svg", role: "img", "aria-label": "Two owners, two agents, two gates and a shared transport, with ten numbered entry points" });
+    const ex = explainer("Ten ways in. Tap a number to see which gate step covers it and the reason code it returns.");
+    const side = (x, owner, agent, mirror) => {
+      const g = el("g", {}, svg);
+      el("rect", { x, y: 20, width: 210, height: 330, rx: 12, fill: "var(--surface-2)", stroke: "var(--rule)" }, g);
+      text(g, x + 105, 44, owner, { "text-anchor": "middle", "font-weight": 600, "font-size": 13, fill: "var(--ink)" });
+      el("rect", { x: x + 20, y: 60, width: 170, height: 110, rx: 10, fill: "var(--surface)", stroke: "var(--rule-strong)" }, g);
+      text(g, x + 105, 82, agent, { "text-anchor": "middle", "font-weight": 600, "font-size": 12.5, fill: "var(--ink)" });
+      ["kernel", "memory", "tools"].forEach((t, i) => text(g, x + 105, 104 + i * 18, t, { "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 11, fill: "var(--ink-3)" }));
+      el("rect", { x: x + 20, y: 190, width: 170, height: 64, rx: 10, fill: "var(--held-bg)", stroke: "var(--held)" }, g);
+      text(g, x + 105, 214, "gate · own OS user", { "text-anchor": "middle", "font-size": 12, "font-weight": 600, fill: "var(--held)" });
+      text(g, x + 105, 234, "sensor · quarantine", { "text-anchor": "middle", "font-size": 11, fill: "var(--ink-2)" });
+      el("rect", { x: x + 20, y: 272, width: 170, height: 52, rx: 10, fill: "var(--accent-soft)", stroke: "var(--accent)", "stroke-dasharray": "4 3" }, g);
+      text(g, x + 105, 294, "pinned trust root", { "text-anchor": "middle", "font-size": 12, "font-weight": 600, fill: "var(--accent)" });
+      text(g, x + 105, 311, "keys · accepted contract", { "text-anchor": "middle", "font-size": 10.5, fill: "var(--ink-2)" });
+    };
+    side(14, "Vlad", "brainboi", false); side(W - 224, "Sal", "Hermes", true);
+    const mid = el("g", {}, svg);
+    el("rect", { x: 250, y: 60, width: 200, height: 230, rx: 10, fill: "var(--surface)", stroke: "var(--rule-strong)" }, mid);
+    text(mid, 350, 82, "shared transport (git)", { "text-anchor": "middle", "font-weight": 600, "font-size": 12, fill: "var(--ink)" });
+    ["lanes/hermes/out/ →", "← lanes/brainboi/out/", "PROTOCOL.md", "allowed_signers", "owners/PAUSE"].forEach((t, i) => text(mid, 350, 112 + i * 24, t, { "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 10.5, fill: i < 2 ? "var(--ink-2)" : "var(--ink-3)" }));
+    const POINTS = [
+      [262, 110, "signature", "unsigned", "A message signed by no key the receiver knows, or with a broken signature. Logged only: no receipt goes to whatever `from` claims."],
+      [438, 134, "lane", "lane", "Hermes signs a commit that writes into brainboi's lane, or `from` names someone other than the signer. Signer, lane and `from` must agree."],
+      [266, 160, "scope", "scope", "A commit that touches `.claude/`, `AGENTS.md`, a hook or anything outside `lanes/<sender>/out/*.md`. The transport must stay inert."],
+      [350, 256, "bytes and header", "malformed", "Zero-width or control characters in a header value, a CR in the body, a body that no longer matches its hash."],
+      [214, 128, "sensor", "policy", "Instruction text in the body. The sensor may raise the tier or hold; it never releases."],
+      [214, 152, "release at T1", "awaiting-owner", "An innocent body with an acceptance line that needs memory files. The answer is drawn by a quarantined run that cannot reach them."],
+      [250, 286, "duplicate · rate", "duplicate / rate", "The same message again, then thirty in an hour. A duplicate gets its original receipt; the rate limit refuses the rest."],
+      [450, 286, "clock", "clock", "`at` set hours ahead so the message outlives its expiry checks. More than ten minutes ahead of the receiver's clock is refused."],
+      [436, 184, "contract · scope", "contract-mismatch / scope", "A commit that edits `PROTOCOL.md` and adds a key to `allowed_signers`. Each gate verifies against its own pinned copy, outside the transport."],
+      [214, 222, "hold budget", "hold-budget", "Many harmless-looking messages built to trip the sensor, each costing the owner a read. Past three holds a day per sender, they are refused."]
+    ];
+    POINTS.forEach(([x, y, step, code, why], i) => {
+      const g = el("g", {}, svg);
+      el("circle", { cx: x, cy: y, r: 11, fill: "var(--refused)" }, g);
+      text(g, x, y + 4, String(i + 1), { "text-anchor": "middle", "font-size": 11, "font-weight": 600, fill: "var(--surface)" });
+      tappable(g, () => say(ex, "**" + (i + 1) + " · " + step + "** returns `" + code + "`. " + why));
+    });
+    return h("div", null, h("div", { class: "scroll" }, svg), ex);
+  });
+
 })();

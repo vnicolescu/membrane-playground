@@ -302,4 +302,44 @@
       h("div", { class: "lab-k" }, "1 · The body and its hash"), ta, hashOut,
       h("div", { class: "lab-k", style: { marginTop: "14px" } }, "2 · Signing the header, rotating the key"), btns, sigOut);
   });
+
+  /* ================= preRotation: the signature proves the key; the committed next key proves the controller (P§9.2, KERI) ================= */
+  C.widget("preRotation", () => {
+    const H = (k) => window.Gate.simHash("pub:" + k).slice(0, 12);
+    const st = { cur: "K1", next: "K2", stolen: false, noPre: false, log: [], ownerKeys: new Set(["K1", "K2"]), attackerKeys: new Set(["K9"]), seq: 3 };
+    const card = h("div", { class: "pr-card" }), log = h("ol", { class: "pr-log" }), attacker = h("div", { class: "pr-att" });
+    const verify = (k) => k === st.cur;
+    function note(who, text, ok) { st.log.unshift({ who, text, ok }); render(); }
+    function render() {
+      card.textContent = "";
+      K.append(card, [h("div", { class: "lab-k" }, "Identifier card · hermes"),
+        h("dl", { class: "kv" }, h("div", null, h("dt", null, "current key"), h("dd", null, st.cur + " · " + H(st.cur))),
+          h("div", null, h("dt", null, "next key"), h("dd", null, st.noPre ? "not committed" : "digest " + H(st.next) + " (the key itself stays offline)")))]);
+      attacker.textContent = "";
+      K.append(attacker, [h("div", { class: "lab-k" }, "Attacker"), h("div", { class: "small" }, st.stolen ? "holds " + [...st.attackerKeys].join(", ") : "holds only K9, a key of its own")]);
+      log.textContent = "";
+      st.log.slice(0, 8).forEach((e) => log.appendChild(h("li", { class: e.ok ? "ok" : "no" }, h("b", null, e.who + ": "), e.text)));
+    }
+    const btn = (label, fn, cls) => h("button", { type: "button", class: "btn" + (cls ? " " + cls : ""), onclick: fn }, label);
+    const ctl = h("div", { class: "w-row" },
+      btn("Owner signs with " + "the current key", () => { const k = [...st.ownerKeys].find(verify); note("owner", k ? "signed with " + k + ": verifies against the card" : "every key the owner holds fails: the owner is locked out", !!k); }),
+      btn("Steal the current key", () => { st.stolen = true; st.attackerKeys.add(st.cur); note("attacker", "copied " + st.cur + " from the agent's machine", false); }),
+      btn("Attacker signs a message", () => { const k = [...st.attackerKeys].find(verify); note("attacker", k ? "signed with " + k + ": valid signature, same identifier. Messages can be forged until the owner rotates." : "no key it holds matches the card: signature fails", !k); }),
+      btn("Attacker rotates to K9", () => {
+        const canSign = [...st.attackerKeys].includes(st.cur);
+        if (st.noPre ? canSign : false) { st.cur = "K9"; st.ownerKeys.delete("K9"); note("attacker", "rotation signed with the stolen current key is accepted: the identifier now answers to K9, and the owner is locked out", false); }
+        else note("attacker", st.noPre ? "cannot sign the rotation: it holds no current key" : "rejected: a rotation must be signed with the key whose digest is on the card (" + H(st.next) + "), and K9 is not it", true);
+      }),
+      btn("Owner rotates", () => {
+        if (st.noPre) { if ([...st.ownerKeys].includes(st.cur)) { const nk = "K" + st.seq++; st.ownerKeys.add(nk); st.cur = nk; note("owner", "rotated to " + nk + " by signing with the current key", true); } else note("owner", "cannot rotate: the card answers to a key the owner does not hold", false); return; }
+        const nk = "K" + st.seq++; st.ownerKeys.add(nk); st.cur = st.next; st.next = nk; note("owner", "presents " + st.cur + ", which matches the committed digest, and commits to the digest of " + nk + ". Anything signed with the stolen key stops verifying.", true);
+      }, "primary"),
+      btn("Start over", () => { Object.assign(st, { cur: "K1", next: "K2", stolen: false, log: [], ownerKeys: new Set(["K1", "K2"]), attackerKeys: new Set(["K9"]), seq: 3 }); render(); }, "ghost"));
+    const sw = h("label", { class: "switch" }, (() => { const i = h("input", { type: "checkbox", role: "switch" }); i.addEventListener("change", () => { st.noPre = i.checked; Object.assign(st, { cur: "K1", next: "K2", stolen: false, log: [], ownerKeys: new Set(["K1", "K2"]), attackerKeys: new Set(["K9"]), seq: 3 }); render(); }); return i; })(), h("span", null, "No pre-rotation (the current key alone authorises a rotation)"));
+    render();
+    return h("div", null, h("div", { class: "check-k" }, "Pre-rotation"),
+      h("p", { class: "small muted" }, "Digests here use the playground's simulation hash, not SHA-256. Try: steal the key, sign as the attacker, try the attacker's rotation, then let the owner rotate."),
+      h("div", { class: "pr-grid" }, card, attacker), ctl, h("div", { class: "w-row" }, sw), log);
+  });
+
 })();
