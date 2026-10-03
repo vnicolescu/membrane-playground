@@ -559,13 +559,31 @@
       [...predictRow.querySelectorAll("button")].forEach((x) => { const v = x.dataset.v === "null" ? null : x.dataset.v; x.setAttribute("aria-pressed", predicted !== undefined && v === predicted ? "true" : "false"); });
       runBtn.disabled = predicted === undefined;
     }
-    append(predictRow, [h("span", { class: "predict-l" }, "Your prediction"), DISP_OPTIONS.map((o) => h("button", { type: "button", class: "d pick " + dispClass(o.v), dataset: { v: String(o.v) }, onclick: () => { predicted = o.v; markPredict(); } }, o.label))]);
+    const isPage = (b.preset && b.preset.call === "page");
+    const OPTIONS = isPage ? [{ v: "page", label: "pages the owner", cls: "refused" }, { v: "nopage", label: "no page", cls: "admitted" }] : DISP_OPTIONS.map((o) => ({ v: o.v, label: o.label, cls: dispClass(o.v) }));
+    append(predictRow, [h("span", { class: "predict-l" }, "Your prediction"), OPTIONS.map((o) => h("button", { type: "button", class: "d pick " + o.cls, dataset: { v: String(o.v) }, onclick: () => { predicted = o.v; markPredict(); } }, o.label))]);
     function run(withPrediction) {
       const built = currentBuild();
       resultBox.textContent = "";
       if (built.error) { resultBox.appendChild(h("div", { class: "fb no" }, h("b", null, "The text does not parse. "), built.error)); return; }
-      const trace = window.Gate.evaluate(built.msg, built.ctx, built.params);
       const c = cases[ci];
+      if (isPage) {
+        const pd = window.Gate.pageDecision(built.msg, built.ctx, built.params);
+        const got = pd.page ? "page" : "nopage";
+        if (withPrediction) {
+          const ok = predicted === got;
+          resultBox.appendChild(verdict(ok, ok ? "The receiver did what you predicted." : "You predicted " + (predicted === "page" ? "a page" : "no page") + "; the receiver's answer is " + (pd.page ? "a page" : "no page") + "."));
+          if (editedWire == null && !Object.keys(knobState).length) { store.mark("answers", key + ":" + ci, { ok, kind: "gate" }); answers[key + ":" + ci] = { ok }; }
+          [...caseBar.children][ci].classList.add(ok ? "got" : "miss");
+        }
+        resultBox.appendChild(h("div", { class: "result " + (pd.page ? "d-refused" : "d-admitted") },
+          h("div", { class: "res-main" }, h("span", { class: "d big " + (pd.page ? "refused" : "admitted") }, pd.page ? "page the owner" : "no page"), h("span", { class: "res-tier" }, "delivered at ", term("ch.axes", pd.level))),
+          h("dl", { class: "res-kv" }, h("div", null, h("dt", null, "why"), h("dd", null, pd.note)), h("div", null, h("dt", null, "decided by"), h("dd", null, h("code", null, "Gate.pageDecision"), ", after the gate admits the alert")))));
+        if (c.explain && editedWire == null) resultBox.appendChild(h("div", { class: "lab-explain" }, inline(c.explain)));
+        if (c.expect && editedWire == null && !Object.keys(knobState).length) { const miss = S.check({ page: pd }, c.expect); if (miss.length) console.warn("[course] gate case mismatch", key, c.label, JSON.stringify(miss)); }
+        return;
+      }
+      const trace = window.Gate.evaluate(built.msg, built.ctx, built.params);
       if (withPrediction) {
         const ok = predicted === trace.disposition;
         resultBox.appendChild(verdict(ok, ok ? "The gate did what you predicted." : "You predicted " + dispName(predicted) + "; the gate's answer is " + dispName(trace.disposition) + "."));
@@ -577,7 +595,7 @@
       if (c.explain && editedWire == null) resultBox.appendChild(h("div", { class: "lab-explain" }, inline(c.explain)));
       if (c.expect && editedWire == null && !Object.keys(knobState).length) {
         const miss = S.check({ trace }, c.expect);
-        if (miss.length) console.warn("[course] gate case mismatch", key, c.label, miss);
+        if (miss.length) console.warn("[course] gate case mismatch", key, c.label, JSON.stringify(miss));
       }
     }
     runBtn.addEventListener("click", () => run(true));
