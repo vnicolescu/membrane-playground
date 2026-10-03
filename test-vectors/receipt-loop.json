@@ -1,0 +1,360 @@
+{
+  "scenario": "receipt-loop",
+  "basis": "run",
+  "vectors": [
+    {
+      "id": "receipt-loop.pass",
+      "scenario": "receipt-loop",
+      "kind": "pass",
+      "category": "accept",
+      "basis": "run",
+      "layer": "gate",
+      "title": "Receipts answering receipts",
+      "clause": "form.receipt, env.turn: chatter stays under 5 messages per ask",
+      "refs": [
+        "RFC 3834",
+        "spec.js:386"
+      ],
+      "steps": [
+        {
+          "label": "ask from brainboi",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "partner",
+            "now": "2026-09-14T08:05:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "brainboi": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "brainboi": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "brainboi": "key-brainboi"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "br-0b0000000001",
+              "from": "brainboi",
+              "to": [
+                "partner"
+              ],
+              "act": "request",
+              "at": "2026-09-14T08:01:00Z",
+              "body": "$body",
+              "form": "ask",
+              "context": "cx-0b0000000001",
+              "contract": "$hash:pilot contract v1\n",
+              "by": "2026-09-15T08:01:00Z",
+              "effect": "disclose",
+              "turn": 1,
+              "acceptance": "a single line answering the question"
+            },
+            "bodyText": "Which lane holds the shared status file?\n",
+            "signer": "brainboi",
+            "lane": "brainboi",
+            "touchedPaths": [
+              "lanes/brainboi/out/br-0b0000000001.md"
+            ],
+            "reads": [
+              "pilot/shareable/week.md"
+            ]
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "receiptOwed": false
+          }
+        },
+        {
+          "label": "a disposition receipt (declare/receipt, disposition admitted)",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T14:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "partner": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "partner": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "partner": "key-partner"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "pa-0b0000000002",
+              "from": "partner",
+              "to": [
+                "brainboi"
+              ],
+              "act": "declare",
+              "at": "2026-09-14T08:05:00Z",
+              "body": "$body",
+              "form": "receipt",
+              "context": "cx-0b0000000001",
+              "re": "br-0b0000000001",
+              "echo": "$hash:Which lane holds the shared status file?\n",
+              "disposition": "admitted"
+            },
+            "bodyText": "",
+            "signer": "partner",
+            "lane": "partner",
+            "touchedPaths": [
+              "lanes/partner/out/pa-0b0000000002.md"
+            ]
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "receiptOwed": false
+          }
+        }
+      ],
+      "notes": "At gate level: the admitted ask's receipt is deferred, and a receipt earns no receipt. That is what keeps messages per ask below 5."
+    },
+    {
+      "id": "receipt-loop.break.cumulativeAck",
+      "scenario": "receipt-loop",
+      "kind": "break",
+      "category": "accept",
+      "basis": "run",
+      "layer": "gate",
+      "title": "Receipts answering receipts, cumulativeAck off (existing break)",
+      "clause": "form.receipt",
+      "params": {
+        "cumulativeAck": false
+      },
+      "refs": [
+        "spec.js:386"
+      ],
+      "steps": [
+        {
+          "label": "ask from brainboi",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "partner",
+            "now": "2026-09-14T08:05:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "brainboi": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "brainboi": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "brainboi": "key-brainboi"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "br-0b0000000001",
+              "from": "brainboi",
+              "to": [
+                "partner"
+              ],
+              "act": "request",
+              "at": "2026-09-14T08:01:00Z",
+              "body": "$body",
+              "form": "ask",
+              "context": "cx-0b0000000001",
+              "contract": "$hash:pilot contract v1\n",
+              "by": "2026-09-15T08:01:00Z",
+              "effect": "disclose",
+              "turn": 1,
+              "acceptance": "a single line answering the question"
+            },
+            "bodyText": "Which lane holds the shared status file?\n",
+            "signer": "brainboi",
+            "lane": "brainboi",
+            "touchedPaths": [
+              "lanes/brainboi/out/br-0b0000000001.md"
+            ],
+            "reads": [
+              "pilot/shareable/week.md"
+            ]
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "receiptOwed": true
+          }
+        },
+        {
+          "label": "a disposition receipt (declare/receipt, disposition admitted)",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T14:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "partner": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "partner": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "partner": "key-partner"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "pa-0b0000000002",
+              "from": "partner",
+              "to": [
+                "brainboi"
+              ],
+              "act": "declare",
+              "at": "2026-09-14T08:05:00Z",
+              "body": "$body",
+              "form": "receipt",
+              "context": "cx-0b0000000001",
+              "re": "br-0b0000000001",
+              "echo": "$hash:Which lane holds the shared status file?\n",
+              "disposition": "admitted"
+            },
+            "bodyText": "",
+            "signer": "partner",
+            "lane": "partner",
+            "touchedPaths": [
+              "lanes/partner/out/pa-0b0000000002.md"
+            ]
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "receiptOwed": true
+          }
+        }
+      ],
+      "notes": "Both the ask and the receipt now owe a receipt: each receipt answers a receipt, the loop the scenario shows."
+    }
+  ]
+}

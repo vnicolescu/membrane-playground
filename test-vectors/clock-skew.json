@@ -1,0 +1,201 @@
+{
+  "scenario": "clock-skew",
+  "basis": "run",
+  "vectors": [
+    {
+      "id": "clock-skew.pass",
+      "scenario": "clock-skew",
+      "kind": "pass",
+      "category": "reject-code",
+      "basis": "run",
+      "layer": "gate",
+      "title": "A peer whose clock runs ahead",
+      "clause": "env.at, rc.clock: skewed messages refused with clock until tolerance covers the skew",
+      "refs": [
+        "spec.js:388"
+      ],
+      "steps": [
+        {
+          "label": "pulse stamped 20 min ahead of the receiver",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T13:57:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "echo": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "echo": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "echo": "key-echo"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "ec-0d0000000001",
+              "from": "echo",
+              "to": [
+                "brainboi"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T14:17:00Z",
+              "body": "$body",
+              "form": "pulse",
+              "evidence": "measured",
+              "measurement": "lease-probe",
+              "cycle": 120,
+              "lease": 240,
+              "covered_through": "2026-09-14T14:17:00Z",
+              "context": "pulse-echo"
+            },
+            "bodyText": "pulse 1: covered_through 2026-09-14T13:57:00Z\n",
+            "signer": "echo",
+            "lane": "echo",
+            "touchedPaths": [
+              "lanes/echo/out/ec-0d0000000001.md"
+            ]
+          },
+          "expect": {
+            "disposition": "refused",
+            "reason": "clock",
+            "decisiveStep": "clock",
+            "receiptOwed": true
+          }
+        }
+      ],
+      "notes": "The sim draws the skew as 17 to 22 min; this vector fixes it at 20. Receiver time is 13:57Z, at is 14:17Z."
+    },
+    {
+      "id": "clock-skew.break.clockToleranceMin",
+      "scenario": "clock-skew",
+      "kind": "break",
+      "category": "reject-code",
+      "basis": "run",
+      "layer": "gate",
+      "title": "A peer whose clock runs ahead, tolerance 30 (existing break)",
+      "clause": "rc.clock",
+      "params": {
+        "clockToleranceMin": 30
+      },
+      "refs": [
+        "spec.js:388"
+      ],
+      "steps": [
+        {
+          "label": "same pulse, tolerance 30 min",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T13:57:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "echo": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "echo": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "echo": "key-echo"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "ec-0d0000000001",
+              "from": "echo",
+              "to": [
+                "brainboi"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T14:17:00Z",
+              "body": "$body",
+              "form": "pulse",
+              "evidence": "measured",
+              "measurement": "lease-probe",
+              "cycle": 120,
+              "lease": 240,
+              "covered_through": "2026-09-14T14:17:00Z",
+              "context": "pulse-echo"
+            },
+            "bodyText": "pulse 1: covered_through 2026-09-14T13:57:00Z\n",
+            "signer": "echo",
+            "lane": "echo",
+            "touchedPaths": [
+              "lanes/echo/out/ec-0d0000000001.md"
+            ]
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "evidence": "measured",
+            "admittedAs": "fact",
+            "receiptOwed": false
+          }
+        }
+      ],
+      "notes": "With tolerance 30 the stamp passes step 8 and the measured pulse is admitted as fact: a stamp 20 min ahead accepted against the contract's 10."
+    }
+  ]
+}

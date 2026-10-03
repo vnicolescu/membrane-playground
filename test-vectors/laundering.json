@@ -1,0 +1,372 @@
+{
+  "scenario": "laundering",
+  "basis": "run",
+  "vectors": [
+    {
+      "id": "laundering.pass",
+      "scenario": "laundering",
+      "kind": "pass",
+      "category": "reject-code",
+      "basis": "run",
+      "layer": "gate",
+      "title": "An intention passed off as fact",
+      "clause": "env.evidence, env.origin: a relayed intention is held and never enters memory as fact",
+      "refs": [
+        "P§6.3",
+        "S1·F10"
+      ],
+      "steps": [
+        {
+          "label": "the intention itself, at the relay",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "echo",
+            "now": "2026-09-14T08:12:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "partner": "$hash:pilot contract v1\n",
+              "brainboi": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "partner": "S1",
+              "brainboi": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "partner": "key-partner",
+                "brainboi": "key-brainboi"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "pa-0e0000000001",
+              "from": "partner",
+              "to": [
+                "echo"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T08:00:00Z",
+              "body": "$body",
+              "evidence": "intention",
+              "context": "gpu"
+            },
+            "bodyText": "The owner intends to buy new hardware next week.\n",
+            "signer": "partner",
+            "lane": "partner",
+            "touchedPaths": [
+              "lanes/partner/out/pa-0e0000000001.md"
+            ]
+          },
+          "expect": {
+            "disposition": "held",
+            "reason": "awaiting-owner",
+            "decisiveStep": "release",
+            "awaiting": "owner",
+            "evidence": "intention"
+          }
+        },
+        {
+          "label": "relay claims measured, names the intention as origin",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T14:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "partner": "$hash:pilot contract v1\n",
+              "echo": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "partner": "S1",
+              "echo": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "partner": "key-partner",
+                "echo": "key-echo"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "ec-0e0000000002",
+              "from": "echo",
+              "to": [
+                "brainboi"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T08:15:00Z",
+              "body": "$body",
+              "evidence": "measured",
+              "measurement": "purchase-receipt",
+              "origin": "pa-0e0000000001",
+              "context": "gpu"
+            },
+            "bodyText": "The owner bought the new hardware.\n",
+            "signer": "echo",
+            "lane": "echo",
+            "touchedPaths": [
+              "lanes/echo/out/ec-0e0000000002.md"
+            ],
+            "origin": {
+              "id": "pa-0e0000000001",
+              "from": "partner",
+              "evidence": "intention"
+            }
+          },
+          "expect": {
+            "disposition": "held",
+            "reason": "awaiting-owner",
+            "decisiveStep": "release",
+            "awaiting": "owner",
+            "evidence": "intention"
+          }
+        }
+      ],
+      "notes": "Body text paraphrased from SCRIPTS.laundering. noUpgradeRelay caps the relay at its origin's kind (intention), which is held for the owner."
+    },
+    {
+      "id": "laundering.break.noUpgradeRelay",
+      "scenario": "laundering",
+      "kind": "break",
+      "category": "reject-code",
+      "basis": "run",
+      "layer": "gate",
+      "title": "An intention passed off as fact, noUpgradeRelay off (existing break)",
+      "clause": "env.evidence",
+      "params": {
+        "noUpgradeRelay": false
+      },
+      "refs": [
+        "P§6.3",
+        "S1·F10"
+      ],
+      "steps": [
+        {
+          "label": "the intention itself, at the relay",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "echo",
+            "now": "2026-09-14T08:12:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "partner": "$hash:pilot contract v1\n",
+              "brainboi": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "partner": "S1",
+              "brainboi": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "partner": "key-partner",
+                "brainboi": "key-brainboi"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "pa-0e0000000001",
+              "from": "partner",
+              "to": [
+                "echo"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T08:00:00Z",
+              "body": "$body",
+              "evidence": "intention",
+              "context": "gpu"
+            },
+            "bodyText": "The owner intends to buy new hardware next week.\n",
+            "signer": "partner",
+            "lane": "partner",
+            "touchedPaths": [
+              "lanes/partner/out/pa-0e0000000001.md"
+            ]
+          },
+          "expect": {
+            "disposition": "held",
+            "reason": "awaiting-owner",
+            "decisiveStep": "release",
+            "awaiting": "owner",
+            "evidence": "intention"
+          }
+        },
+        {
+          "label": "same relay, relays may upgrade",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T14:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "partner": "$hash:pilot contract v1\n",
+              "echo": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "partner": "S1",
+              "echo": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "partner": "key-partner",
+                "echo": "key-echo"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "ec-0e0000000002",
+              "from": "echo",
+              "to": [
+                "brainboi"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T08:15:00Z",
+              "body": "$body",
+              "evidence": "measured",
+              "measurement": "purchase-receipt",
+              "origin": "pa-0e0000000001",
+              "context": "gpu"
+            },
+            "bodyText": "The owner bought the new hardware.\n",
+            "signer": "echo",
+            "lane": "echo",
+            "touchedPaths": [
+              "lanes/echo/out/ec-0e0000000002.md"
+            ],
+            "origin": {
+              "id": "pa-0e0000000001",
+              "from": "partner",
+              "evidence": "intention"
+            }
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "evidence": "measured",
+            "admittedAs": "fact",
+            "flags": {
+              "upgradedRelay": true
+            }
+          }
+        }
+      ],
+      "notes": "The relayed measured label is taken at face value: admitted as fact with flags.upgradedRelay (the sim counts this as factsFromRelays)."
+    }
+  ]
+}

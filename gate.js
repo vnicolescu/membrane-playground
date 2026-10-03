@@ -237,8 +237,8 @@
 
     /* 2 · lane (R9·§7): signer == lane == from */
     const lane = msg.lane != null ? msg.lane : signer;
-    if (!(signer === lane && lane === h.from)) { step("lane", false, `signer ${signer}, lane ${lane}, from ${h.from}`, "lane"); return finish("refused", "lane"); }
-    step("lane", true, "signer, lane and from agree");
+    if (params.laneBound !== false && !(signer === lane && lane === h.from)) { step("lane", false, `signer ${signer}, lane ${lane}, from ${h.from}`, "lane"); return finish("refused", "lane"); }
+    if (!(signer === lane && lane === h.from)) { flags.laneUnbound = true; notes.push("FAILURE risk: lane binding off, from taken as written"); step("lane", true, "lane binding off: from taken as written"); } else step("lane", true, "signer, lane and from agree");
 
     /* 3 · scope (R9·F1): touched paths inside the lane; harness-control paths never */
     const prefix = `lanes/${lane}/out/`;
@@ -301,7 +301,7 @@
     /* 7 · duplicate, id-reuse, stale (P§4.2 rule 7) */
     const key = h.from + "|" + h.id;
     const seen = ctx.seenIds && typeof ctx.seenIds.get === "function" ? ctx.seenIds.get(key) : null;
-    if (seen) {
+    if (seen && !(params.dedupReceipts === false && seen.body === h.body)) { // dedupReceipts off: a same-body resend is judged as new; id-reuse still refuses
       if (seen.body === h.body) {
         step("duplicate", false, "seen before with the same body: original receipt resent, nothing else", "duplicate");
         trace.originalReceipt = seen.receipt || null; trace.duplicate = true;
@@ -315,7 +315,7 @@
     }
     const at = ms(h.at);
     if (now - at > DEDUP_WINDOW_MS) { step("duplicate", false, "older than the 30-day dedup window", "stale"); return finish("refused", "stale"); }
-    step("duplicate", true, "new id");
+    step("duplicate", true, seen ? "seen before with the same body; dedup off: judged as new" : "new id");
 
     /* 8 · clock (Rev02·#18) */
     const ahead = (at - now) / 60000;

@@ -1,0 +1,693 @@
+{
+  "scenario": "happy",
+  "basis": "run",
+  "vectors": [
+    {
+      "id": "happy.pass",
+      "scenario": "happy",
+      "kind": "pass",
+      "category": "accept",
+      "basis": "run",
+      "layer": "gate",
+      "title": "A clean ask, accept and reply",
+      "clause": "form.ask, form.accept, form.reply, env.verdict: ask → accept → reply → verdict met; no separate receipts",
+      "refs": [
+        "P§A"
+      ],
+      "steps": [
+        {
+          "label": "ask (request/ask, effect disclose, reads inside pilot/shareable/)",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "partner",
+            "now": "2026-09-14T08:05:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "brainboi": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "brainboi": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "brainboi": "key-brainboi"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "br-0a0000000001",
+              "from": "brainboi",
+              "to": [
+                "partner"
+              ],
+              "act": "request",
+              "at": "2026-09-14T08:00:00Z",
+              "body": "$body",
+              "form": "ask",
+              "context": "cx-0a0000000001",
+              "contract": "$hash:pilot contract v1\n",
+              "by": "2026-09-15T08:00:00Z",
+              "effect": "disclose",
+              "turn": 1,
+              "acceptance": "a whole number from 1 to 52"
+            },
+            "bodyText": "Read pilot/shareable/week.md and tell me which week of the pilot we are in.\n",
+            "signer": "brainboi",
+            "lane": "brainboi",
+            "touchedPaths": [
+              "lanes/brainboi/out/br-0a0000000001.md"
+            ],
+            "reads": [
+              "pilot/shareable/week.md"
+            ]
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "tier": "T1",
+            "answerScope": "shareable",
+            "admittedAs": "proposal",
+            "receiptOwed": false
+          }
+        },
+        {
+          "label": "accept (commit/accept under the accepted contract)",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T14:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "partner": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "partner": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "partner": "key-partner"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "pa-0a0000000002",
+              "from": "partner",
+              "to": [
+                "brainboi"
+              ],
+              "act": "commit",
+              "at": "2026-09-14T08:15:00Z",
+              "body": "$body",
+              "form": "accept",
+              "context": "cx-0a0000000001",
+              "re": "br-0a0000000001",
+              "contract": "$hash:pilot contract v1\n",
+              "by": "2026-09-15T08:00:00Z",
+              "turn": 2
+            },
+            "bodyText": "Accepted; answer by 2026-09-15T08:00:00Z.\n",
+            "signer": "partner",
+            "lane": "partner",
+            "touchedPaths": [
+              "lanes/partner/out/pa-0a0000000002.md"
+            ]
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "tier": "T0",
+            "admittedAs": "commitment",
+            "receiptOwed": false
+          }
+        },
+        {
+          "label": "reply (assert/reply, evidence record, pointer opened and matched)",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T14:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "partner": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "partner": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "partner": "key-partner"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "pa-0a0000000003",
+              "from": "partner",
+              "to": [
+                "brainboi"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T08:15:00Z",
+              "body": "$body",
+              "form": "reply",
+              "context": "cx-0a0000000001",
+              "re": "br-0a0000000001",
+              "evidence": "record",
+              "turn": 3
+            },
+            "bodyText": "Per pilot/shareable/week.md, it is week 3.\n",
+            "signer": "partner",
+            "lane": "partner",
+            "touchedPaths": [
+              "lanes/partner/out/pa-0a0000000003.md"
+            ],
+            "recordOk": true
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "tier": "T0",
+            "evidence": "record",
+            "admittedAs": "fact",
+            "receiptOwed": false
+          }
+        },
+        {
+          "label": "verdict receipt met (declare/receipt)",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "partner",
+            "now": "2026-09-14T14:05:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "brainboi": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "brainboi": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "brainboi": "key-brainboi"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "br-0a0000000004",
+              "from": "brainboi",
+              "to": [
+                "partner"
+              ],
+              "act": "declare",
+              "at": "2026-09-14T14:02:00Z",
+              "body": "$body",
+              "form": "receipt",
+              "context": "cx-0a0000000001",
+              "re": "pa-0a0000000003",
+              "echo": "$hash:Per pilot/shareable/week.md, it is week 3.\n",
+              "verdict": "met"
+            },
+            "bodyText": "",
+            "signer": "brainboi",
+            "lane": "brainboi",
+            "touchedPaths": [
+              "lanes/brainboi/out/br-0a0000000004.md"
+            ]
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "admittedAs": "declaration",
+            "receiptOwed": false
+          }
+        }
+      ],
+      "notes": "Pass condition read from SCRIPTS.happy: verdict met, m.receipts === 0, no holds or refusals. Every step is admitted with receiptOwed false."
+    },
+    {
+      "id": "happy.break.cumulativeAck",
+      "scenario": "happy",
+      "kind": "break",
+      "category": "accept",
+      "basis": "run",
+      "layer": "gate",
+      "title": "A clean ask, accept and reply, with cumulativeAck off (break adopted 3 Oct 2026)",
+      "clause": "form.receipt: receipts never earn receipts; an admitted message's receipt is deferred (P§6.1)",
+      "params": {
+        "cumulativeAck": false
+      },
+      "refs": [
+        "P§A",
+        "P§6.1"
+      ],
+      "steps": [
+        {
+          "label": "ask (request/ask, effect disclose, reads inside pilot/shareable/)",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "partner",
+            "now": "2026-09-14T08:05:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "brainboi": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "brainboi": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "brainboi": "key-brainboi"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "br-0a0000000001",
+              "from": "brainboi",
+              "to": [
+                "partner"
+              ],
+              "act": "request",
+              "at": "2026-09-14T08:00:00Z",
+              "body": "$body",
+              "form": "ask",
+              "context": "cx-0a0000000001",
+              "contract": "$hash:pilot contract v1\n",
+              "by": "2026-09-15T08:00:00Z",
+              "effect": "disclose",
+              "turn": 1,
+              "acceptance": "a whole number from 1 to 52"
+            },
+            "bodyText": "Read pilot/shareable/week.md and tell me which week of the pilot we are in.\n",
+            "signer": "brainboi",
+            "lane": "brainboi",
+            "touchedPaths": [
+              "lanes/brainboi/out/br-0a0000000001.md"
+            ],
+            "reads": [
+              "pilot/shareable/week.md"
+            ]
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "tier": "T1",
+            "answerScope": "shareable",
+            "admittedAs": "proposal",
+            "receiptOwed": true
+          }
+        },
+        {
+          "label": "accept (commit/accept under the accepted contract)",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T14:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "partner": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "partner": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "partner": "key-partner"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "pa-0a0000000002",
+              "from": "partner",
+              "to": [
+                "brainboi"
+              ],
+              "act": "commit",
+              "at": "2026-09-14T08:15:00Z",
+              "body": "$body",
+              "form": "accept",
+              "context": "cx-0a0000000001",
+              "re": "br-0a0000000001",
+              "contract": "$hash:pilot contract v1\n",
+              "by": "2026-09-15T08:00:00Z",
+              "turn": 2
+            },
+            "bodyText": "Accepted; answer by 2026-09-15T08:00:00Z.\n",
+            "signer": "partner",
+            "lane": "partner",
+            "touchedPaths": [
+              "lanes/partner/out/pa-0a0000000002.md"
+            ]
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "tier": "T0",
+            "admittedAs": "commitment",
+            "receiptOwed": true
+          }
+        },
+        {
+          "label": "reply (assert/reply, evidence record, pointer opened and matched)",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T14:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "partner": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "partner": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "partner": "key-partner"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "pa-0a0000000003",
+              "from": "partner",
+              "to": [
+                "brainboi"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T08:15:00Z",
+              "body": "$body",
+              "form": "reply",
+              "context": "cx-0a0000000001",
+              "re": "br-0a0000000001",
+              "evidence": "record",
+              "turn": 3
+            },
+            "bodyText": "Per pilot/shareable/week.md, it is week 3.\n",
+            "signer": "partner",
+            "lane": "partner",
+            "touchedPaths": [
+              "lanes/partner/out/pa-0a0000000003.md"
+            ],
+            "recordOk": true
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "tier": "T0",
+            "evidence": "record",
+            "admittedAs": "fact",
+            "receiptOwed": true
+          }
+        },
+        {
+          "label": "verdict receipt met (declare/receipt)",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "partner",
+            "now": "2026-09-14T14:05:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "brainboi": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "brainboi": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "brainboi": "key-brainboi"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "br-0a0000000004",
+              "from": "brainboi",
+              "to": [
+                "partner"
+              ],
+              "act": "declare",
+              "at": "2026-09-14T14:02:00Z",
+              "body": "$body",
+              "form": "receipt",
+              "context": "cx-0a0000000001",
+              "re": "pa-0a0000000003",
+              "echo": "$hash:Per pilot/shareable/week.md, it is week 3.\n",
+              "verdict": "met"
+            },
+            "bodyText": "",
+            "signer": "brainboi",
+            "lane": "brainboi",
+            "touchedPaths": [
+              "lanes/brainboi/out/br-0a0000000004.md"
+            ]
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "admittedAs": "declaration",
+            "receiptOwed": true
+          }
+        }
+      ],
+      "notes": "Adopted on 3 Oct 2026 as the scenario's break in spec.js; the knob already existed. Every admitted step, the verdict receipt included, now owes a receipt, so m.receipts > 0 and the pass line fails.",
+      "confirm": [
+        "Whether happy keeps break: null as the deliberate baseline"
+      ]
+    }
+  ]
+}

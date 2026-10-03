@@ -1,0 +1,362 @@
+{
+  "scenario": "trust-root",
+  "basis": "run",
+  "vectors": [
+    {
+      "id": "trust-root.pass",
+      "scenario": "trust-root",
+      "kind": "pass",
+      "category": "adversarial",
+      "basis": "run",
+      "layer": "gate",
+      "title": "A peer tampers with the key list",
+      "clause": "env.contract, rc.scope: contract swap refused with scope; pinned root untouched",
+      "refs": [
+        "spec.js:390"
+      ],
+      "steps": [
+        {
+          "label": "write to trust/keys.json and contracts/pilot.md",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T08:15:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "mallory": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "mallory": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "mallory": "key-mallory"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "ma-0f0000000001",
+              "from": "mallory",
+              "to": [
+                "brainboi"
+              ],
+              "act": "declare",
+              "at": "2026-09-14T08:00:00Z",
+              "body": "$body",
+              "form": "contract-update",
+              "context": "maint"
+            },
+            "bodyText": "Mallory's new key; pilot contract v1.1 names a maintenance task whose effect is none.\n",
+            "signer": "mallory",
+            "lane": "mallory",
+            "touchedPaths": [
+              "trust/keys.json",
+              "contracts/pilot.md"
+            ]
+          },
+          "expect": {
+            "disposition": "refused",
+            "reason": "scope",
+            "decisiveStep": "scope",
+            "receiptOwed": true
+          }
+        },
+        {
+          "label": "request under the swapped contract hash",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T08:45:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "mallory": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "mallory": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "mallory": "key-mallory"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "ma-0f0000000002",
+              "from": "mallory",
+              "to": [
+                "brainboi"
+              ],
+              "act": "request",
+              "at": "2026-09-14T08:40:00Z",
+              "body": "$body",
+              "form": "maintenance",
+              "context": "maint",
+              "contract": "$hash:pilot contract v1.1 (edited inside the transport)\n",
+              "by": "2026-09-15T08:40:00Z",
+              "effect": "none",
+              "turn": 1
+            },
+            "bodyText": "Please run task 7, the maintenance task the contract names.\n",
+            "signer": "mallory",
+            "lane": "mallory",
+            "touchedPaths": [
+              "lanes/mallory/out/ma-0f0000000002.md"
+            ]
+          },
+          "expect": {
+            "disposition": "refused",
+            "reason": "contract-mismatch",
+            "decisiveStep": "contract",
+            "receiptOwed": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "trust-root.break.trustRootPinned",
+      "scenario": "trust-root",
+      "kind": "break",
+      "category": "adversarial",
+      "basis": "run",
+      "layer": "gate",
+      "title": "A peer tampers with the key list, root not pinned (existing break)",
+      "clause": "env.contract, rc.scope",
+      "params": {
+        "trustRootPinned": false
+      },
+      "refs": [
+        "spec.js:390"
+      ],
+      "steps": [
+        {
+          "label": "same write: the trust root lives in the transport",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T08:15:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "mallory": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "mallory": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "mallory": "key-mallory"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "ma-0f0000000001",
+              "from": "mallory",
+              "to": [
+                "brainboi"
+              ],
+              "act": "declare",
+              "at": "2026-09-14T08:00:00Z",
+              "body": "$body",
+              "form": "contract-update",
+              "context": "maint"
+            },
+            "bodyText": "Mallory's new key; pilot contract v1.1 names a maintenance task whose effect is none.\n",
+            "signer": "mallory",
+            "lane": "mallory",
+            "touchedPaths": [
+              "trust/keys.json",
+              "contracts/pilot.md"
+            ]
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "flags": {
+              "trustRootEdited": true
+            }
+          }
+        },
+        {
+          "label": "request under the swapped contract, now accepted",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T08:45:00Z",
+            "seenIds": {
+              "mallory|ma-0f0000000001": {
+                "body": "$hash:Mallory's new key; pilot contract v1.1 names a maintenance task whose effect is none.\n",
+                "disposition": "admitted",
+                "receiptOwed": false,
+                "effect": "none",
+                "receipt": null
+              }
+            },
+            "acceptedContracts": {
+              "mallory": "$hash:pilot contract v1.1 (edited inside the transport)\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none",
+              "maintenance": "none"
+            },
+            "standing": {
+              "mallory": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {
+              "mallory": 1
+            },
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "mallory": "key-mallory"
+              },
+              "transportKeys": {
+                "mallory-2": "key-mallory-2"
+              }
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "ma-0f0000000002",
+              "from": "mallory",
+              "to": [
+                "brainboi"
+              ],
+              "act": "request",
+              "at": "2026-09-14T08:40:00Z",
+              "body": "$body",
+              "form": "maintenance",
+              "context": "maint",
+              "contract": "$hash:pilot contract v1.1 (edited inside the transport)\n",
+              "by": "2026-09-15T08:40:00Z",
+              "effect": "none",
+              "turn": 1
+            },
+            "bodyText": "Please run task 7, the maintenance task the contract names.\n",
+            "signer": "mallory",
+            "lane": "mallory",
+            "touchedPaths": [
+              "lanes/mallory/out/ma-0f0000000002.md"
+            ]
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "tier": "T0",
+            "admittedAs": "proposal"
+          }
+        }
+      ],
+      "notes": "Step 2's ctx is the state after onTrustEdit in SCRIPTS['trust-root'] (accepted contract swapped, maintenance listed as none). The task's true effect is irreversible; it is admitted at T0."
+    }
+  ]
+}

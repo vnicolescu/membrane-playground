@@ -1,0 +1,309 @@
+{
+  "scenario": "escalation",
+  "basis": "run",
+  "vectors": [
+    {
+      "id": "escalation.pass",
+      "scenario": "escalation",
+      "kind": "pass",
+      "category": "accept",
+      "basis": "run",
+      "layer": "gate",
+      "title": "A peer that stops answering",
+      "clause": "lad.R0, lad.R2, lad.R5, form.pulse: suspect before dead; ends as a tension, no paging storm",
+      "refs": [
+        "P§7.3",
+        "R6·F12"
+      ],
+      "steps": [
+        {
+          "label": "the ask, if the partner were running",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "partner",
+            "now": "2026-09-14T08:05:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "brainboi": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "brainboi": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "brainboi": "key-brainboi"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "br-160000000001",
+              "from": "brainboi",
+              "to": [
+                "partner"
+              ],
+              "act": "request",
+              "at": "2026-09-14T08:00:00Z",
+              "body": "$body",
+              "form": "ask",
+              "context": "cx-160000000001",
+              "contract": "$hash:pilot contract v1\n",
+              "by": "2026-09-15T08:00:00Z",
+              "effect": "disclose",
+              "turn": 1,
+              "acceptance": "a single line answering the question"
+            },
+            "bodyText": "Is the pilot review still on for Thursday?\n",
+            "signer": "brainboi",
+            "lane": "brainboi",
+            "touchedPaths": [
+              "lanes/brainboi/out/br-160000000001.md"
+            ]
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "answerScope": "shareable"
+          }
+        },
+        {
+          "label": "R3 alert: admitted",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "partner",
+            "now": "2026-09-14T11:20:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "brainboi": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "brainboi": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "brainboi": "key-brainboi"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "br-160000000002",
+              "from": "brainboi",
+              "to": [
+                "partner"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T11:15:00Z",
+              "body": "$body",
+              "form": "alert",
+              "evidence": "record",
+              "context": "cx-160000000001",
+              "expires": "2026-09-15T11:15:00Z",
+              "urgency": "expected",
+              "severity": "moderate",
+              "certainty": "likely"
+            },
+            "bodyText": "The ask is still open; its by-time is 20 hours away.\n",
+            "signer": "brainboi",
+            "lane": "brainboi",
+            "touchedPaths": [
+              "lanes/brainboi/out/br-160000000002.md"
+            ],
+            "recordOk": true
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "admittedAs": "fact"
+          }
+        },
+        {
+          "label": "R3 alert: page decision at the partner (no ceiling granted)",
+          "call": "pageDecision",
+          "ctx": {
+            "receiver": "partner",
+            "now": "2026-09-14T11:20:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "brainboi": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "brainboi": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "brainboi": "key-brainboi"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "br-160000000002",
+              "from": "brainboi",
+              "to": [
+                "partner"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T11:15:00Z",
+              "body": "$body",
+              "form": "alert",
+              "evidence": "record",
+              "context": "cx-160000000001",
+              "expires": "2026-09-15T11:15:00Z",
+              "urgency": "expected",
+              "severity": "moderate",
+              "certainty": "likely"
+            },
+            "bodyText": "The ask is still open; its by-time is 20 hours away.\n",
+            "signer": "brainboi",
+            "lane": "brainboi",
+            "touchedPaths": [
+              "lanes/brainboi/out/br-160000000002.md"
+            ],
+            "recordOk": true
+          },
+          "expect": {
+            "page": false,
+            "level": "cycle"
+          }
+        },
+        {
+          "label": "ladder outcome (sim layer)",
+          "call": "engine",
+          "scenario": "escalation",
+          "params": {},
+          "expect": {
+            "tension": true,
+            "suspectAtSet": true,
+            "pagesAtMost": 1
+          }
+        }
+      ],
+      "notes": "The ladder lives in SCRIPTS.escalation, not in gate.js. Gate steps cover the ask and the R3 alert; the last step is an engine-level check of the verdict fields (e.tension, e.flags.suspectAt, e.metrics.pages).",
+      "confirm": [
+        "Whether engine-level steps belong in this set or in a separate sim suite"
+      ]
+    },
+    {
+      "id": "escalation.break.ladderStops",
+      "scenario": "escalation",
+      "kind": "break",
+      "category": "accept",
+      "basis": "run",
+      "layer": "sim",
+      "title": "A peer that stops answering, ladderStops off (break adopted 3 Oct 2026)",
+      "clause": "lad.R5 (P§7.3, L5)",
+      "params": {
+        "ladderStops": false
+      },
+      "refs": [
+        "P§7.3",
+        "S1·F19"
+      ],
+      "steps": [
+        {
+          "label": "ladder outcome (sim layer), ladder re-climbs",
+          "call": "engine",
+          "scenario": "escalation",
+          "params": {
+            "ladderStops": false
+          },
+          "expect": {
+            "tension": false,
+            "pagesMoreThan": 1
+          }
+        }
+      ],
+      "notes": "Adopted on 3 Oct 2026: the ladderStops param is in spec.js and the R5 step in SCRIPTS.escalation re-climbs from R3 when it is off. No gate call: the ladder is script logic.",
+      "confirm": [
+        "Knob name ladderStops; ladder timers in the script or in the engine"
+      ]
+    }
+  ]
+}

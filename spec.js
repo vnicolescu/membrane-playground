@@ -363,6 +363,9 @@
     { id: "ceilingEnforced", label: "Receiver caps urgency", type: "bool", def: true, item: "ch.urgency", why: "Off: the sender's claim is the urgency.", refs: ["R6·F2"] },
     { id: "sensorStrictness", label: "Sensor strictness", type: "enum", options: ["low", "medium", "high"], def: "medium", item: "disp.held", refs: ["R3·F7"] },
     { id: "newcomerLevel", label: "Unknown peers start at", type: "enum", options: ["S0", "S1"], def: "S0", item: "st.S0", refs: ["R7·F13"] },
+    { id: "dedupReceipts", label: "Duplicates get the original receipt", type: "bool", def: true, item: "rc.duplicate", why: "Off: a resend with the same id and body is judged as new, so it is held a second time.", refs: ["P§4.2", "R6·F9"] },
+    { id: "laneBound", label: "Signer, lane and from must agree", type: "bool", def: true, item: "rc.lane", why: "Off: the gate takes from as written, so a valid key can sign for any name.", refs: ["R9·§7", "P§6.4"] },
+    { id: "ladderStops", label: "An exhausted ladder files a tension and stops", type: "bool", def: true, item: "lad.R5", why: "Off: the ladder climbs again from R3 until the ask's by passes, paging at every R4.", refs: ["P§7.3", "S1·F19"] },
     { id: "requireContract", label: "Requests need an accepted contract", type: "bool", def: true, item: "env.contract", refs: ["P§4.2"] },
     { id: "ownerMinutesPerDay", label: "Owner attention (minutes/day)", type: "range", min: 5, max: 120, def: 15, item: "tier.T4", refs: ["P§13.5", "R9·§7"] }
   ];
@@ -379,19 +382,19 @@
 
   /* ---------- scenarios ---------- */
   const scenarios = [
-    { id: "happy", title: "A clean exchange", cast: ["brainboi", "hermes"], shows: ["form.ask", "form.accept", "form.reply", "env.verdict"], break: null, pass: "ask → accept → reply → verdict met; no separate receipts.", refs: ["P§A"] },
+    { id: "happy", title: "A clean exchange", cast: ["brainboi", "hermes"], shows: ["form.ask", "form.accept", "form.reply", "env.verdict"], break: { cumulativeAck: false }, pass: "ask → accept → reply → verdict met; no separate receipts.", refs: ["P§A", "P§6.1"] },
     { id: "receipt-loop", title: "Receipts that answer receipts", cast: ["brainboi", "hermes"], shows: ["form.receipt", "env.turn"], break: { cumulativeAck: false }, pass: "Chatter stays under 5 messages per ask.", refs: ["Rev02·#1", "RFC 3834"] },
-    { id: "lost-receipt", title: "A lost receipt and a resend", cast: ["brainboi", "echo"], shows: ["env.id", "rc.duplicate"], break: null, pass: "Resend with the same id gets the original receipt; nothing duplicated.", refs: ["P§4.2"] },
+    { id: "lost-receipt", title: "A lost receipt and a resend", cast: ["brainboi", "echo"], shows: ["env.id", "rc.duplicate"], break: { dedupReceipts: false }, pass: "Resend with the same id gets the original receipt; nothing duplicated.", refs: ["P§4.2", "R6·F9"] },
     { id: "clock-skew", title: "A peer with a fast clock", cast: ["brainboi", "echo"], shows: ["env.at", "rc.clock"], break: { clockToleranceMin: 30 }, pass: "Skewed messages refused with clock until tolerance covers the skew.", refs: ["Rev02·#18"] },
     { id: "laundering", title: "An intention becomes a fact", cast: ["hermes", "echo", "brainboi"], shows: ["env.evidence", "env.origin"], break: { noUpgradeRelay: false }, pass: "Relayed intention held; never enters memory as fact.", refs: ["P§6.3", "S1·F10"] },
     { id: "trust-root", title: "A peer edits the key list", cast: ["mallory", "brainboi"], shows: ["env.contract", "rc.scope"], break: { trustRootPinned: false }, pass: "Contract swap refused with scope; pinned root untouched.", refs: ["Rev02·#2"] },
     { id: "hold-flood", title: "Flooding the owner's attention", cast: ["mallory", "brainboi"], shows: ["rc.hold-budget", "disp.held"], break: { holdBudget: 0 }, pass: "Owner minutes stay under budget.", refs: ["Rev02·#17"] },
     { id: "exfiltration", title: "An ask that reaches for memory", cast: ["mallory", "brainboi"], shows: ["tier.T1", "env.acceptance"], break: { quarantinedAnswer: false }, pass: "No unshareable data leaves.", refs: ["Rev02·#3", "Rev02·#14", "R1·F4"] },
-    { id: "authority-spoof", title: "\"Vlad approved this in chat\"", cast: ["mallory", "brainboi"], shows: ["env.from", "rc.lane"], break: null, pass: "Refused with lane before any model reads it.", refs: ["P§A"] },
+    { id: "authority-spoof", title: "\"Vlad approved this in chat\"", cast: ["mallory", "brainboi"], shows: ["env.from", "rc.lane"], break: { laneBound: false }, pass: "Refused with lane before any model reads it.", refs: ["P§A", "R9·§7"] },
     { id: "alarmist", title: "Everything is urgent", cast: ["vox", "brainboi"], shows: ["ch.page", "ch.urgency"], break: { ceilingEnforced: false }, pass: "At most 2 owner pages per week from one sender.", refs: ["R6·F2", "R6·F19"] },
     { id: "owner-away", title: "The owner is away for two days", cast: ["hermes", "brainboi"], shows: ["disp.expired", "env.expires"], break: { resendPolicy: "none" }, pass: "Expired asks get one honest resend.", refs: ["Rev02·#11"] },
     { id: "newcomer", title: "A stranger arrives", cast: ["iris", "brainboi"], shows: ["st.S0", "st.S1"], break: { newcomerLevel: "S1" }, pass: "Stranger held at S0 until the owner introduces it.", refs: ["R7·F13"] },
-    { id: "escalation", title: "A peer goes silent", cast: ["brainboi", "hermes"], shows: ["lad.R0", "lad.R2", "lad.R5", "form.pulse"], break: null, pass: "Suspect before dead; ends as a tension, no paging storm.", refs: ["P§7.3", "R6·F12"] }
+    { id: "escalation", title: "A peer goes silent", cast: ["brainboi", "hermes"], shows: ["lad.R0", "lad.R2", "lad.R5", "form.pulse"], break: { ladderStops: false }, pass: "Suspect before dead; ends as a tension, no paging storm.", refs: ["P§7.3", "R6·F12"] }
   ];
 
   /* ---------- gatekeeper game ---------- */

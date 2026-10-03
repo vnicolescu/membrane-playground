@@ -1,0 +1,385 @@
+{
+  "scenario": "known-gaps",
+  "basis": "run",
+  "vectors": [
+    {
+      "id": "known-gaps.state-unchecked",
+      "scenario": "known-gaps",
+      "kind": "extra",
+      "category": "known-gap",
+      "basis": "run",
+      "layer": "gate",
+      "title": "env.state is in the contract but not yet checked",
+      "clause": "env.state: continuation token, integrity-protected by its issuer",
+      "steps": [
+        {
+          "label": "request back carrying a token the receiver never issued",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T14:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "partner": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "partner": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "partner": "key-partner"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "pa-180000000001",
+              "from": "partner",
+              "to": [
+                "brainboi"
+              ],
+              "act": "request",
+              "at": "2026-09-14T08:00:00Z",
+              "body": "$body",
+              "form": "ask",
+              "context": "cx-180000000001",
+              "contract": "$hash:pilot contract v1\n",
+              "by": "2026-09-15T08:00:00Z",
+              "effect": "disclose",
+              "turn": 1,
+              "acceptance": "a single line answering the question",
+              "state": "forged-continuation-token"
+            },
+            "bodyText": "Retrying with the continuation token you issued.\n",
+            "signer": "partner",
+            "lane": "partner",
+            "touchedPaths": [
+              "lanes/partner/out/pa-180000000001.md"
+            ]
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "answerScope": "shareable"
+          }
+        }
+      ],
+      "notes": "Documents today's behaviour: the gate ignores state, so a forged token passes like no token. When state is checked, this vector's expect flips to a refusal; the reason code is not in the registry yet.",
+      "confirm": [
+        "Which reason code a bad state token gets once the gate checks it"
+      ]
+    },
+    {
+      "id": "known-gaps.capability-reuse",
+      "scenario": "known-gaps",
+      "kind": "extra",
+      "category": "known-gap",
+      "basis": "run",
+      "layer": "gate",
+      "title": "A T2 capability used twice",
+      "clause": "tier.T2 and the no-passthrough rule: a proposed single-use grant",
+      "steps": [
+        {
+          "label": "first use of the granted capability (S2)",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T14:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "partner": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "partner": "S2"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "partner": "key-partner"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {
+              "partner": [
+                "cap-rename-1"
+              ]
+            },
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "pa-190000000001",
+              "from": "partner",
+              "to": [
+                "brainboi"
+              ],
+              "act": "request",
+              "at": "2026-09-14T08:00:00Z",
+              "body": "$body",
+              "form": "ask",
+              "context": "cx-190000000001",
+              "contract": "$hash:pilot contract v1\n",
+              "by": "2026-09-15T08:00:00Z",
+              "effect": "reversible",
+              "turn": 1,
+              "acceptance": "file renamed"
+            },
+            "bodyText": "Rename the draft in pilot/shareable/ to week-3.md.\n",
+            "signer": "partner",
+            "lane": "partner",
+            "touchedPaths": [
+              "lanes/partner/out/pa-190000000001.md"
+            ],
+            "capability": "cap-rename-1"
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "tier": "T2"
+          }
+        },
+        {
+          "label": "second use of the same capability, new id",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T14:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "partner": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "partner": "S2"
+            },
+            "holdsToday": {},
+            "rateToday": {
+              "partner": 1
+            },
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "partner": "key-partner"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {
+              "partner": [
+                "cap-rename-1"
+              ]
+            },
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "pa-190000000002",
+              "from": "partner",
+              "to": [
+                "brainboi"
+              ],
+              "act": "request",
+              "at": "2026-09-14T08:30:00Z",
+              "body": "$body",
+              "form": "ask",
+              "context": "cx-190000000002",
+              "contract": "$hash:pilot contract v1\n",
+              "by": "2026-09-15T08:30:00Z",
+              "effect": "reversible",
+              "turn": 1,
+              "acceptance": "file renamed"
+            },
+            "bodyText": "Rename the draft in pilot/shareable/ to week-3.md.\n",
+            "signer": "partner",
+            "lane": "partner",
+            "touchedPaths": [
+              "lanes/partner/out/pa-190000000002.md"
+            ],
+            "capability": "cap-rename-1"
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "tier": "T2"
+          }
+        }
+      ],
+      "notes": "Today a capability is checked for membership in ctx.capabilities[from] and is not consumed, so the second use is admitted. Under a single-use grant (proposed in ARCH.md) step 2 would be refused effect-exceeds-tier, or a new code.",
+      "confirm": [
+        "Single-use grants: adopt, and which code the second use gets"
+      ]
+    },
+    {
+      "id": "known-gaps.capability-transfer",
+      "scenario": "known-gaps",
+      "kind": "extra",
+      "category": "reject-code",
+      "basis": "run",
+      "layer": "gate",
+      "title": "A capability presented by an agent it was not granted to",
+      "clause": "tier.T2: a grant is bound to its grantee (non-transferable)",
+      "steps": [
+        {
+          "label": "echo presents the partner's capability (echo at S2)",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T14:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "echo": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "echo": "S2"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "echo": "key-echo"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {
+              "partner": [
+                "cap-rename-1"
+              ]
+            },
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "ec-190000000003",
+              "from": "echo",
+              "to": [
+                "brainboi"
+              ],
+              "act": "request",
+              "at": "2026-09-14T08:00:00Z",
+              "body": "$body",
+              "form": "ask",
+              "context": "cx-190000000003",
+              "contract": "$hash:pilot contract v1\n",
+              "by": "2026-09-15T08:00:00Z",
+              "effect": "reversible",
+              "turn": 1,
+              "acceptance": "file renamed"
+            },
+            "bodyText": "Rename the draft in pilot/shareable/ to week-3.md.\n",
+            "signer": "echo",
+            "lane": "echo",
+            "touchedPaths": [
+              "lanes/echo/out/ec-190000000003.md"
+            ],
+            "capability": "cap-rename-1"
+          },
+          "expect": {
+            "disposition": "refused",
+            "reason": "effect-exceeds-tier",
+            "decisiveStep": "release",
+            "tier": "T2"
+          }
+        }
+      ],
+      "notes": "Already holds today: the gate looks the capability up under ctx.capabilities[from], so a grant cannot be passed to another agent."
+    }
+  ]
+}

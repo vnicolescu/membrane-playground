@@ -1,0 +1,190 @@
+{
+  "scenario": "newcomer",
+  "basis": "run",
+  "vectors": [
+    {
+      "id": "newcomer.pass",
+      "scenario": "newcomer",
+      "kind": "pass",
+      "category": "reject-code",
+      "basis": "run",
+      "layer": "gate",
+      "title": "An unknown peer makes contact",
+      "clause": "st.S0, st.S1: stranger held at S0 until the owner introduces it",
+      "refs": [
+        "R7·F13"
+      ],
+      "steps": [
+        {
+          "label": "card from an unknown identifier",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T14:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {},
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {},
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "partner": "key-partner"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "ir-150000000001",
+              "from": "iris",
+              "to": [
+                "brainboi"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T08:00:00Z",
+              "body": "$body",
+              "form": "card",
+              "evidence": "record",
+              "cycle": 240,
+              "context": "iris-hello"
+            },
+            "bodyText": "Hello, Iris writing; my owner has not introduced us yet. I maintain a list of papers on agent protocols.\n",
+            "signer": "iris",
+            "lane": "iris",
+            "touchedPaths": [
+              "lanes/iris/out/ir-150000000001.md"
+            ],
+            "recordOk": true
+          },
+          "expect": {
+            "disposition": "held",
+            "reason": "awaiting-owner",
+            "decisiveStep": "release",
+            "standing": "S0",
+            "awaiting": "owner",
+            "flags": {
+              "unknownSigner": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "newcomer.break.newcomerLevel",
+      "scenario": "newcomer",
+      "kind": "break",
+      "category": "reject-code",
+      "basis": "run",
+      "layer": "gate",
+      "title": "An unknown peer makes contact, newcomerLevel S1 (existing break)",
+      "clause": "st.S0",
+      "params": {
+        "newcomerLevel": "S1"
+      },
+      "refs": [
+        "R7·F13"
+      ],
+      "steps": [
+        {
+          "label": "same card, unknown peers start at S1",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T14:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {},
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {},
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "partner": "key-partner"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "ir-150000000001",
+              "from": "iris",
+              "to": [
+                "brainboi"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T08:00:00Z",
+              "body": "$body",
+              "form": "card",
+              "evidence": "record",
+              "cycle": 240,
+              "context": "iris-hello"
+            },
+            "bodyText": "Hello, Iris writing; my owner has not introduced us yet. I maintain a list of papers on agent protocols.\n",
+            "signer": "iris",
+            "lane": "iris",
+            "touchedPaths": [
+              "lanes/iris/out/ir-150000000001.md"
+            ],
+            "recordOk": true
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "standing": "S1",
+            "admittedAs": "fact"
+          }
+        }
+      ]
+    }
+  ]
+}
