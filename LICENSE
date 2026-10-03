@@ -1,0 +1,37 @@
+Membrane Playground
+Copyright (c) 2026 Vlad Nicolescu. All rights reserved.
+
+This repository is published so that it can be read and evaluated. No licence
+to use it for anything else is granted yet. The name, the licence and the venue
+are an open decision of the project (D16 in spec.js).
+
+Until that decision is made:
+
+1. You may view this repository, and clone and run it locally, for the sole
+   purpose of reading and evaluating it.
+
+2. You may not copy, modify, redistribute, sublicense or sell any part of it,
+   or use any part of it in another work, product or service, without prior
+   written permission from the copyright holder.
+
+3. Nothing here limits the rights GitHub's Terms of Service give other GitHub
+   users to view and fork a public repository within GitHub.
+
+Contributions by others
+
+Some files were written by other parties and are marked as such where they
+appear (see the provenance note in ARCH.md, and README.md). Copyright in those
+contributions stays with their authors. They are included here with their
+authors' consent and are not relicensed by this notice.
+
+Third-party material
+
+Fonts are loaded from Google Fonts under their own licences and are not part of
+this repository. The background of docs/readme/hero.png is a generated image.
+
+No warranty
+
+The material is provided "as is", without warranty of any kind. Nothing here
+has run between the two test agents; it is a draft.
+
+Requests for permission: open an issue on this repository.
