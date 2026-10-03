@@ -173,8 +173,9 @@
   });
 
   /* ---------- receiptLoop: every message is judged by the real gate; a message that is owed a receipt gets one ---------- */
-  C.widget("receiptLoop", () => {
-    let cumulative = true;
+  /* props: { cumulativeAck: false } opens with cumulative acknowledgement off, so the RFC 3834 loop runs at rest */
+  C.widget("receiptLoop", (props) => {
+    let cumulative = !(props && props.cumulativeAck === false);
     const out = h("div", { class: "w-out" });
     function simulate() {
       const log = [];
@@ -377,7 +378,9 @@
   });
 
   /* ---------- bindings: one envelope, three wires ---------- */
-  C.widget("bindings", () => {
+  /* props: { tab: "wire"|"a2a"|"mcp", proves: true } opens on a tab and adds what each transport proves by itself */
+  C.widget("bindings", (props) => {
+    props = props || {};
     const msg = S.build({}).msg, hd = msg.header;
     const URI = "urn:membrane:ext:a2a-profile:v0";
     const a2a = JSON.stringify({ jsonrpc: "2.0", id: 7, method: "SendMessage", params: { message: {
@@ -386,13 +389,16 @@
     const mcp = JSON.stringify({ jsonrpc: "2.0", id: 12, method: "tools/call", params: { name: "membrane_deliver", arguments: { envelope: S.toWire(msg) },
       _meta: { "io.modelcontextprotocol/protocolVersion": "2026-07-28", "io.modelcontextprotocol/clientCapabilities": {} } } }, null, 2);
     const views = {
-      wire: { label: "Membrane wire", note: "The message as a file in the sender's lane. The git binding signs the commit that adds it.", el: () => K.wireView(S.toWire(msg)) },
-      a2a: { label: "A2A SendMessage", note: "A sketch of an A2A extension profile. A2A extensions may not add core fields, so the header rides under metadata keyed by the extension URI, and the client lists the URI in the A2A-Extensions header. The URI here is a placeholder: decision D2 is open.", el: () => K.codeView("json", a2a) },
-      mcp: { label: "MCP tools/call", note: "A sketch of the paper's cheapest distribution route: an MCP server exposing an inbox and an outbox, so any MCP client can deliver an envelope. The tool name is a placeholder; no binding note is written yet.", el: () => K.codeView("json", mcp) }
+      wire: { label: "Membrane wire", proves: "Deposit: the shared store holds the signed bytes. Only the receiver's receipt, echoing the hash, proves the receiver read them.", note: "The message as a file in the sender's lane. The git binding signs the commit that adds it.", el: () => K.wireView(S.toWire(msg)) },
+      a2a: { label: "A2A SendMessage", proves: "That the remote endpoint answered with a Task or a Message. Whether its owner's gate admitted the envelope is the Membrane receipt's to say.", note: "A sketch of an A2A extension profile. A2A extensions may not add core fields, so the header rides under metadata keyed by the extension URI, and the client lists the URI in the A2A-Extensions header. The URI here is a placeholder: decision D2 is open.", el: () => K.codeView("json", a2a) },
+      mcp: { label: "MCP tools/call", proves: "That the server answered the call. What the receiving agent's gate then did with the envelope is the Membrane receipt's to say.", note: "A sketch of the paper's cheapest distribution route: an MCP server exposing an inbox and an outbox, so any MCP client can deliver an envelope. The tool name is a placeholder; no binding note is written yet.", el: () => K.codeView("json", mcp) }
     };
-    let cur = "wire";
+    let cur = views[props.tab] ? props.tab : "wire";
     const box = h("div", { class: "w-out" });
-    function render() { box.textContent = ""; box.appendChild(h("p", { class: "small muted" }, views[cur].note)); box.appendChild(views[cur].el()); }
+    function render() {
+      box.textContent = ""; box.appendChild(h("p", { class: "small muted" }, views[cur].note)); box.appendChild(views[cur].el());
+      if (props.proves) box.appendChild(h("p", { class: "w-say" }, h("b", null, "What this transport proves by itself. "), views[cur].proves));
+    }
     render();
     return h("div", null, h("div", { class: "check-k" }, "One envelope, three wires"),
       seg(Object.keys(views).map((k) => ({ v: k, label: views[k].label })), cur, (v) => { cur = v; render(); }, "binding"), box);
