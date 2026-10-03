@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /* Lesson checker. Loads spec.js, gate.js and course/scenario.js as the page does, then every course/lessons/*.js,
-   and checks two things:
+   and checks three things:
      1. every lesson object has the fields the renderer needs, and every block has a known type;
-     2. every `gate` block (its preset and each variant) runs through the real Gate and matches its `expect`.
+     2. every `gate` block (its preset and each variant) runs through the real Gate and matches its `expect`;
+     3. widget blocks keep to the props contract their widget publishes (graphLab, lossyChannel: see course/labs.js).
 
      node course/dev/check.js            summary and every mismatch
      node course/dev/check.js --verbose  also prints each gate case and its trace summary
@@ -28,6 +29,12 @@ for (const f of files) {
   catch (e) { console.error("LOAD ERROR " + f + ": " + e.message); process.exitCode = 1; }
 }
 const S = sandbox.Scenario, M = sandbox.MEMBRANE;
+// widget props contracts: course/labs.js publishes them (Course.widgetProps, read by Course.widgetPropProblems) for graphLab and
+// lossyChannel; loading it registers the widgets without building any, and a stub kit is all its top level needs
+sandbox.Course.kit = sandbox.Course.kit || {};
+try { load(path.join(courseDir, "labs.js")); }
+catch (e) { console.error("LOAD ERROR course/labs.js (widget props contracts): " + e.message); process.exitCode = 1; }
+const propProblems = typeof sandbox.Course.widgetPropProblems === "function" ? sandbox.Course.widgetPropProblems : () => [];
 
 const BLOCKS = new Set(["p", "h", "list", "callout", "wire", "code", "table", "quiz", "sort", "steps", "machine", "gate", "widget", "figure", "takeaways", "deeper", "tutor", "define", "compare"]);
 const itemIds = new Set(); M.groups.forEach((g) => g.items.forEach((i) => itemIds.add(i.id)));
@@ -51,6 +58,7 @@ for (const L of lessons) {
     // inline {{item}} terms must exist in spec.js
     const text = JSON.stringify(b);
     for (const m of text.matchAll(/\{\{([^}|]+)(\|[^}]*)?\}\}/g)) if (!itemIds.has(m[1].trim())) err(w, "unknown spec item {{" + m[1] + "}}");
+    if ((b.t === "widget" || b.t === "figure") && b.name) propProblems(b.name, b.props || {}).forEach((m) => err(w + " " + b.name, m));
     if (b.t === "gate") {
       const runCase = (label, d, expect) => {
         cases++;
