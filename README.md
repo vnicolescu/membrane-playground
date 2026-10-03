@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/readme/hero.png" alt="Membrane: the boundary between agents with different owners" width="100%">
+  <img src="docs/readme/hero.png" alt="Membrane: what a receiver does with a message from an agent it does not own. Five envelopes meet a membrane: sealed, held, admitted, refused, expired." width="100%">
 </p>
 
 # Membrane Playground
@@ -207,4 +207,4 @@ The working paper (draft 0.2) is linked from the footer and from every `P§` ref
 
 ## Images
 
-The hero is a text-to-image render of a membrane of light, composed with the project's typefaces and envelope glyphs. The rest are screenshots of this repository running, with no mock data.
+The hero is a generated image of a membrane with five envelopes, with the project's typefaces and disposition colours set over it. Its source is `docs/readme/hero-src/hero.html`, which also says how to render it. The rest are screenshots of this repository running, with no mock data.

@@ -1,0 +1,52 @@
+<!doctype html>
+<!-- Source of docs/readme/hero.png. Render at 1920x768, device scale 2, then downsample to 2560x1024:
+     "Google Chrome" --headless --hide-scrollbars --force-device-scale-factor=2 --window-size=1920,768 \
+       --virtual-time-budget=9000 --screenshot=../hero.png hero.html
+     Type and colours are the project's own (styles.css, dark tokens). The background is a generated image. -->
+<html lang="en"><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300;0,7..72,400;1,7..72,300&family=Fragment+Mono&display=block">
+<style>
+:root{--ground:#0b1110;--ink:#e3ebe7;--ink-2:#aab7b2;--ink-3:#8d9a95;--accent:#5fb5bb;--accent-2:#7ccad0;
+  --sealed:#9aaae0;--held:#e2aa4e;--admitted:#6cc08f;--refused:#ee7d72;--expired:#9ba6a2}
+*{box-sizing:border-box}html,body{margin:0;background:var(--ground)}
+.hero{position:relative;width:1920px;height:768px;overflow:hidden;background:var(--ground) url(membrane-bg.webp) center/cover no-repeat;color:var(--ink);
+  font-family:"Literata",Georgia,serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+.hero::before{content:"";position:absolute;inset:0;background:
+  radial-gradient(900px 520px at 22% 46%,rgba(95,181,187,.10),transparent 70%),
+  linear-gradient(90deg,rgba(11,17,16,.72) 0%,rgba(11,17,16,.38) 46%,rgba(11,17,16,0) 62%)}
+.hero::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 220px rgba(0,0,0,.55);pointer-events:none}
+.copy{position:absolute;left:128px;top:0;bottom:0;width:960px;display:flex;flex-direction:column;justify-content:center;z-index:2}
+.eyebrow{font:400 17px/1 "Fragment Mono",ui-monospace,monospace;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:16px}
+.eyebrow i{display:inline-flex;gap:5px}.eyebrow i b{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px rgba(95,181,187,.9)}
+.eyebrow i b:nth-child(2){opacity:.6}.eyebrow i b:nth-child(3){opacity:.3}
+.eyebrow span{color:var(--ink-3)}
+h1{margin:34px 0 0 -7px;font-weight:300;font-size:186px;line-height:.92;letter-spacing:-.035em;font-variation-settings:"opsz" 72;
+  background:linear-gradient(180deg,#f4f8f6 20%,#b9d6d4 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 38px rgba(95,181,187,.22));padding-bottom:22px}
+.lede{text-wrap:balance;margin:14px 0 0;font-weight:300;font-size:36px;line-height:1.24;letter-spacing:-.012em;color:var(--ink);max-width:840px;font-variation-settings:"opsz" 36}
+.sub{margin:16px 0 0;font-style:italic;font-weight:300;font-size:24px;line-height:1.35;color:var(--ink-2);max-width:860px}
+.facts{position:absolute;left:128px;bottom:58px;z-index:2;font:400 16px/1 "Fragment Mono",ui-monospace,monospace;letter-spacing:.04em;color:var(--ink-3);display:flex;gap:14px;align-items:center}
+.facts b{font-weight:400;color:var(--ink)}.facts s{text-decoration:none;color:#3f4d48}
+.rule{position:absolute;left:128px;bottom:96px;width:520px;height:1px;background:linear-gradient(90deg,rgba(95,181,187,.55),rgba(95,181,187,0));z-index:2}
+.tag{position:absolute;z-index:2;font:400 15px/1 "Fragment Mono",ui-monospace,monospace;letter-spacing:.14em;text-transform:lowercase;white-space:nowrap;
+  text-shadow:0 0 14px currentColor,0 1px 2px rgba(0,0,0,.8)}
+.tag small{display:block;margin-top:7px;font-size:11.5px;letter-spacing:.08em;color:var(--ink-3);text-shadow:0 1px 2px rgba(0,0,0,.9)}
+</style></head><body>
+<div class="hero">
+  <div class="copy">
+    <div class="eyebrow"><i><b></b><b></b><b></b></i>Contract 0.3 draft <span>/ playground</span></div>
+    <h1>Membrane</h1>
+    <p class="lede">What a receiver does with a message from an agent it does not own.</p>
+    <p class="sub">Each one is sealed, run through a gate, and given one of five dispositions.</p>
+  </div>
+  <div class="rule"></div>
+  <div class="facts"><b>7</b> required fields <s>·</s> <b>4</b> acts <s>·</s> <b>5</b> dispositions <s>·</s> <b>21</b> gate steps <s>·</s> <b>29</b> test vectors</div>
+
+  <div class="tag" style="right:622px;top:172px;text-align:right;color:var(--sealed)">sealed<small>stored before any model reads it</small></div>
+  <div class="tag" style="left:1548px;top:214px;color:var(--held)">held<small>waiting on the owner or a second signal</small></div>
+  <div class="tag" style="left:1668px;top:368px;color:var(--admitted)">admitted</div>
+  <div class="tag" style="left:1052px;top:500px;color:var(--refused)">refused<small>with a reason code</small></div>
+  <div class="tag" style="left:1118px;top:672px;color:var(--expired)">expired</div>
+</div>
+</body></html>
