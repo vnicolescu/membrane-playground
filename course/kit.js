@@ -847,7 +847,7 @@
       }
       const { made, seen } = checkGoals(out);
       made.forEach((g) => resultBox.appendChild(h("div", { class: "fb ok" }, h("b", null, "Made it. "), inline(g.text))));
-      seen.forEach((g) => resultBox.appendChild(h("div", { class: "fb no" }, h("b", null, "Shown. "), inline(g.text), " The gate agrees with the shown edit; the goal is marked shown, not made.")));
+      seen.forEach((g) => resultBox.appendChild(h("div", { class: "fb no" }, h("b", null, "Shown. "), inline(g.text), " The shown edit reaches the goal, and it is recorded as shown.")));
       if (goals.length && !made.length && !seen.length && tinkered()) {
         const open = goals.filter((g, gi) => !(answers[key + ":goal:" + gi] && answers[key + ":goal:" + gi].ok));
         if (open.length) resultBox.appendChild(h("div", { class: "fb no" }, h("b", null, "Not yet. "), isPage ? out.note : whyLine(out)));

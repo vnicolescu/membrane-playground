@@ -94,9 +94,9 @@
     const N = {
       received: { x: 70, y: 118, s: "sent", say: "**Received.** The message has arrived in the transport. Nothing has read it yet." },
       logged: { x: 70, y: 222, s: "sent", label: "logged only", say: "**Logged only.** A message whose signature fails, or that is malformed, gets no receipt. Answering a forged sender would make the receiver a source of backscatter against whoever the forger named [[P§4.2]]." },
-      sealed: { x: 236, y: 118, s: "sealed", say: "**{{disp.sealed|sealed}}.** Stored verbatim with its hash before any model reads it. Every later decision refers to the hash, so a summary can never be the thing confirmed." },
+      sealed: { x: 236, y: 118, s: "sealed", say: "**{{disp.sealed|sealed}}.** Stored verbatim with its hash before any model reads it. Every later decision refers to the hash, which pins it to the stored bytes." },
       held: { x: 416, y: 200, s: "held", say: "**{{disp.held|held}}.** In quarantine, outside memory and outside the transport, waiting for the owner or a second signal. A held message always has a clock: {{env.expires}}." },
-      admitted: { x: 616, y: 40, s: "admitted", say: "**{{disp.admitted|admitted}}.** Entered the receiver's constructed layer at its tier. Admission never means execution: an admitted request is a proposal." },
+      admitted: { x: 616, y: 40, s: "admitted", say: "**{{disp.admitted|admitted}}.** Entered the receiver's constructed layer at its tier. An admitted request enters as a proposal; acting on it is a separate decision." },
       refused: { x: 616, y: 118, s: "refused", say: "**{{disp.refused|refused}}.** Terminal, with a reason code from the registry and no prose. A reason in prose is a map for getting around the refusal [[P§6.1]]." },
       expired: { x: 616, y: 200, s: "expired", say: "**{{disp.expired|expired}}.** Held past its expiry. One honest resend under a new id is allowed; a third copy of the same body is refused with `expired-before`." }
     };
@@ -191,7 +191,7 @@
       el("path", { d: toRight ? `M${RX - 12},${y - 4} L${RX - 4},${y} L${RX - 12},${y + 4}z` : `M222,${y - 4} L214,${y} L222,${y + 4}z`, fill: col }, svg);
       text(svg, mid, y - 6, lab, { "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 10.5, fill: col, class: "halo" });
     });
-    text(svg, W / 2, 252, "Two owners. The transport and the task lifecycle are specified; the boundary is not.", { "text-anchor": "middle", "font-size": 11.5, "font-style": "italic", fill: "var(--ink-2)" });
+    text(svg, W / 2, 252, "Two owners. A2A specifies how messages and tasks travel between them and leaves each side to decide what it lets in.", { "text-anchor": "middle", "font-size": 11.5, "font-style": "italic", fill: "var(--ink-2)" });
     return h("div", null, h("div", { class: "scroll" }, svg), ex);
   });
 
@@ -250,24 +250,30 @@
       el("rect", { x: x + 20, y: 60, width: 170, height: 110, rx: 10, fill: "var(--surface)", stroke: "var(--rule-strong)" }, g);
       text(g, x + 105, 82, agent, { "text-anchor": "middle", "font-weight": 600, "font-size": 12.5, fill: "var(--ink)" });
       ["kernel", "memory", "tools"].forEach((t, i) => text(g, x + 105, 104 + i * 18, t, { "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 11, fill: "var(--ink-3)" }));
-      el("rect", { x: x + 20, y: 190, width: 170, height: 64, rx: 10, fill: "var(--held-bg)", stroke: "var(--held)" }, g);
-      text(g, x + 105, 214, "gate · own OS user", { "text-anchor": "middle", "font-size": 12, "font-weight": 600, fill: "var(--held)" });
+      el("rect", { x: x + 20, y: 190, width: 170, height: 64, rx: 10, fill: "var(--surface)", stroke: "var(--ink)", "stroke-width": 1.5 }, g);
+      text(g, x + 105, 214, "gate · own OS user", { "text-anchor": "middle", "font-size": 12, "font-weight": 600, fill: "var(--ink)" });
+      // every path inward crosses the gate: transport to gate, gate to agent
+      el("line", { x1: x + 105, y1: 188, x2: x + 105, y2: 174, stroke: "var(--ink-2)", "stroke-width": 1.4, "marker-end": "url(#to-arr)" }, g);
       text(g, x + 105, 234, "sensor · quarantine", { "text-anchor": "middle", "font-size": 11, fill: "var(--ink-2)" });
       el("rect", { x: x + 20, y: 272, width: 170, height: 52, rx: 10, fill: "var(--accent-soft)", stroke: "var(--accent)", "stroke-dasharray": "4 3" }, g);
       text(g, x + 105, 294, "pinned trust root", { "text-anchor": "middle", "font-size": 12, "font-weight": 600, fill: "var(--accent)" });
       text(g, x + 105, 311, "keys · accepted contract", { "text-anchor": "middle", "font-size": 10.5, fill: "var(--ink-2)" });
     };
+    const defs = el("defs", {}, svg), mk = el("marker", { id: "to-arr", viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs);
+    el("path", { d: "M0,0 L10,5 L0,10 z", fill: "var(--ink-2)" }, mk);
     side(14, "Vlad", "brainboi", false); side(W - 224, "Sal", "Hermes", true);
+    el("line", { x1: 249, y1: 200, x2: 207, y2: 200, stroke: "var(--ink-2)", "stroke-width": 1.4, "marker-end": "url(#to-arr)" }, svg);
+    el("line", { x1: 451, y1: 200, x2: W - 207, y2: 200, stroke: "var(--ink-2)", "stroke-width": 1.4, "marker-end": "url(#to-arr)" }, svg);
     const mid = el("g", {}, svg);
     el("rect", { x: 250, y: 60, width: 200, height: 230, rx: 10, fill: "var(--surface)", stroke: "var(--rule-strong)" }, mid);
     text(mid, 350, 82, "shared transport (git)", { "text-anchor": "middle", "font-weight": 600, "font-size": 12, fill: "var(--ink)" });
     ["lanes/hermes/out/ →", "← lanes/brainboi/out/", "PROTOCOL.md", "allowed_signers", "owners/PAUSE"].forEach((t, i) => text(mid, 350, 112 + i * 24, t, { "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 10.5, fill: i < 2 ? "var(--ink-2)" : "var(--ink-3)" }));
     const POINTS = [
-      [262, 110, "signature", "unsigned", "A message signed by no key the receiver knows, or with a broken signature. Logged only: no receipt goes to whatever `from` claims."],
+      [262, 110, "signature", "unsigned", "A broken signature is logged only, with no receipt to whatever `from` claims. A valid signature from an identifier the receiver has never seen passes this step and is held for the owner at S0."],
       [438, 134, "lane", "lane", "Hermes signs a commit that writes into brainboi's lane, or `from` names someone other than the signer. Signer, lane and `from` must agree."],
       [266, 160, "scope", "scope", "A commit that touches `.claude/`, `AGENTS.md`, a hook or anything outside `lanes/<sender>/out/*.md`. The transport must stay inert."],
       [350, 256, "bytes and header", "malformed", "Zero-width or control characters in a header value, a CR in the body, a body that no longer matches its hash."],
-      [214, 128, "sensor", "policy", "Instruction text in the body. The sensor may raise the tier or hold; it never releases."],
+      [214, 128, "sensor", "policy", "Instruction text in the body. The sensor can raise the tier or hold the message for the owner; release stays with the deterministic steps."],
       [214, 152, "release at T1", "awaiting-owner", "An innocent body with an acceptance line that needs memory files. The answer is drawn by a quarantined run that cannot reach them."],
       [250, 286, "duplicate · rate", "duplicate / rate", "The same message again, then thirty in an hour. A duplicate gets its original receipt; the rate limit refuses the rest."],
       [450, 286, "clock", "clock", "`at` set hours ahead so the message outlives its expiry checks. More than ten minutes ahead of the receiver's clock is refused."],
@@ -276,7 +282,7 @@
     ];
     POINTS.forEach(([x, y, step, code, why], i) => {
       const g = el("g", {}, svg);
-      el("circle", { cx: x, cy: y, r: 11, fill: "var(--refused)" }, g);
+      el("circle", { cx: x, cy: y, r: 11, fill: "var(--ink)" }, g); // entry points in ink: their codes span refusals, holds and logged-only
       text(g, x, y + 4, String(i + 1), { "text-anchor": "middle", "font-size": 11, "font-weight": 600, fill: "var(--surface)" });
       tappable(g, () => say(ex, "**" + (i + 1) + " · " + step + "** returns `" + code + "`. " + why));
     });

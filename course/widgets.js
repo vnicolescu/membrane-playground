@@ -126,7 +126,7 @@
     ta.addEventListener("input", run);
     run();
     return h("div", null, h("div", { class: "check-k" }, "Sensor lab"),
-      h("p", { class: "small muted" }, "The offline heuristic sensor (", h("code", null, "Gate.sensorHeuristic"), ") reads the body and the free-text header values and returns a typed label. It may raise a tier or hold. It never releases."),
+      h("p", { class: "small muted" }, "The offline heuristic sensor (", h("code", null, "Gate.sensorHeuristic"), ") reads the body and the free-text header values and returns a typed label. It may raise a tier or hold the message; release stays with the deterministic steps."),
       h("div", { class: "w-row" }, presets.map((p) => h("button", { type: "button", class: "chip", onclick: () => { ta.value = p.text; run(); } }, p.label))),
       ta, h("div", { class: "w-row" }, h("span", { class: "small muted" }, "Strictness"), seg(["low", "medium", "high"], strict, (v) => { strict = v; run(); }, "strictness")), out);
   });
@@ -337,7 +337,7 @@
     return h("div", null, h("div", { class: "check-k" }, "Standing over ninety days"),
       h("div", { class: "w-row" }, seg(Object.keys(presets), cur, (v) => { cur = v; render(); }, "case")),
       out,
-      h("p", { class: "small muted" }, "Illustrative thresholds: " + RULE.promote + " clean receipts in " + RULE.window + " days lift S0 to S1, " + RULE.promote2 + " lift S1 to S2; S3 is an owner grant only. The contract leaves the real numbers to decision D5; only the 30-day demotion clock is in the draft, and it has never fired."));
+      h("p", { class: "small muted" }, "Illustrative thresholds: " + RULE.promote + " clean receipts in " + RULE.window + " days lift S0 to S1, " + RULE.promote2 + " lift S1 to S2; S3 is an owner grant only. The contract leaves the real numbers to decision D5; only the 30-day demotion clock is in the draft, and nothing has exercised it yet."));
   });
 
   /* ---------- bspl: the pilot contract, P§10.4 ---------- */
