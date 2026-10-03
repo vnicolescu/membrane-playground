@@ -14,6 +14,40 @@
   function explainer(initial) { const box = h("div", { class: "fig-explain", "aria-live": "polite" }); box.appendChild(inline(initial)); return box; }
   function say(box, s) { box.textContent = ""; box.appendChild(inline(s)); }
 
+  /* Edge-label placement without layout: a label's box is estimated from its length (0.48 em per character, Instrument Sans measures about 0.43), and each label tries positions
+     along its edge (middle first), on its preferred side then the other, until its box clears every line, every node, every placed label
+     and the frame. A figure that changes its node positions gets clean labels without hand-tuning; the first candidate is the fallback. */
+  function placeLabels(edges, obstacles, W, H, fs) {
+    const pad = 2.5, boxes = obstacles.slice(), out = [];
+    const hitsSeg = (r, [x0, y0, x1, y1]) => {
+      const inR = (x, y) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
+      if (inR(x0, y0) || inR(x1, y1)) return true;
+      const cross = (ax, ay, bx, by, cx, cy, dx, dy) => { const d = (bx - ax) * (dy - cy) - (by - ay) * (dx - cx); if (!d) return false; const t = ((cx - ax) * (dy - cy) - (cy - ay) * (dx - cx)) / d, u = ((cx - ax) * (by - ay) - (cy - ay) * (bx - ax)) / d; return t >= 0 && t <= 1 && u >= 0 && u <= 1; };
+      const { x, y, w, h: hh } = r;
+      return cross(x0, y0, x1, y1, x, y, x + w, y) || cross(x0, y0, x1, y1, x, y + hh, x + w, y + hh) || cross(x0, y0, x1, y1, x, y, x, y + hh) || cross(x0, y0, x1, y1, x + w, y, x + w, y + hh);
+    };
+    const meets = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+    edges.forEach((e) => {
+      if (!e.label) return;
+      const [x0, y0, x1, y1] = e.seg, dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L, w = e.label.length * fs * 0.48;
+      let pick = null, first = null;
+      for (const t of [0.5, 0.4, 0.6, 0.3, 0.7, 0.22, 0.78]) for (const side of [e.side || 1, -(e.side || 1)]) for (const off of [9, 14, 20]) {
+        const px = x0 + dx * t - uy * side * off, py = y0 + dy * t + ux * side * off;
+        const nxs = -uy * side; // the box grows the way the normal points, where the line falls away from it; near-horizontal lines centre it
+        const anchor = Math.abs(nxs) < 0.12 ? "middle" : (nxs > 0 ? "start" : "end");
+        const bx = anchor === "middle" ? px - w / 2 : anchor === "start" ? px : px - w;
+        const r = { x: bx - pad, y: py - fs * 0.5 - pad, w: w + 2 * pad, h: fs + 2 * pad };
+        const c = { x: px, y: py + fs * 0.35, anchor, r };
+        if (!first) first = c;
+        if (r.x < 1 || r.y < 1 || r.x + r.w > W - 1 || r.y + r.h > H - 1) continue;
+        if (edges.some((o) => hitsSeg(r, o.seg)) || boxes.some((b) => meets(r, b))) continue;
+        pick = c; break;
+      }
+      const c = pick || first; boxes.push(c.r); out.push(Object.assign({ edge: e }, c));
+    });
+    return out;
+  }
+
   /* ---------- hourglass ---------- */
   C.widget("hourglass", () => {
     const W = 680, H = 400;
@@ -54,7 +88,7 @@
   /* ---------- dispositions ---------- */
   C.widget("dispositions", () => {
     const narrow = window.innerWidth < 640; // on a phone the flow runs top to bottom so all five endings show at rest
-    const W = narrow ? 360 : 680, H = narrow ? 540 : 272;
+    const W = narrow ? 360 : 680, H = narrow ? 520 : 272;
     const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "w-svg" + (narrow ? " tall" : ""), role: "img", "aria-label": "Dispositions: received, sealed, held, then admitted, refused or expired" });
     const ex = explainer("Every message the gate accepts for handling is sealed, may be held, and ends in exactly one of admitted, refused or expired. Tap a state.");
     const N = {
@@ -66,21 +100,25 @@
       refused: { x: 616, y: 118, s: "refused", say: "**{{disp.refused|refused}}.** Terminal, with a reason code from the registry and no prose. A reason in prose is a map for getting around the refusal [[P§6.1]]." },
       expired: { x: 616, y: 200, s: "expired", say: "**{{disp.expired|expired}}.** Held past its expiry. One honest resend under a new id is allowed; a third copy of the same body is refused with `expired-before`." }
     };
-    if (narrow) Object.assign(N.received, { x: 90, y: 44 }), Object.assign(N.logged, { x: 270, y: 44 }), Object.assign(N.sealed, { x: 90, y: 180 }), Object.assign(N.held, { x: 260, y: 300 }),
-      Object.assign(N.admitted, { x: 56, y: 470 }), Object.assign(N.refused, { x: 180, y: 470 }), Object.assign(N.expired, { x: 300, y: 470 });
-    const edges = [["received", "sealed", "checks pass", -1], ["received", "logged", "unsigned or malformed", 1], ["sealed", "admitted", "low tier, released by the gate", -1], ["sealed", "refused", "a rule refuses", -1], ["sealed", "held", "needs the owner or a signal", 1], ["held", "admitted", "released", 1], ["held", "refused", "refused", 1], ["held", "expired", "clock runs out", 1]];
+    // the phone layout is planar: held sits between admitted and refused, so no two edges cross, and the edge names are short enough for the wedges
+    if (narrow) Object.assign(N.received, { x: 110, y: 44 }), Object.assign(N.logged, { x: 270, y: 44 }), Object.assign(N.sealed, { x: 180, y: 176 }),
+      Object.assign(N.admitted, { x: 50, y: 336 }), Object.assign(N.held, { x: 180, y: 336 }), Object.assign(N.refused, { x: 310, y: 336 }), Object.assign(N.expired, { x: 180, y: 470 });
+    const edges = [["received", "sealed", "checks pass", -1], ["received", "logged", narrow ? "bad signature or form" : "unsigned or malformed", 1], ["sealed", "admitted", narrow ? "low tier" : "low tier, released by the gate", -1], ["sealed", "refused", narrow ? "rule refuses" : "a rule refuses", -1], ["sealed", "held", narrow ? "owner or signal" : "needs the owner or a signal", 1], ["held", "admitted", "released", 1], ["held", "refused", "refused", 1], ["held", "expired", "clock runs out", 1]];
     const defs = el("defs", {}, svg);
     const mk = el("marker", { id: "dz-arr", viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs);
     el("path", { d: "M0,0 L10,5 L0,10 z", fill: "var(--ink-3)" }, mk);
-    edges.forEach(([a, b, lab, side]) => {
+    // a node is its envelope and the name under it; an edge starts and ends where its ray leaves that box, so no line runs through a name
+    const half = (n, id) => Math.max(19, (n.label || id).length * 11.5 * 0.31 + 2);
+    const exit = (n, id, ux, uy) => { const hw = half(n, id) + 4, top = 18, bottom = 38; const tx = ux ? hw / Math.abs(ux) : Infinity, ty = uy ? (uy > 0 ? bottom : top) / Math.abs(uy) : Infinity; const d = Math.min(tx, ty); return [n.x + ux * d, n.y + uy * d]; };
+    const segs = edges.map(([a, b, label, side]) => {
       const p = N[a], q = N[b];
       const dx = q.x - p.x, dyy = q.y - p.y, L = Math.hypot(dx, dyy) || 1, ux = dx / L, uy = dyy / L;
-      const x0 = p.x + ux * 28, y0 = p.y + uy * 22, x1 = q.x - ux * 30, y1 = q.y - uy * 22;
-      el("line", { x1: x0, y1: y0, x2: x1, y2: y1, stroke: "var(--rule-strong)", "stroke-width": 1.3, "marker-end": "url(#dz-arr)" }, svg);
-      const mx = x0 + (x1 - x0) * 0.5, my = y0 + (y1 - y0) * 0.5;
-      const nx = -uy * side * 11, ny = ux * side * 11 + (Math.abs(ux) > 0.9 ? 0 : 0);
-      if (lab) text(svg, mx + nx, my + ny + 3.5, lab, { "text-anchor": Math.abs(uy) > 0.85 ? (side > 0 ? "end" : "start") : "middle", "font-size": 10.5, fill: "var(--ink-3)", class: "halo" });
+      const seg = exit(p, a, ux, uy).concat(exit(q, b, -ux, -uy));
+      el("line", { x1: seg[0], y1: seg[1], x2: seg[2], y2: seg[3], stroke: "var(--rule-strong)", "stroke-width": 1.3, "marker-end": "url(#dz-arr)" }, svg);
+      return { seg, label, side };
     });
+    const nodeBoxes = Object.entries(N).flatMap(([id, n]) => { const lw = (n.label || id).length * 11.5 * 0.62; return [{ x: n.x - 19, y: n.y - 14, w: 38, h: 28 }, { x: n.x - lw / 2, y: n.y + 19, w: lw, h: 14 }]; });
+    placeLabels(segs, nodeBoxes, W, H, 10.5).forEach((l) => text(svg, l.x, l.y, l.edge.label, { "text-anchor": l.anchor, "font-size": 10.5, fill: "var(--ink-3)", class: "halo" }));
     Object.entries(N).forEach(([id, n]) => {
       const g = el("g", {}, svg);
       const env = window.Glyphs.envelope(g, { x: n.x, y: n.y, w: 34, h: 24, state: n.s });
@@ -123,8 +161,8 @@
 
   /* ---------- a2aArch ---------- */
   C.widget("a2aArch", () => {
-    const W = 680, H = 280;
-    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "w-svg", role: "img", "aria-label": "A2A: a client agent finds a remote agent's card, sends a message, follows a task" });
+    const W = 760, H = 280, RX = 550; // the remote agent starts at RX; the membrane stands just before it, and the lane labels fit between
+    const svg = el("svg", { viewBox: `0 46 ${W} ${H - 46}`, class: "w-svg", role: "img", "aria-label": "A2A: a client agent finds a remote agent's card, sends a message, follows a task" });
     const ex = explainer("A2A connects two agents that may belong to different organisations. Tap a part.");
     const A = el("g", {}, svg);
     el("rect", { x: 20, y: 60, width: 190, height: 150, rx: 12, fill: "var(--surface)", stroke: "var(--rule-strong)" }, A);
@@ -132,24 +170,26 @@
     text(A, 36, 104, "owner A", { "font-size": 11, fill: "var(--ink-3)" });
     tappable(A, () => say(ex, "**The client agent** starts the exchange with `SendMessage` and follows the task it gets back, by polling, streaming or a push webhook [[R10·§8]]."));
     const B = el("g", {}, svg);
-    el("rect", { x: 470, y: 60, width: 190, height: 150, rx: 12, fill: "var(--ink)", stroke: "var(--ink)" }, B);
-    text(B, 486, 86, "Remote agent", { "font-weight": 600, "font-size": 13, fill: "var(--ground)" });
-    text(B, 486, 104, "owner B · opaque by design", { "font-size": 11, fill: "var(--ground)", opacity: .75 });
+    el("rect", { x: RX, y: 60, width: 190, height: 150, rx: 12, fill: "var(--ink)", stroke: "var(--ink)" }, B);
+    text(B, RX + 16, 86, "Remote agent", { "font-weight": 600, "font-size": 13, fill: "var(--ground)" });
+    text(B, RX + 16, 104, "owner B · opaque by design", { "font-size": 11, fill: "var(--ground)", opacity: .75 });
     tappable(B, () => say(ex, "**The remote agent** is opaque: A2A never exposes its internals. What it does with an inbound message, how far it trusts it, and whether its owner is asked are its own business, and the protocol says nothing about them [[R1·§5]]."));
     const card = el("g", {}, svg);
-    el("rect", { x: 500, y: 140, width: 130, height: 50, rx: 6, fill: "var(--surface)", stroke: "var(--accent)" }, card);
-    text(card, 565, 160, "Agent Card", { "text-anchor": "middle", "font-size": 11.5, "font-weight": 600, fill: "var(--accent)" });
-    text(card, 565, 177, "/.well-known/agent-card.json", { "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 8.5, fill: "var(--ink-2)" });
+    el("rect", { x: RX + 30, y: 140, width: 130, height: 50, rx: 6, fill: "var(--surface)", stroke: "var(--accent)" }, card);
+    text(card, RX + 95, 160, "Agent Card", { "text-anchor": "middle", "font-size": 11.5, "font-weight": 600, fill: "var(--accent)" });
+    text(card, RX + 95, 177, "/.well-known/agent-card.json", { "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 8.5, fill: "var(--ink-2)" });
     tappable(card, () => say(ex, "**The Agent Card** describes the agent: name, interfaces, skills, security schemes, extensions. JWS signatures over it are optional in A2A; Membrane's `card` form requires them [[R10·§1]]."));
     const ghost = el("g", { opacity: .32 }, svg);
-    window.Glyphs.bilayer(ghost, { x: 438, y0: 70, y1: 206, spacing: 12, amp: 0, gap: 7, r: 2.6 });
-    text(svg, 438, 222, "boundary: unspecified", { "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 9.5, fill: "var(--ink-3)", class: "halo" });
-    const lanes = [["1 · fetch the card", 92, "var(--accent)"], ["2 · SendMessage", 128, "var(--ink-2)"], ["3 · Task: SUBMITTED → WORKING → COMPLETED", 164, "var(--admitted)"], ["4 · push: statusUpdate, artifactUpdate", 200, "var(--held)"]];
-    lanes.forEach(([lab, y, col], i) => {
+    window.Glyphs.bilayer(ghost, { x: RX - 30, y0: 70, y1: 206, spacing: 12, amp: 0, gap: 7, r: 2.6 });
+    text(svg, RX - 30, 222, "boundary: unspecified", { "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 9.5, fill: "var(--ink-3)", class: "halo" });
+    // lanes are told apart by ink and dash, never by a disposition colour: those five hues mean the five dispositions only
+    const lanes = [["1 · fetch the card", 92, "var(--accent)", null], ["2 · SendMessage", 128, "var(--ink-2)", null], ["3 · Task: SUBMITTED → WORKING → COMPLETED", 164, "var(--ink)", null], ["4 · push: statusUpdate, artifactUpdate", 200, "var(--ink-2)", "4 3"]];
+    const mid = (210 + RX - 44) / 2;
+    lanes.forEach(([lab, y, col, dash], i) => {
       const toRight = i < 2;
-      el("line", { x1: toRight ? 210 : 470, y1: y, x2: toRight ? 466 : 214, y2: y, stroke: col, "stroke-width": 1.5, "stroke-dasharray": i === 3 ? "4 3" : null }, svg);
-      el("path", { d: toRight ? `M458,${y - 4} L466,${y} L458,${y + 4}z` : `M222,${y - 4} L214,${y} L222,${y + 4}z`, fill: col }, svg);
-      text(svg, 340, y - 6, lab, { "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 10.5, fill: col, class: "halo" });
+      el("line", { x1: toRight ? 210 : RX, y1: y, x2: toRight ? RX - 4 : 214, y2: y, stroke: col, "stroke-width": 1.5, "stroke-dasharray": dash }, svg);
+      el("path", { d: toRight ? `M${RX - 12},${y - 4} L${RX - 4},${y} L${RX - 12},${y + 4}z` : `M222,${y - 4} L214,${y} L222,${y + 4}z`, fill: col }, svg);
+      text(svg, mid, y - 6, lab, { "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 10.5, fill: col, class: "halo" });
     });
     text(svg, W / 2, 252, "Two owners. The transport and the task lifecycle are specified; the boundary is not.", { "text-anchor": "middle", "font-size": 11.5, "font-style": "italic", fill: "var(--ink-2)" });
     return h("div", null, h("div", { class: "scroll" }, svg), ex);

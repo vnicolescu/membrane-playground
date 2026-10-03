@@ -515,7 +515,7 @@
     STEP_ORDER.forEach((id, n) => {
       const s = byId.get(id), x = x0 + n * dx;
       const st = !s ? "skip" : n === dIdx ? "dec" : s.ok === true ? "pass" : s.ok === "flag" ? "flag" : "fail";
-      const fill = st === "pass" ? "var(--lipid)" : st === "flag" ? "var(--sealed)" : st === "dec" ? "var(" + (DC[dc] || "--ink") + ")" : st === "fail" ? "var(--refused)" : "none";
+      const fill = st === "pass" ? "var(--lipid)" : st === "flag" ? "var(--accent)" : st === "dec" ? "var(" + (DC[dc] || "--ink") + ")" : st === "fail" ? "var(--ink)" : "none";
       const stroke = st === "skip" ? "var(--rule-strong)" : "none";
       svgEl("path", { d: `M${x - 2},20 Q${x - 4},28 ${x - 2},33 M${x + 2},20 Q${x + 4},28 ${x + 2},33 M${x - 2},37 Q${x - 4},40 ${x - 2},46 M${x + 2},37 Q${x + 4},40 ${x + 2},46`, fill: "none", stroke: st === "skip" ? "var(--rule)" : "var(--lipid)", "stroke-width": .9, opacity: st === "skip" ? .5 : .6 }, svg);
       svgEl("circle", { cx: x, cy: 16, r: 5.2, fill, stroke, "stroke-width": 1.2 }, svg);

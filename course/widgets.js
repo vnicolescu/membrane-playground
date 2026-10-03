@@ -118,7 +118,7 @@
       const tr = S.run({ body, params: { sensorStrictness: strict } }).trace;
       out.textContent = "";
       out.appendChild(h("p", { class: "w-sentence" }, "The label: impact ", h("code", null, lab.impact), ", reach ", h("code", null, lab.reach), ", asks for action ", h("code", null, String(lab.asks_for_action)), ", injection suspected ",
-        h("code", { style: { color: lab.injection_suspected ? "var(--refused)" : null } }, String(lab.injection_suspected)), "."));
+        h("code", { style: { color: lab.injection_suspected ? "var(--accent)" : null, fontWeight: lab.injection_suspected ? 600 : null } }, String(lab.injection_suspected)), "."));
       out.appendChild(h("div", { class: "w-row" }, lab.signals.length ? lab.signals.map((s) => h("span", { class: "chip" }, s)) : h("span", { class: "muted small" }, "no signals")));
       out.appendChild(h("div", { class: "w-row" }, h("span", { class: "small muted" }, "As an ask from Hermes, the gate gives:"), chip(tr.disposition), tr.reason ? term("rc." + tr.reason, tr.reason) : null, h("span", { class: "small" }, "at " + tr.tier)));
       if (tr.notes.length) out.appendChild(h("ul", { class: "res-notes" }, tr.notes.map((n) => h("li", null, n))));
@@ -147,7 +147,7 @@
         K.svgEl("line", { x1: x0, y1: 60, x2: x1, y2: 60, stroke: "var(--rule-strong)", "stroke-width": 1.4, "stroke-dasharray": i ? "4 3" : null }, svg);
         window.Glyphs.envelope(svg, { x: (x0 + x1) / 2, y: 60, w: 26, h: 18, state: i ? (result.trace.disposition || "refused") : "sent" });
         const t = K.svgEl("text", { x: (x0 + x1) / 2, y: 92, "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 11 }, svg); t.textContent = "evidence: " + (i ? st.relayed : lab);
-        if (i && st.rule && result.trace.evidence && result.trace.evidence !== st.relayed) { const t2 = K.svgEl("text", { x: (x0 + x1) / 2, y: 108, "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 11, fill: "var(--held)" }, svg); t2.textContent = "gate reads: " + result.trace.evidence; }
+        if (i && st.rule && result.trace.evidence && result.trace.evidence !== st.relayed) { const t2 = K.svgEl("text", { x: (x0 + x1) / 2, y: 108, "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 11, fill: "var(--accent)" }, svg); t2.textContent = "gate reads: " + result.trace.evidence; }
       });
       svgWrap.appendChild(svg);
     }
@@ -218,7 +218,7 @@
       });
       log.forEach((m, i) => {
         const y = 48 + i * 34, x0 = m.from === "hermes" ? 110 : 410, x1 = m.from === "hermes" ? 410 : 110;
-        const col = m.kind === "receipt" ? "var(--held)" : "var(--accent)";
+        const col = m.kind === "receipt" ? "var(--ink-2)" : "var(--accent)";
         K.svgEl("line", { x1: x0, y1: y, x2: x1 + (x1 > x0 ? -6 : 6), y2: y, stroke: col, "stroke-width": 1.6 }, svg);
         K.svgEl("path", { d: x1 > x0 ? `M${x1 - 8},${y - 4} L${x1},${y} L${x1 - 8},${y + 4}z` : `M${x1 + 8},${y - 4} L${x1},${y} L${x1 + 8},${y + 4}z`, fill: col }, svg);
         const t = K.svgEl("text", { x: 260, y: y - 9, "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 11, fill: col }, svg); t.textContent = m.label;
@@ -256,12 +256,12 @@
       const svg = K.svgEl("svg", { viewBox: `0 0 ${W} ${H}`, class: "w-svg", role: "img", "aria-label": "Escalation timeline" });
       K.svgEl("line", { x1: 30, y1: 70, x2: W - 30, y2: 70, stroke: "var(--rule-strong)" }, svg);
       const byX = x(st.byH * 60);
-      K.svgEl("line", { x1: byX, y1: 20, x2: byX, y2: 100, stroke: "var(--refused)", "stroke-dasharray": "4 3" }, svg);
-      const bt = K.svgEl("text", { x: byX + 4, y: 14, "text-anchor": "start", "font-family": "var(--mono)", "font-size": 10.5, fill: "var(--refused)" }, svg); bt.textContent = "by";
-      if (st.ackAt != null && !st.brake) { const ax = x(st.ackAt); K.svgEl("line", { x1: ax, y1: 30, x2: ax, y2: 100, stroke: "var(--admitted)", "stroke-width": 2 }, svg); const t = K.svgEl("text", { x: ax, y: 112, "text-anchor": "middle", "font-size": 10.5, fill: "var(--admitted)" }, svg); t.textContent = "acknowledged"; }
+      K.svgEl("line", { x1: byX, y1: 20, x2: byX, y2: 100, stroke: "var(--ink)", "stroke-dasharray": "4 3" }, svg);
+      const bt = K.svgEl("text", { x: byX + 4, y: 14, "text-anchor": "start", "font-family": "var(--mono)", "font-size": 10.5, fill: "var(--ink)" }, svg); bt.textContent = "by";
+      if (st.ackAt != null && !st.brake) { const ax = x(st.ackAt); K.svgEl("line", { x1: ax, y1: 30, x2: ax, y2: 100, stroke: "var(--accent)", "stroke-width": 2 }, svg); const t = K.svgEl("text", { x: ax, y: 112, "text-anchor": "middle", "font-size": 10.5, fill: "var(--admitted)" }, svg); t.textContent = "acknowledged"; }
       ev.forEach((e, i) => {
         const cx = x(e.t);
-        K.svgEl("circle", { cx, cy: 70, r: 7, fill: e.cancelled ? "var(--surface-3)" : e.storm ? "var(--refused)" : e.rung === "R5" ? "var(--ink)" : "var(--accent)" }, svg);
+        K.svgEl("circle", { cx, cy: 70, r: 7, fill: e.cancelled ? "var(--surface-3)" : e.storm ? "var(--surface)" : e.rung === "R5" ? "var(--ink)" : "var(--accent)", stroke: e.storm ? "var(--ink)" : null, "stroke-width": e.storm ? 2.2 : null }, svg);
         const t = K.svgEl("text", { x: e.rung === "R5" ? cx - 10 : cx, y: i % 2 ? 98 : 50, "text-anchor": e.rung === "R5" ? "end" : "middle", "font-family": "var(--mono)", "font-size": 11, fill: e.cancelled ? "var(--ink-3)" : "var(--ink)" }, svg); t.textContent = e.rung;
       });
       out.textContent = "";
@@ -269,7 +269,7 @@
       const live = ev.filter((e) => !e.cancelled);
       out.appendChild(h("ol", { class: "ladder-list" }, live.map((e) => {
         const it = RUNG.find((r) => r.name === e.rung);
-        return h("li", null, h("code", null, e.rung), " ", h("span", { class: "muted num" }, "+" + Math.round(e.t / 60 * 10) / 10 + " h "), e.storm ? h("b", { style: { color: "var(--refused)" } }, "again: ") : null, it ? it.def : "");
+        return h("li", null, h("code", null, e.rung), " ", h("span", { class: "muted num" }, "+" + Math.round(e.t / 60 * 10) / 10 + " h "), e.storm ? h("b", null, "again: ") : null, it ? it.def : "");
       })));
       if (st.cycle > st.byH * 60) out.appendChild(h("p", { class: "fb no" }, "The ask's by is shorter than the receiver's cycle, so it binds the receiver to nothing (P§7.3)."));
     }
@@ -325,13 +325,13 @@
       L.forEach((l, d) => { dpath += (d ? ` L${x(d)},${y(L[d - 1])} L${x(d)},${y(l)}` : `M${x(0)},${y(l)}`); });
       K.svgEl("path", { d: dpath, fill: "none", stroke: "var(--accent)", "stroke-width": 2.2 }, svg);
       p.ev.forEach((e) => {
-        const col = e.k === "clean" ? "var(--admitted)" : e.k === "contradicted" ? "var(--refused)" : "var(--expired)";
+        const col = e.k === "clean" ? "var(--accent)" : e.k === "contradicted" ? "var(--ink)" : "var(--ink-3)"; // receipt kinds, not dispositions
         K.svgEl("circle", { cx: x(e.d), cy: 144, r: 4, fill: col }, svg);
       });
       if (p.intro != null) { const t = K.svgEl("text", { x: x(p.intro), y: y(1) - 8, "font-size": 10.5, fill: "var(--accent)" }, svg); t.textContent = "introduced by the owner"; }
       out.textContent = "";
       out.appendChild(h("div", { class: "scroll" }, svg));
-      out.appendChild(h("div", { class: "w-row small" }, h("span", null, h("span", { class: "dotk", style: { background: "var(--admitted)" } }), " clean countersigned receipt"), h("span", null, h("span", { class: "dotk", style: { background: "var(--refused)" } }), " contradicted (unmet with an openable pointer)"), h("span", null, h("span", { class: "dotk", style: { background: "var(--expired)" } }), " bare unmet: counts as unverifiable")));
+      out.appendChild(h("div", { class: "w-row small" }, h("span", null, h("span", { class: "dotk", style: { background: "var(--accent)" } }), " clean countersigned receipt"), h("span", null, h("span", { class: "dotk", style: { background: "var(--ink)" } }), " contradicted (unmet with an openable pointer)"), h("span", null, h("span", { class: "dotk", style: { background: "var(--ink-3)" } }), " bare unmet: counts as unverifiable")));
     }
     render();
     return h("div", null, h("div", { class: "check-k" }, "Standing over ninety days"),
@@ -651,7 +651,7 @@
         const y = 56 + i * 26, col = "var(--" + (r.trace.disposition || "refused") + ")";
         K.svgEl("line", { x1: x(r.m.at), y1: y, x2: x(r.fetch), y2: y, stroke: "var(--rule-strong)", "stroke-dasharray": "3 3" }, svg);
         K.svgEl("circle", { cx: x(r.m.at), cy: y, r: 4, fill: "var(--ink-3)" }, svg);
-        K.svgEl("line", { x1: x(r.m.at + st.expiry * HOUR), y1: y - 7, x2: x(r.m.at + st.expiry * HOUR), y2: y + 7, stroke: "var(--refused)", "stroke-width": 1.2 }, svg);
+        K.svgEl("line", { x1: x(r.m.at + st.expiry * HOUR), y1: y - 7, x2: x(r.m.at + st.expiry * HOUR), y2: y + 7, stroke: "var(--ink)", "stroke-width": 1.2 }, svg);
         K.svgEl("rect", { x: x(r.fetch) - 5, y: y - 5, width: 10, height: 10, rx: 2, fill: col }, svg);
         const t = K.svgEl("text", { x: x(r.fetch) + 9, y: y + 4, "font-size": 10.5, "font-family": "var(--mono)", fill: col }, svg); t.textContent = (r.trace.disposition || "logged") + (r.trace.reason ? " · " + r.trace.reason : "");
       });
