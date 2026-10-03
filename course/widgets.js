@@ -538,7 +538,7 @@
       panel.appendChild(h("div", { class: "w-row" }, h("button", { type: "button", class: "btn primary", onclick: () => run() }, "Send it"),
         ch === "g5" ? holdsLabel : null,
         ch === "g6" ? h("span", { class: "small muted" }, "Blinding the sensor needs the model sensor: play this level in the Playground's Gatekeeper.") : null,
-        h("a", { class: "btn ghost small", href: "index.html#/gatekeeper/" + ch, target: "_blank", rel: "noopener" }, "Full game")));
+        h("a", { class: "btn ghost small", href: K.playLink("gatekeeper/" + ch), target: "_blank", rel: "noopener" }, "Full game")));
     }
     function run() {
       const built = S.build(desc());

@@ -9,6 +9,8 @@
   const M = window.MEMBRANE;
   const REPO = "https://github.com/vnicolescu/membrane-playground/blob/main/";
   const SPEC_URL = { A2A: "https://a2a-protocol.org/latest/specification/", MCP: "https://modelcontextprotocol.io/specification/2026-07-28" };
+  /* where the Playground lives: next to this page in the repository, or a published copy when the page is hosted elsewhere */
+  const playLink = (route) => window.COURSE_PLAYGROUND ? window.COURSE_PLAYGROUND : "index.html" + (route ? "#/" + route : "");
   const reduceMotion = () => window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* ---------- data collectors ---------- */
@@ -240,9 +242,10 @@
   B.deeper = (b) => h("section", { class: "cx-deeper" }, h("h4", null, "Go deeper"), h("div", { class: "chips" }, (b.links || []).map((l) => {
     if (l.ref) return refChip(l.ref);
     if (l.research) { const src = M.sources[l.research]; return h("a", { class: "chip ref", href: REPO + (src && src.file || ""), target: "_blank", rel: "noopener" }, l.label || (l.research + (src ? " · " + src.title : ""))); }
-    if (l.scenario) { const sc = M.scenarios.find((s) => s.id === l.scenario); return h("a", { class: "chip ref play", href: "index.html#/playground/" + l.scenario, target: "_blank", rel: "noopener", title: "Opens the Playground" }, "Playground · " + (sc ? sc.title : l.scenario)); }
-    if (l.challenge) { const c = M.challenges.find((x) => x.id === l.challenge); return h("a", { class: "chip ref play", href: "index.html#/gatekeeper/" + l.challenge, target: "_blank", rel: "noopener" }, "Gatekeeper · " + (c ? c.title : l.challenge)); }
+    if (l.scenario) { const sc = M.scenarios.find((s) => s.id === l.scenario); return h("a", { class: "chip ref play", href: playLink("playground/" + l.scenario), target: "_blank", rel: "noopener", title: "Opens the Playground" }, "Playground · " + (sc ? sc.title : l.scenario)); }
+    if (l.challenge) { const c = M.challenges.find((x) => x.id === l.challenge); return h("a", { class: "chip ref play", href: playLink("gatekeeper/" + l.challenge), target: "_blank", rel: "noopener" }, "Gatekeeper · " + (c ? c.title : l.challenge)); }
     if (l.lesson) return h("a", { class: "chip lessonlink", href: "#" + l.lesson }, l.label || l.lesson);
+    if (l.playground != null) return h("a", { class: "chip ref play", href: playLink(l.playground || ""), target: "_blank", rel: "noopener" }, l.label || "The Playground");
     return h("a", { class: "chip ref", href: l.href, target: "_blank", rel: "noopener" }, l.label || l.href);
   })));
   B.tutor = (b, ctx) => { if (ctx) ctx.tutorPrompts = (ctx.tutorPrompts || []).concat(b.prompts || []); return null; };
@@ -620,5 +623,5 @@
     });
   }
 
-  Course.kit = { h, append, svgEl, inline, term, refChip, itemFor, wireView, codeView, traceView, resultView, figure, verdict, store, renderBlocks, blocks: B, REPO, reduceMotion, closePop };
+  Course.kit = { playLink, h, append, svgEl, inline, term, refChip, itemFor, wireView, codeView, traceView, resultView, figure, verdict, store, renderBlocks, blocks: B, REPO, reduceMotion, closePop };
 })();

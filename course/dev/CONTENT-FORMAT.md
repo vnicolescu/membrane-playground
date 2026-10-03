@@ -70,7 +70,7 @@ Every block is `{ t: "<type>", ... }`.
 | `widget` | `name`, `props?`, `spec?` | a named interactive (see Widgets) |
 | `figure` | `name`, `caption?`, `props?`, `spec?` | a named drawing (see Widgets) |
 | `takeaways` | `items[]` | 3 to 5 lines to keep |
-| `deeper` | `links: [{ ref } \| { research, label? } \| { scenario } \| { challenge } \| { href, label }]` | where to go next: paper sections, research files, a Playground scenario, a Gatekeeper challenge, the web |
+| `deeper` | `links: [{ ref } \| { research, label? } \| { scenario } \| { challenge } \| { playground: "" or a route like "contract", label? } \| { href, label }]` | where to go next: paper sections, research files, a Playground scenario, a Gatekeeper challenge, the web |
 | `tutor` | `prompts[]` | suggested questions for the in-page tutor (shown only where the page can ask Claude) |
 
 ### The `gate` block
