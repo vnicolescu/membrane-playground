@@ -207,7 +207,8 @@
     const marks = new Set(mark || []);
     const pre = h("pre", { class: "code lang-" + (lang || "text") });
     String(text).replace(/\n$/, "").split("\n").forEach((line, i) => {
-      const row = h("span", { class: "cl" + (marks.has(i + 1) ? " mark" : "") });
+      const ind = /^ */.exec(line)[0].length + 2; // a wrapped line continues under its own indent plus two
+      const row = h("span", { class: "cl" + (marks.has(i + 1) ? " mark" : ""), style: { paddingLeft: ind + "ch", textIndent: -ind + "ch" } });
       if (lang === "json" || lang === "js") {
         const re = /("(?:[^"\\]|\\.)*")(\s*:)?|\b(true|false|null)\b|(-?\b\d+(?:\.\d+)?\b)|(\/\/.*$)/g;
         let last = 0, m;
@@ -498,7 +499,7 @@
       const st = !s ? "skip" : s.id === decisive ? "dec" : s.ok === true ? "pass" : s.ok === "flag" ? "flag" : "fail";
       const icon = { skip: "·", dec: "◆", pass: "✓", flag: "⚑", fail: "✕" }[st];
       const later = st !== "dec" ? stepLater(id, cur) : null;
-      const ref = s && s.ref && itemFor(s.ref) ? term(s.ref, s.ref) : null;
+      const ref = s && s.ref && itemFor(s.ref) && (st === "dec" || st === "fail" || st === "flag") ? term(s.ref, s.ref) : null; // the contract item behind a row shows where it decided or objected
       return h("li", { class: "tr " + st + (st === "dec" ? " d-" + dc : "") + (later ? " later" : ""), style: { "--i": n } },
         h("span", { class: "tr-n num" }, n + 1), h("span", { class: "tr-i", "aria-hidden": "true" }, icon),
         h("span", { class: "tr-l" }, window.Gate.STEPS[id].label),
@@ -722,6 +723,7 @@
             row.appendChild(btn);
           });
         }
+        if (dim === "disposition") row.appendChild(h("p", { class: "predict-hint" }, "Every handled message is sealed first; predict where it ends."));
         predictBox.appendChild(row);
       });
       markRun();
@@ -782,6 +784,8 @@
       ["signer", "lane", "sigValid", "recordOk", "secondSignal", "capability"].forEach((k) => { if (JSON.stringify(built.msg[k]) !== JSON.stringify(base.msg[k])) msg.push(k + " " + (built.msg[k] === undefined ? "unset" : JSON.stringify(built.msg[k]))); });
       if (JSON.stringify(built.msg.touchedPaths) !== JSON.stringify(base.msg.touchedPaths) && !keys.has("id")) msg.push("paths touched");
       if (JSON.stringify(built.ctx) !== JSON.stringify(base.ctx)) msg.push("receiver state");
+      const cp = (cases[ci].change || {}).params || {};
+      Object.keys(cp).forEach((id) => { const p = M.params.find((x) => x.id === id); msg.push((p ? p.label : id) + " → " + (cp[id] === true ? "on" : cp[id] === false ? "off" : cp[id])); });
       return { keys, removed, body: built.msg.bodyText !== base.msg.bodyText, msg };
     }
     function scorePrediction(get) {
@@ -815,9 +819,10 @@
       const out = isPage ? window.Gate.pageDecision(built.msg, built.ctx, built.params) : window.Gate.evaluate(built.msg, built.ctx, built.params);
       if (withPrediction && dims.length) {
         const sc = scorePrediction(out);
-        const lines = sc.wrong.map((d) => DIMS[d].label.replace(/\?$/, "") + ": you said " + showVal(d, pred[d]) + "; it is " + showVal(d, DIMS[d].get(out)) + "." + (isPage || d === "disposition" ? "" : " " + partWhy(d, out)));
-        const whole = isPage ? "Why: " + out.note + "." : (sc.wrong.includes("disposition") || sc.wrong.length === 0 ? whyLine(out) : "");
-        resultBox.appendChild(verdict(sc.ok, sc.ok ? (dims.length > 1 ? "Every part of your prediction holds. " : "") + (isPage ? out.note + "." : whyLine(out)) : [lines.join(" "), whole, c.whyNot || ""].filter(Boolean).join(" ")));
+        // the banner says only what the reader got wrong and why that part came out so; the card and the trace below carry the rest
+        const lines = sc.wrong.map((d) => DIMS[d].label.replace(/\?$/, "") + ": you said " + showVal(d, pred[d]) + "; it is " + showVal(d, DIMS[d].get(out)) + "." + (isPage ? "" : " " + (d === "disposition" ? "Step " + (STEP_ORDER.indexOf(out.decisiveStep) + 1) + " decided it." : partWhy(d, out))));
+        const explained = c.explain && !tinkered();
+        resultBox.appendChild(verdict(sc.ok, sc.ok ? (dims.length > 1 ? "Every part of your prediction holds." : "") + (explained ? "" : " " + (isPage ? out.note + "." : whyLine(out))) : [lines.join(" "), isPage ? "Why: " + out.note + "." : "", c.whyNot || ""].filter(Boolean).join(" ")));
         recordCase(sc.ok);
       }
       const { made, seen } = checkGoals(out);
@@ -843,7 +848,7 @@
     skip.addEventListener("click", () => run(false));
     renderCase();
     return h("div", { class: "cx-lab" + (goals.length ? " goal-mode" : "") },
-      h("div", { class: "lab-head" }, h("div", { class: "check-k" }, goals.length ? "Gate lab · make it happen" : "Gate lab"), h("div", { class: "lab-title" }, inline(b.title || "Run it through the gate")), b.intro ? h("p", { class: "lab-intro" }, inline(b.intro)) : null),
+      h("div", { class: "lab-head" }, h("div", { class: "check-k" }, goals.length ? "Gate lab · goals to reach" : "Gate lab"), h("div", { class: "lab-title" }, inline(b.title || "Run it through the gate")), b.intro ? h("p", { class: "lab-intro" }, inline(b.intro)) : null),
       cases.length > 1 ? caseBar : null,
       goalBox,
       h("div", { class: "lab-grid" }, msgBox, ctxBox),

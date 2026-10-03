@@ -625,3 +625,9 @@ a.btn{text-decoration:none}
 .w-say b{color:var(--ink);font-size:15px}
 .lin-legend{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;color:var(--ink-3)}
 .af-legend>span{display:inline-flex;align-items:center;gap:6px}
+/* references read as small superscripts wherever text runs: captions, explainers, machine notes and widget prose too */
+.cx-fig figcaption .chip.ref,.fig-explain .chip.ref,.m-list .chip.ref,.w-out .chip.ref,.lab-intro .chip.ref,.res-kv .chip.ref{background:none;border:0;padding:0 0 0 .12em;font-size:.7em;vertical-align:.4em;color:var(--accent);gap:2px}
+.cx-fig figcaption .chip.ref::before,.fig-explain .chip.ref::before,.m-list .chip.ref::before,.w-out .chip.ref::before{content:""}
+/* labels in sentence case and the sans: mono capitals read slowly */
+.check-k{font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:0;text-transform:none}
+.predict-hint{flex-basis:100%;font-size:12.5px;color:var(--ink-3);margin:2px 0 0}
