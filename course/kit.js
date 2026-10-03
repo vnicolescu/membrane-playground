@@ -294,8 +294,7 @@
     const out = h("div", { class: "fbwrap" });
     let firstOk = prior && prior.kind === "quiz" ? prior.ok : undefined; // the first attempt counts; later choices only show feedback
     // display order: a permutation seeded by the quiz's key, so where the right answer sits varies across the course and stays put on reload
-    const order = (b.options || []).map((_, j) => j);
-    if (b.shuffle !== false) { let seed = 0; for (const ch of key) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0; for (let j = order.length - 1; j > 0; j--) { seed = (seed * 1103515245 + 12345) >>> 0; const r = seed % (j + 1); [order[j], order[r]] = [order[r], order[j]]; } }
+    const order = b.shuffle === false ? (b.options || []).map((_, j) => j) : window.Scenario.quizOrder(key, (b.options || []).length);
     const optByIndex = {};
     const opts = order.map((j, pos) => { const btn = h("button", { type: "button", class: "opt", onclick: () => choose(j) }, h("span", { class: "opt-l" }, String.fromCharCode(65 + pos)), h("span", null, inline(b.options[j]))); optByIndex[j] = btn; return btn; });
     function choose(j, silent) {

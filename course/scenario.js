@@ -91,7 +91,7 @@
     now: "2026-09-22T10:00:00Z",
     seenIds: {}, sent: undefined, expiredBodies: {},
     acceptedContracts: { hermes: CONTRACT },
-    contractEffects: { ask: "disclose", accept: "none", reply: "none", decline: "none", verdict: "none", receipt: "none", pulse: "none", card: "none", alert: "none" },
+    contractEffects: { ask: "disclose", accept: "none", reply: "disclose", decline: "none", verdict: "none", receipt: "none", pulse: "none", card: "none", alert: "none" },
     standing: { hermes: "S1" },
     holdsToday: {}, rateToday: {}, interruptsThisWeek: {}, ceiling: {},
     paused: false,
@@ -213,5 +213,13 @@
     return { header, bodyText: s.slice(cut + 5) };
   }
 
-  root.Scenario = { CONTRACT, CONTRACT_TEXT, BASES, build, run, check, merge, toWire, fromWire, ASK_ID, BR_ASK_ID };
+  // display order of a quiz's options, seeded by its block key: shared by the renderer and the checker so the checker counts the slots readers see.
+  // Math.imul keeps the multiply inside 32 bits (a plain * overflows 2^53 and zeroes the low bits), and the pick reads the high bits, which a power-of-two LCG mixes best.
+  function quizOrder(key, n) {
+    const order = Array.from({ length: n }, (_, j) => j);
+    let seed = 0; for (const ch of key) seed = (Math.imul(seed, 31) + ch.charCodeAt(0)) >>> 0;
+    for (let j = n - 1; j > 0; j--) { seed = (Math.imul(seed, 1103515245) + 12345) >>> 0; const r = (seed >>> 16) % (j + 1); [order[j], order[r]] = [order[r], order[j]]; }
+    return order;
+  }
+  root.Scenario = { CONTRACT, CONTRACT_TEXT, BASES, build, run, check, merge, toWire, fromWire, ASK_ID, BR_ASK_ID, quizOrder };
 })(typeof window !== "undefined" ? window : globalThis);

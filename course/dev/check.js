@@ -82,6 +82,25 @@ for (const L of lessons) {
     }
   });
 }
+// quizzes as readers see them: where the right answer lands, and whether its length gives it away
+{
+  const slots = {}, longest = [], quizzes = [];
+  for (const L of lessons) (L.blocks || []).forEach((b, i) => {
+    if (b.t !== "quiz" || !Array.isArray(b.options) || !Number.isInteger(b.answer)) return;
+    const n = b.options.length, order = b.shuffle === false ? b.options.map((_, j) => j) : S.quizOrder(L.id + ":" + i, n);
+    const slot = order.indexOf(b.answer); slots[n] = slots[n] || Array(n).fill(0); slots[n][slot]++;
+    const len = (x) => String(x).replace(/[`*]|\[\[[^\]|]*\|?|\]\]/g, "").length;
+    const right = len(b.options[b.answer]), other = Math.max(...b.options.filter((_, j) => j !== b.answer).map(len));
+    quizzes.push(L.id); if (right > other) longest.push(L.id + " block " + i + (right > 1.2 * other ? " (" + (right / other).toFixed(1) + "× the longest distractor)" : ""));
+  });
+  for (const [n, c] of Object.entries(slots)) {
+    const total = c.reduce((a, x) => a + x, 0), fair = total / n;
+    console.log(`quiz slots (${n} options, ${total} quizzes): ` + c.map((x, k) => String.fromCharCode(65 + k) + " " + x).join(" · "));
+    if (total >= 2 * n) c.forEach((x, k) => { if (x < 0.5 * fair || x > 1.6 * fair) err("quizzes", `the right answer shows in slot ${String.fromCharCode(65 + k)} ${x} times of ${total}; a fair layout is about ${fair.toFixed(1)}`); });
+  }
+  console.log(`right answer is the longest option in ${longest.length} of ${quizzes.length} quizzes`);
+  if (longest.length * 3 > quizzes.length) { err("quizzes", "the right answer is the longest option in more than a third of the quizzes, so length gives it away; even out the options in:"); longest.forEach((x) => console.log("      " + x)); }
+}
 console.log(`lessons: ${lessons.length} in ${files.length} files · parts: ${parts.length} · widgets named: ${new Set(lessons.flatMap((L) => (L.blocks || []).filter((b) => b.t === "widget" || b.t === "figure").map((b) => b.name))).size}`);
 console.log(`gate cases: ${cases} run, ${ok} matched their expect · schema and gate errors: ${errors}`);
 if (errors) process.exitCode = 1;
