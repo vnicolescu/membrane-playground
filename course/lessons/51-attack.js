@@ -58,7 +58,7 @@ Course.lesson({
     { t: "takeaways", items: [
       "Nine planted cases; the plan's hash is committed before the week and revealed after.",
       "Six are decided by deterministic steps before any model reads the message: signature, lane, scope, duplicate, rate, format characters.",
-      "The two that depend on the sensor are also caught by the architecture: no tools in the quarantined run, no reads outside the shareable list.",
+      "The two that depend on the sensor are also caught by the architecture: the quarantined run has no tools, and the shareable list bounds every read.",
       "Every broken rule has a switch in the playground, and every switch shows a specific failure.",
       "Lies, the sensor's residual error and the owner's confirmation screen are the open fronts."
     ] },
