@@ -136,6 +136,12 @@
     for (const k of Object.keys(over)) if (!Object.prototype.hasOwnProperty.call(header, k)) header[k] = over[k];
     for (const k of d.unset || []) delete header[k];
     for (const k of Object.keys(header)) if (header[k] === undefined) delete header[k];
+    // a case that changes the sender and leaves the id alone gets the id the new sender would mint (ids start with their sender), and its context with it
+    const was = base.header.from, now = header.from, oldId = base.header.id;
+    if (now && now !== was && typeof oldId === "string" && oldId.startsWith(was + "-") && !Object.prototype.hasOwnProperty.call(over, "id") && header.id === oldId) {
+      header.id = now + oldId.slice(was.length);
+      if (!Object.prototype.hasOwnProperty.call(over, "context") && header.context === "cx-" + oldId) header.context = "cx-" + header.id;
+    }
     if (!d.keepHash && !Object.prototype.hasOwnProperty.call(over, "body") && "body" in header) header.body = "$body";
     const h = resolve(header, bodyText);
     if (d.keepHash && header.body === "$body") h.body = Gate.simHash(base.body); // the hash of the bytes before the edit
