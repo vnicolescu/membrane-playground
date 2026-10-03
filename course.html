@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="course/course.css">
 </head>
 <body class="course">
-<a class="skip" href="#main">Skip to the lesson</a>
+<a class="skip" href="#main" onclick="event.preventDefault();document.getElementById('main').focus()">Skip to the lesson</a>
 <header class="bar">
   <div class="bar-in">
     <button type="button" class="btn ghost menu" id="menu" aria-label="Lessons">☰</button>
