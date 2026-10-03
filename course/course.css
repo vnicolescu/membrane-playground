@@ -431,3 +431,11 @@ button.wk{background:none;padding:0;text-decoration:none;border-bottom:1px dotte
 .hexline{overflow-wrap:anywhere;color:var(--ink-2)}
 .graph-side .btn{justify-self:start}
 .lossy-svg{max-height:520px;overflow-y:auto;margin-top:12px}
+/* phone width: the lesson column never grows past the screen; inline code may wrap */
+.lesson-body{grid-template-columns:minmax(0,1fr)}
+.lesson-body>*{min-width:0}
+.lesson-body p code,.lesson-body li code,.lesson-body td code,.lesson-body dd code,.callout code,.objectives code,.fb code,.lab-explain code,.check-q code,.opt code{white-space:normal;overflow-wrap:anywhere}
+.cx-define{grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))}
+.lcards{grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr))}
+.lesson-meta .chip,.cx-deeper .chip,.refs .chip{white-space:normal;max-width:100%;line-height:1.3;text-align:left}
+@media (max-width:480px){ .progress .num{display:none} .brand span{display:none} }

@@ -199,7 +199,7 @@
         h("div", { class: "lesson-meta" },
           L.minutes ? h("span", { class: "chip" }, L.minutes + " min") : null,
           (L.refs || []).map(refChip),
-          (L.prereq || []).length ? h("span", { class: "pre" }, "Before this: ", (L.prereq || []).map((id) => { const P = lessonById(id); return P ? h("a", { class: "chip lessonlink", href: "#" + id }, P.title) : null; })) : null),
+          (L.prereq || []).some(lessonById) ? h("span", { class: "pre" }, "Before this: ", (L.prereq || []).filter(lessonById).map((id) => h("a", { class: "chip lessonlink", href: "#" + id }, lessonById(id).title))) : null),
         (L.objectives || []).length ? h("div", { class: "objectives" }, h("h4", null, "You will be able to"), h("ul", null, L.objectives.map((o) => h("li", null, inline(o))))) : null),
       body,
       h("footer", { class: "lesson-foot" },
