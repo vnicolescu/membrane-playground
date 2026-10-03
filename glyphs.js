@@ -44,7 +44,7 @@
   }
 
   /* lipid bilayer along a vertical line: two rows of beads, each with two wavy tails that meet in the middle; breathes with t (seconds) */
-  function bilayer(parent, { x = 0, y0 = 0, y1 = 200, spacing = 11, amp = 3, t = 0, gap = 9 } = {}) {
+  function bilayer(parent, { x = 0, y0 = 0, y1 = 200, spacing = 11, amp = 3, t = 0, gap = 9, r = 3.3 } = {}) {
     let g = parent.querySelector(":scope > g.glyph-bilayer");
     if (!g) g = el("g", { class: "glyph-bilayer" }, parent);
     while (g.firstChild) g.removeChild(g.firstChild);
@@ -64,8 +64,8 @@
     }
     el("path", { class: "bilayer-tails", d: tails, fill: "none", stroke: "var(--lipid)", "stroke-width": .8, "stroke-linecap": "round", opacity: .55 }, g);
     heads.forEach(([hx, y]) => {
-      el("circle", { cx: hx, cy: y, r: 3.3, fill: "var(--lipid)" }, g);
-      el("circle", { cx: hx - 0.9, cy: y - 0.9, r: 1.1, fill: "var(--lipid-hi)", opacity: .8 }, g);
+      el("circle", { cx: hx, cy: y, r, fill: "var(--lipid)" }, g);
+      el("circle", { cx: hx - r * 0.27, cy: y - r * 0.27, r: r * 0.33, fill: "var(--lipid-hi)", opacity: .8 }, g);
     });
     return g;
   }

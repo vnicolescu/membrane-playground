@@ -54,12 +54,8 @@
         return h("div", { class: "tier-row" + (t === tr.tier ? " on" : "") + (t === e.tier && t !== tr.tier ? " pre" : "") },
           h("span", { class: "tier-t" }, term("tier." + t, t)), h("span", { class: "tier-n" }, it.name.split(" · ")[1]), h("span", { class: "tier-r" }, it.release));
       }));
-      out.appendChild(h("div", { class: "tier-flow" },
-        h("div", { class: "stat" }, h("b", null, st.declared === "absent" ? "irreversible" : st.declared), h("span", null, st.declared === "absent" ? "declared (absent)" : "declared")),
-        h("span", { class: "arrow" }, "max"),
-        h("div", { class: "stat" }, h("b", null, e.contract || "–"), h("span", null, "contract")),
-        h("span", { class: "arrow" }, "→"),
-        h("div", { class: "stat" }, h("b", null, e.effect), h("span", null, e.raisedRead ? "read raised to disclose" : "effect class"))));
+      out.appendChild(h("p", { class: "w-sentence" }, "Declared ", h("code", null, st.declared === "absent" ? "nothing (read as irreversible)" : st.declared), ", the contract says ", h("code", null, e.contract || "nothing"),
+        "; the higher of the two is ", h("code", null, e.effect), e.raisedRead ? ", because answering a read draws on what brainboi holds" : "", ". That puts it at ", term("tier." + e.tier, e.tier), "."));
       out.appendChild(ladder);
       out.appendChild(h("div", { class: "w-row" }, chip(tr.disposition), tr.reason ? term("rc." + tr.reason, tr.reason) : null, h("span", { class: "muted small" }, (tr.steps.find((s) => s.id === "release") || {}).note || "")));
     }
@@ -121,11 +117,8 @@
       const lab = G.sensorHeuristic(msg, strict);
       const tr = S.run({ body, params: { sensorStrictness: strict } }).trace;
       out.textContent = "";
-      out.appendChild(h("div", { class: "sensor-label" },
-        h("div", { class: "stat" }, h("b", null, lab.impact), h("span", null, "impact")),
-        h("div", { class: "stat" }, h("b", null, lab.reach), h("span", null, "reach")),
-        h("div", { class: "stat" }, h("b", null, String(lab.asks_for_action)), h("span", null, "asks for action")),
-        h("div", { class: "stat" + (lab.injection_suspected ? " hot" : "") }, h("b", null, String(lab.injection_suspected)), h("span", null, "injection suspected"))));
+      out.appendChild(h("p", { class: "w-sentence" }, "The label: impact ", h("code", null, lab.impact), ", reach ", h("code", null, lab.reach), ", asks for action ", h("code", null, String(lab.asks_for_action)), ", injection suspected ",
+        h("code", { style: { color: lab.injection_suspected ? "var(--refused)" : null } }, String(lab.injection_suspected)), "."));
       out.appendChild(h("div", { class: "w-row" }, lab.signals.length ? lab.signals.map((s) => h("span", { class: "chip" }, s)) : h("span", { class: "muted small" }, "no signals")));
       out.appendChild(h("div", { class: "w-row" }, h("span", { class: "small muted" }, "As an ask from Hermes, the gate gives:"), chip(tr.disposition), tr.reason ? term("rc." + tr.reason, tr.reason) : null, h("span", { class: "small" }, "at " + tr.tier)));
       if (tr.notes.length) out.appendChild(h("ul", { class: "res-notes" }, tr.notes.map((n) => h("li", null, n))));
@@ -148,7 +141,7 @@
       svgWrap.textContent = "";
       const svg = K.svgEl("svg", { viewBox: "0 0 640 150", class: "w-svg", role: "img", "aria-label": "Hermes to Echo to brainboi" });
       const agents = [M.agents.find((a) => a.id === "hermes"), M.agents.find((a) => a.id === "echo"), M.agents.find((a) => a.id === "brainboi")];
-      agents.forEach((a, i) => window.Glyphs.agentNode(svg, a, { x: 80 + i * 240, y: 60, r: 26 }));
+      agents.forEach((a, i) => { const g = window.Glyphs.agentNode(svg, Object.assign({}, a, { color: "var(--ink-2)" }), { x: 80 + i * 240, y: 60, r: 26 }); const discs = g.querySelectorAll(":scope > circle"); if (discs[2]) discs[2].setAttribute("fill", a.color); });
       [[st.origin, 0], [st.rule ? (result.trace.evidence || st.relayed) + (result.trace.evidence !== st.relayed ? " (capped)" : "") : st.relayed, 1]].forEach(([lab, i]) => {
         const x0 = 80 + i * 240 + 40, x1 = 80 + (i + 1) * 240 - 40;
         K.svgEl("line", { x1: x0, y1: 60, x2: x1, y2: 60, stroke: "var(--rule-strong)", "stroke-width": 1.4, "stroke-dasharray": i ? "4 3" : null }, svg);
@@ -185,13 +178,16 @@
     const out = h("div", { class: "w-out" });
     function simulate() {
       const log = [];
-      // the clean exchange: ask (brainboi→hermes), accept, reply, verdict
+      // the clean exchange of the running example: Hermes asks, brainboi accepts and replies, Hermes gives the verdict
+      const ASK = S.ASK_ID, ACC = "brainboi-20260922-acc0000000000001", REP = "brainboi-20260922-rep0000000000001", VER = "hermes-20260922-ver0000000000001";
+      const REPLY_BODY = "Week 2, per pilot/shareable/week.md.\n";
+      const toHermes = { receiver: "hermes", acceptedContracts: { brainboi: S.CONTRACT }, standing: { brainboi: "S1" } };
       const script = [
-        { from: "brainboi", to: "hermes", label: "ask", d: { header: { from: "brainboi", to: ["hermes"], id: "brainboi-ask-0001" }, ctx: { receiver: "hermes", acceptedContracts: { brainboi: S.CONTRACT }, standing: { brainboi: "S1" } } } },
-        { from: "hermes", to: "brainboi", label: "accept", d: { base: "accept", header: { re: "brainboi-ask-0001" } } },
-        { from: "hermes", to: "brainboi", label: "reply", d: { base: "reply", header: { re: "brainboi-ask-0001" } } },
-        { from: "brainboi", to: "hermes", label: "verdict met", d: { base: "receipt", header: { from: "brainboi", to: ["hermes"], id: "brainboi-verdict-0001", re: "hermes-20260922-9e04b7c1d2a35f68", disposition: undefined, reason: undefined, verdict: "met", echo: "$hash:" + S.BASES.reply.body },
-          ctx: { receiver: "hermes", standing: { brainboi: "S1" }, sent: { "hermes-20260922-9e04b7c1d2a35f68": "$hash:" + S.BASES.reply.body } } } }
+        { from: "hermes", to: "brainboi", label: "ask", d: {} },
+        { from: "brainboi", to: "hermes", label: "accept", d: { base: "accept", header: { id: ACC, from: "brainboi", to: ["hermes"], re: ASK, context: "cx-" + ASK }, ctx: toHermes } },
+        { from: "brainboi", to: "hermes", label: "reply", d: { base: "reply", header: { id: REP, from: "brainboi", to: ["hermes"], re: ASK, context: "cx-" + ASK }, body: REPLY_BODY, ctx: toHermes } },
+        { from: "hermes", to: "brainboi", label: "verdict met", d: { base: "receipt", header: { id: VER, re: REP, disposition: undefined, reason: undefined, verdict: "met", echo: "$hash:" + REPLY_BODY, context: "cx-" + ASK },
+          ctx: { sent: { [REP]: "$hash:" + REPLY_BODY } } } }
       ];
       const queue = script.map((x) => Object.assign({ kind: "protocol" }, x));
       let n = 0;
@@ -216,22 +212,22 @@
       out.textContent = "";
       const H = 34 * log.length + 50, W = 520;
       const svg = K.svgEl("svg", { viewBox: `0 0 ${W} ${H}`, class: "w-svg", role: "img", "aria-label": "Message sequence" });
-      [["brainboi", 110], ["hermes", 410]].forEach(([n, x]) => {
+      [["hermes", 110], ["brainboi", 410]].forEach(([n, x]) => {
         const t = K.svgEl("text", { x, y: 18, "text-anchor": "middle", "font-weight": 600, fill: "var(--ink)" }, svg); t.textContent = n;
         K.svgEl("line", { x1: x, y1: 28, x2: x, y2: H - 6, stroke: "var(--rule-strong)", "stroke-dasharray": "3 4" }, svg);
       });
       log.forEach((m, i) => {
-        const y = 48 + i * 34, x0 = m.from === "brainboi" ? 110 : 410, x1 = m.from === "brainboi" ? 410 : 110;
+        const y = 48 + i * 34, x0 = m.from === "hermes" ? 110 : 410, x1 = m.from === "hermes" ? 410 : 110;
         const col = m.kind === "receipt" ? "var(--held)" : "var(--accent)";
         K.svgEl("line", { x1: x0, y1: y, x2: x1 + (x1 > x0 ? -6 : 6), y2: y, stroke: col, "stroke-width": 1.6 }, svg);
         K.svgEl("path", { d: x1 > x0 ? `M${x1 - 8},${y - 4} L${x1},${y} L${x1 - 8},${y + 4}z` : `M${x1 + 8},${y - 4} L${x1},${y} L${x1 + 8},${y + 4}z`, fill: col }, svg);
-        const t = K.svgEl("text", { x: 260, y: y - 5, "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 11, fill: col }, svg); t.textContent = m.label;
+        const t = K.svgEl("text", { x: 260, y: y - 9, "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 11, fill: col }, svg); t.textContent = m.label;
+        window.Glyphs.envelope(svg, { x: (x0 + x1) / 2 + (x1 > x0 ? 90 : -90), y, w: 18, h: 12, state: m.disposition || "sent" });
       });
       out.appendChild(h("div", { class: "scroll" }, svg));
       const receipts = log.filter((m) => m.kind === "receipt").length;
-      out.appendChild(h("div", { class: "w-row" }, h("div", { class: "stat" }, h("b", { class: "num" }, String(log.length) + (cut ? "+" : "")), h("span", null, "messages")),
-        h("div", { class: "stat" }, h("b", { class: "num" }, String(receipts) + (cut ? "+" : "")), h("span", null, "receipts")),
-        h("span", { class: "small muted" }, cut ? "Stopped at 16 messages. Each receipt was owed a receipt of its own." : receipts ? "" : "Admission was acknowledged by the next message in the context.")));
+      out.appendChild(h("p", { class: "w-sentence" }, h("b", { class: "num" }, log.length + (cut ? "+" : "")), " messages, ", h("b", { class: "num" }, receipts + (cut ? "+" : "")), receipts === 1 ? " receipt. " : " receipts. ",
+        cut ? "Stopped at 16: each receipt was owed a receipt of its own." : receipts ? "" : "Each admission was acknowledged by the next message in the context."));
     }
     render();
     return h("div", null, h("div", { class: "check-k" }, "Receipts that answer receipts"),
@@ -530,7 +526,7 @@
       panel.textContent = "";
       result.textContent = "";
       setHolds();
-      const ta = h("textarea", { class: "wire-edit", rows: 14, spellcheck: "false", "aria-label": "Attack message" }); ta.value = wire;
+      const ta = h("textarea", { class: "wire-edit", rows: wire.split("\n").length + 2, spellcheck: "false", "aria-label": "Attack message" }); ta.value = wire;
       ta.addEventListener("input", () => { wire = ta.value; });
       panel.appendChild(h("div", { class: "rt-goal" }, h("b", null, "Level " + c.level + " · " + c.title + ". "), c.goal, " Defended by ", c.defends.map((id) => term(id)), "."));
       panel.appendChild(h("div", { class: "lab-k" }, "Your message, sent by ", h("b", null, built.msg.signer), " (holds a valid key, standing S1)"));
@@ -556,9 +552,13 @@
       result.appendChild(K.traceView(trace));
       setHolds();
     }
-    const tabs = seg(M.challenges.map((c) => ({ v: c.id, label: c.level + " · " + c.title })), ch, (v) => { ch = v; render(); }, "challenge");
+    const tabs = h("div", { class: "rt-levels", role: "group", "aria-label": "Challenge" }, M.challenges.map((c) => {
+      const b = h("button", { type: "button", class: "rt-level", "aria-pressed": String(c.id === ch) }, h("b", null, "level " + c.level), c.title);
+      b.addEventListener("click", () => { ch = c.id; [...tabs.children].forEach((x) => x.setAttribute("aria-pressed", String(x === b))); render(); });
+      return b;
+    }));
     render();
-    return h("div", null, h("div", { class: "check-k" }, "Attack the gate"), h("div", { class: "scroll" }, tabs), panel, result);
+    return h("div", null, h("div", { class: "check-k" }, "Attack the gate"), tabs, panel, result);
   });
   /* ---------- attentionFlow: holds and pages against the owner's minutes (P§6.4, P§7.2, D6) ---------- */
   C.widget("attentionFlow", () => {

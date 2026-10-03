@@ -143,7 +143,12 @@
           const [id, label] = inner.slice(7).split("|");
           const L = LESSONS.find((x) => x.id === id.trim());
           frag.appendChild(h("a", { class: "lessonlink", href: "#" + id.trim() }, label || (L ? L.title : id)));
-        } else frag.appendChild(refChip(inner));
+        } else {
+          const chip = refChip(inner);
+          const tail = /^[.,;:)\]]+/.exec(s.slice(re.lastIndex));
+          if (tail) { frag.appendChild(h("span", { class: "nb" }, chip, tail[0])); re.lastIndex += tail[0].length; last = re.lastIndex; continue; }
+          frag.appendChild(chip);
+        }
       } else if (m[5]) {
         const [id, label] = tok.slice(2, -2).split("|");
         frag.appendChild(term(id.trim(), label && label.trim()));
@@ -158,7 +163,22 @@
   }
 
   /* ---------- wire and code ---------- */
-  function wireView(text, mark) {
+  const INVISIBLE = /[\u0000-\u0009\u000b-\u001f\u007f\u00ad\u200b-\u200f\u202a-\u202e\u2060-\u2064\ufeff]/g;
+  const INV_NAME = { "\u200b": "ZWSP", "\u200c": "ZWNJ", "\u200d": "ZWJ", "\u200e": "LRM", "\u200f": "RLM", "\u2060": "WJ", "\ufeff": "BOM", "\u00ad": "SHY", "\r": "CR", "\t": "TAB" };
+  function visible(text) {
+    const frag = document.createDocumentFragment(), str = String(text);
+    let last = 0, m;
+    INVISIBLE.lastIndex = 0;
+    while ((m = INVISIBLE.exec(str))) {
+      if (m.index > last) frag.appendChild(document.createTextNode(str.slice(last, m.index)));
+      const c = m[0];
+      frag.appendChild(h("span", { class: "inv", title: "invisible character U+" + c.charCodeAt(0).toString(16).toUpperCase().padStart(4, "0") }, INV_NAME[c] || "U+" + c.charCodeAt(0).toString(16).toUpperCase().padStart(4, "0")));
+      last = m.index + 1;
+    }
+    if (last < str.length) frag.appendChild(document.createTextNode(str.slice(last)));
+    return frag;
+  }
+  function wireView(text, mark, diff) {
     const marks = new Set(mark || []);
     const pre = h("pre", { class: "wire", "aria-label": "Membrane message" });
     const s = String(text);
@@ -168,18 +188,18 @@
     head.split("\n").forEach((line) => {
       const i = line.indexOf(":");
       const k = i > 0 ? line.slice(0, i) : "";
-      const row = h("span", { class: "wl" + (marks.has(k) ? " mark" : ""), dataset: { k } });
+      const row = h("span", { class: "wl" + (marks.has(k) ? " mark" : "") + (diff && diff.keys.has(k) ? " diff" : ""), dataset: { k } });
       if (k) {
         const item = itemFor(k);
         if (item) { const t = term(item.id, k); t.classList.add("wk"); row.appendChild(t); } else row.appendChild(h("span", { class: "wk" }, k));
         row.appendChild(h("span", { class: "wc" }, ":"));
-        row.appendChild(h("span", { class: "wv" }, line.slice(i + 1)));
-      } else row.textContent = line;
+        row.appendChild(h("span", { class: "wv" }, visible(line.slice(i + 1))));
+      } else row.appendChild(visible(line));
       pre.appendChild(row);
     });
     if (body != null) {
       pre.appendChild(h("span", { class: "wl wdash" }, "---"));
-      pre.appendChild(h("span", { class: "wb" }, body.replace(/\n$/, "") + (body.endsWith("\n") ? "" : "")));
+      pre.appendChild(h("span", { class: "wb" + (diff && diff.body ? " diff" : "") }, visible(body.replace(/\n$/, ""))));
     }
     return pre;
   }
@@ -220,7 +240,22 @@
   B.p = (b) => h("p", null, inline(b.text));
   B.h = (b) => h("h3", { class: "cx-h" }, inline(b.text));
   B.list = (b) => h(b.ordered ? "ol" : "ul", { class: "cx-list" }, (b.items || []).map((t) => h("li", null, inline(t))));
-  B.define = (b) => h("dl", { class: "cx-define" }, (b.terms || []).map((t) => h("div", { class: "def" }, h("dt", null, inline(t.term)), h("dd", null, inline(t.def), t.ref ? h("span", { class: "refs" }, [].concat(t.ref).map(refChip)) : null))));
+  B.define = (b) => {
+    const panel = h("div", { class: "term-defs", "aria-live": "polite" });
+    const words = (b.terms || []).map((t, j) => {
+      const btn = h("button", { type: "button", class: "term-word", "aria-expanded": "false" }, inline(t.term));
+      btn.addEventListener("click", () => {
+        const open = btn.getAttribute("aria-expanded") === "true";
+        words.forEach((w) => w.setAttribute("aria-expanded", "false"));
+        panel.textContent = "";
+        if (!open) { btn.setAttribute("aria-expanded", "true"); panel.appendChild(h("div", { class: "term-def" }, h("b", null, inline(t.term)), inline(t.def), t.ref ? h("span", { class: "refs" }, " ", [].concat(t.ref).map(refChip)) : null)); }
+      });
+      return btn;
+    });
+    const all = h("button", { type: "button", class: "btn ghost small" }, "Show all");
+    all.addEventListener("click", () => { words.forEach((w) => w.setAttribute("aria-expanded", "false")); panel.textContent = ""; (b.terms || []).forEach((t) => panel.appendChild(h("div", { class: "term-def" }, h("b", null, inline(t.term)), inline(t.def)))); });
+    return h("div", { class: "cx-terms" }, h("div", { class: "terms-row" }, h("span", { class: "terms-k" }, b.title || "Words used here"), words, (b.terms || []).length > 1 ? all : null), panel);
+  };
   const CALLOUT = { law: "Law", parent: "In MCP and A2A", field: "Another field got here first", warn: "Careful", note: "Note", brobber: "From brobber's pack", web: "Checked on the web", history: "History" };
   B.callout = (b) => {
     const law = b.law && M.laws.find((l) => l.id === b.law);
@@ -235,7 +270,7 @@
   B.code = (b) => figure(codeView(b.lang, b.text, b.mark), b.caption);
   B.table = (b) => figure(h("div", { class: "scroll" }, h("table", { class: "t cx-t" },
     h("thead", null, h("tr", null, (b.head || []).map((c) => h("th", null, inline(c))))),
-    h("tbody", null, (b.rows || []).map((r) => h("tr", null, r.map((c) => h("td", null, inline(c)))))))), b.caption);
+    h("tbody", null, (b.rows || []).map((r) => h("tr", null, r.map((c, j) => h("td", { "data-label": (b.head || [])[j] ? String(b.head[j]).replace(/[`*]/g, "") : null }, inline(c)))))))), b.caption);
   B.compare = (b) => figure(h("div", { class: "cx-compare", style: { "--n": (b.cols || []).length } }, (b.cols || []).map((c) =>
     h("div", { class: "col" }, h("h4", null, inline(c.title)), c.text ? h("p", null, inline(c.text)) : null, c.items ? h("ul", null, c.items.map((t) => h("li", null, inline(t)))) : null))), b.caption);
   B.takeaways = (b) => h("section", { class: "cx-take" }, h("h4", null, "Keep"), h("ol", null, (b.items || []).map((t) => h("li", null, inline(t)))));
@@ -256,9 +291,13 @@
     const prior = (store.get("answers", {}))[key];
     const out = h("div", { class: "fbwrap" });
     let firstOk = prior && prior.kind === "quiz" ? prior.ok : undefined; // the first attempt counts; later choices only show feedback
-    const opts = (b.options || []).map((o, j) => h("button", { type: "button", class: "opt", onclick: () => choose(j) }, h("span", { class: "opt-l" }, String.fromCharCode(65 + j)), h("span", null, inline(o))));
+    // display order: a permutation seeded by the quiz's key, so where the right answer sits varies across the course and stays put on reload
+    const order = (b.options || []).map((_, j) => j);
+    if (b.shuffle !== false) { let seed = 0; for (const ch of key) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0; for (let j = order.length - 1; j > 0; j--) { seed = (seed * 1103515245 + 12345) >>> 0; const r = seed % (j + 1); [order[j], order[r]] = [order[r], order[j]]; } }
+    const optByIndex = {};
+    const opts = order.map((j, pos) => { const btn = h("button", { type: "button", class: "opt", onclick: () => choose(j) }, h("span", { class: "opt-l" }, String.fromCharCode(65 + pos)), h("span", null, inline(b.options[j]))); optByIndex[j] = btn; return btn; });
     function choose(j, silent) {
-      opts.forEach((btn, k) => { btn.classList.toggle("chosen", k === j); btn.classList.toggle("right", k === b.answer); btn.classList.toggle("wrong", k === j && j !== b.answer); btn.setAttribute("aria-pressed", k === j ? "true" : "false"); });
+      Object.entries(optByIndex).forEach(([k0, btn]) => { const k = Number(k0); btn.classList.toggle("chosen", k === j); btn.classList.toggle("right", k === b.answer); btn.classList.toggle("wrong", k === j && j !== b.answer); btn.setAttribute("aria-pressed", k === j ? "true" : "false"); });
       out.textContent = "";
       const why = b.why && b.why[j] ? b.why[j] + " " : "";
       out.appendChild(verdict(j === b.answer, why + (b.explain || "")));
@@ -286,6 +325,7 @@
       sel = sel === j ? null : j;
       items.forEach((x) => x.btn.classList.toggle("sel", x.j === sel));
       Object.values(bucketEls).forEach((bk) => bk.classList.toggle("armed", sel != null));
+      wrap.classList.toggle("armed", sel != null);
     }
     function drop(bid) {
       if (sel == null) return;
@@ -298,6 +338,7 @@
       sel = null;
       items.forEach((y) => y.btn.classList.remove("sel"));
       Object.values(bucketEls).forEach((bk) => bk.classList.remove("armed"));
+      wrap.classList.remove("armed");
       if (placed.size === items.length) { fb.appendChild(h("div", { class: "fb ok" }, h("b", null, "All placed. "), misses ? misses + (misses === 1 ? " item" : " items") + " needed a second try." : "First time, every one.")); const prev = store.get("answers", {})[key]; if (!prev) store.mark("answers", key, { ok: misses === 0, misses, kind: "sort" }); }
     }
     items.forEach((x) => pool.appendChild(x.btn));
@@ -306,7 +347,8 @@
       bucketEls[bk.id] = el;
       return el;
     }));
-    return h("div", { class: "cx-check sort" }, h("div", { class: "check-k" }, "Sort"), h("div", { class: "check-q" }, inline(b.prompt || "Tap an item, then the bucket it belongs in.")), pool, buckets, fb);
+    const wrap = h("div", { class: "cx-check sort" }, h("div", { class: "check-k" }, "Sort"), b.prompt ? h("div", { class: "check-q" }, inline(b.prompt)) : null, h("div", { class: "sort-how" }, "Tap an item, then the bucket it belongs in."), pool, buckets, fb);
+    return wrap;
   };
 
   /* steps */
@@ -346,10 +388,11 @@
 
   /* machine */
   B.machine = (b, ctx, i) => {
-    const W = 640, H = 340, PAD = 46;
+    const vertical = window.innerWidth < 640; // on a phone the graph turns on its side so labels keep their size
+    const W = vertical ? 380 : 640, H = vertical ? 600 : 340, PAD = vertical ? 60 : 46;
     const states = b.states || [], edges = b.edges || [];
-    const pos = (s) => ({ x: PAD + (s.x / 100) * (W - 2 * PAD), y: PAD * 0.7 + (s.y / 100) * (H - 1.4 * PAD) });
-    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, class: "machine-svg", role: "img", "aria-label": b.title || "State machine" });
+    const pos = vertical ? (s) => ({ x: PAD + (s.y / 100) * (W - 2 * PAD), y: PAD * 0.6 + (s.x / 100) * (H - 1.2 * PAD) }) : (s) => ({ x: PAD + (s.x / 100) * (W - 2 * PAD), y: PAD * 0.7 + (s.y / 100) * (H - 1.4 * PAD) });
+    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, class: "machine-svg" + (vertical ? " vertical" : ""), role: "img", "aria-label": b.title || "State machine" });
     const defs = svgEl("defs", {}, svg);
     const mk = svgEl("marker", { id: "arr-" + i, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs);
     svgEl("path", { d: "M0,0 L10,5 L0,10 z", fill: "var(--ink-3)" }, mk);
@@ -441,10 +484,7 @@
     const byId = new Map(trace.steps.map((s) => [s.id, s]));
     const decisive = trace.decisiveStep;
     const dc = dispClass(trace.disposition);
-    const bar = h("div", { class: "tbar d-" + dc, "aria-hidden": "true" }, STEP_ORDER.map((id) => {
-      const s = byId.get(id);
-      return h("span", { class: "seg " + (!s ? "skip" : s.id === decisive ? "dec" : s.ok === true ? "pass" : s.ok === "flag" ? "flag" : "fail"), title: window.Gate.STEPS[id].label });
-    }));
+    const bar = membraneBar(trace, byId);
     const rows = h("ol", { class: "trace" }, STEP_ORDER.map((id, n) => {
       const s = byId.get(id);
       const st = !s ? "skip" : s.id === decisive ? "dec" : s.ok === true ? "pass" : s.ok === "flag" ? "flag" : "fail";
@@ -458,10 +498,39 @@
         h("span", { class: "tr-ref" }, later ? null : ref));
     }));
     if (!reduceMotion()) rows.classList.add("anim");
-    return h("div", { class: "tracebox" }, bar, rows);
+    const fold = h("details", { class: "trace-fold", open: window.innerWidth >= 900 ? true : null }, h("summary", null, "All 21 steps"), rows);
+    return h("div", { class: "tracebox" }, bar, fold);
+  }
+  /* the trace bar as a membrane: 21 heads in two leaflets, the envelope parked at the deciding step */
+  function membraneBar(trace, byId) {
+    const W = 640, H = 66, x0 = 22, dx = (W - 44) / 20;
+    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, class: "tmem", role: "img", "aria-label": "The gate's 21 steps; the message stopped at step " + (STEP_ORDER.indexOf(trace.decisiveStep) + 1) });
+    const dIdx = STEP_ORDER.indexOf(trace.decisiveStep), dc = dispClass(trace.disposition);
+    const DC = { admitted: "--admitted", held: "--held", refused: "--refused", expired: "--expired", logged: "--logged" };
+    STEP_ORDER.forEach((id, n) => {
+      const s = byId.get(id), x = x0 + n * dx;
+      const st = !s ? "skip" : n === dIdx ? "dec" : s.ok === true ? "pass" : s.ok === "flag" ? "flag" : "fail";
+      const fill = st === "pass" ? "var(--lipid)" : st === "flag" ? "var(--sealed)" : st === "dec" ? "var(" + (DC[dc] || "--ink") + ")" : st === "fail" ? "var(--refused)" : "none";
+      const stroke = st === "skip" ? "var(--rule-strong)" : "none";
+      svgEl("path", { d: `M${x - 2},20 Q${x - 4},28 ${x - 2},33 M${x + 2},20 Q${x + 4},28 ${x + 2},33 M${x - 2},37 Q${x - 4},40 ${x - 2},46 M${x + 2},37 Q${x + 4},40 ${x + 2},46`, fill: "none", stroke: st === "skip" ? "var(--rule)" : "var(--lipid)", "stroke-width": .9, opacity: st === "skip" ? .5 : .6 }, svg);
+      svgEl("circle", { cx: x, cy: 16, r: 5.2, fill, stroke, "stroke-width": 1.2 }, svg);
+      svgEl("circle", { cx: x, cy: 50, r: 5.2, fill, stroke, "stroke-width": 1.2 }, svg);
+      if ([0, 4, 9, 14, 20].includes(n) || n === dIdx) { const t = svgEl("text", { x, y: 64, "text-anchor": "middle" }, svg); t.textContent = String(n + 1); }
+    });
+    if (dIdx >= 0) { const env = window.Glyphs.envelope(svg, { x: x0 + dIdx * dx, y: 33, w: 22, h: 15, state: dc === "logged" ? "sent" : dc }); env.classList.add("tmem-env"); }
+    return svg;
   }
 
-  function resultView(trace) {
+  const FIELD_LESSON = { tier: "effects", admittedAs: "evidence", awaiting: "effects", answerScope: "effects", standing: "standing", receipt: "dispositions" };
+  function laterTag(field, cur) {
+    if (!cur) return null;
+    const T = LESSONS.find((L) => L.id === FIELD_LESSON[field]); if (!T) return null;
+    const ids = coreIds(), ti = ids.indexOf(T.id), ci = ids.indexOf(cur.id);
+    if (ti < 0 || ci < 0 || ti <= ci || (store.get("done", {}))[T.id]) return null;
+    return h("a", { class: "res-later", href: "#" + T.id }, "(lesson " + (ti + 1) + ")");
+  }
+  function resultView(trace, opts) {
+    const cur = opts && opts.lesson;
     const d = trace.disposition, dc = dispClass(d);
     const receipt = trace.duplicate ? "the original receipt is sent again, nothing else" :
       d == null ? "none: nothing is sent to an unverified or malformed sender" :
@@ -469,13 +538,13 @@
     return h("div", { class: "result d-" + dc },
       h("div", { class: "res-main" }, h("span", { class: "d big " + dc }, dispName(d)),
         trace.reason ? term("rc." + trace.reason, trace.reason) : null,
-        h("span", { class: "res-tier" }, term("tier." + (trace.tier || "T0"), trace.tier || "T0"))),
+        h("span", { class: "res-tier" }, term("tier." + (trace.tier || "T0"), trace.tier || "T0"), laterTag("tier", cur))),
       h("dl", { class: "res-kv" },
         h("div", null, h("dt", null, "deciding step"), h("dd", null, trace.decisiveStep ? (STEP_ORDER.indexOf(trace.decisiveStep) + 1) + " · " + window.Gate.STEPS[trace.decisiveStep].label : "–")),
-        trace.admittedAs ? h("div", null, h("dt", null, "enters as"), h("dd", null, trace.admittedAs)) : null,
-        trace.awaiting ? h("div", null, h("dt", null, "waiting on"), h("dd", null, trace.awaiting === "owner" ? "the owner" : "a second independent signal")) : null,
-        trace.answerScope ? h("div", null, h("dt", null, "answered by"), h("dd", null, trace.answerScope === "shareable" ? "a quarantined run over shareable data" : "the privileged agent, memory loaded")) : null,
-        h("div", null, h("dt", null, "receipt"), h("dd", null, receipt))),
+        trace.admittedAs ? h("div", null, h("dt", null, "enters as"), h("dd", null, trace.admittedAs, laterTag("admittedAs", cur))) : null,
+        trace.awaiting ? h("div", null, h("dt", null, "waiting on"), h("dd", null, trace.awaiting === "owner" ? "the owner" : "a second independent signal", laterTag("awaiting", cur))) : null,
+        trace.answerScope ? h("div", null, h("dt", null, "answered by"), h("dd", null, trace.answerScope === "shareable" ? "a quarantined run over shareable data" : "the privileged agent, memory loaded", laterTag("answerScope", cur))) : null,
+        h("div", null, h("dt", null, "receipt"), h("dd", null, receipt, laterTag("receipt", cur)))),
       trace.notes && trace.notes.length ? h("ul", { class: "res-notes" }, trace.notes.map((n) => h("li", { class: /FAILURE/.test(n) ? "bad" : "" }, n))) : null);
   }
 
@@ -597,6 +666,7 @@
           row.appendChild(sel);
         } else {
           D.opts().forEach(([v, l]) => {
+            if (dim === "disposition" && v === null) row.appendChild(h("span", { class: "pick-sep", "aria-hidden": "true" }));
             const btn = h("button", { type: "button", class: D.chip ? "d pick " + dispClass(v) : "pickopt", "aria-pressed": dim in pred && pred[dim] === v ? "true" : "false" }, l || String(v));
             btn.addEventListener("click", () => { pred[dim] = v; [...row.querySelectorAll("button")].forEach((x) => x.setAttribute("aria-pressed", "false")); btn.setAttribute("aria-pressed", "true"); markRun(); });
             row.appendChild(btn);
@@ -624,7 +694,8 @@
         msgBox.appendChild(ta);
         msgBox.appendChild(h("div", { class: "row small" }, h("label", { class: "switch", for: key + "-rh" }, cb, h("span", null, "Recompute the body hash when I edit")),
           h("button", { type: "button", class: "btn ghost small", onclick: () => { editedWire = null; renderCase(); } }, "Reset")));
-      } else msgBox.appendChild(wireView(wireText, cases[ci].mark));
+      } else msgBox.appendChild(wireView(wireText, cases[ci].mark, ci > 0 ? caseDiff(built) : null));
+      if (ci > 0 && !editable) { const df = caseDiff(built); const note = [df.keys.size ? "changed: " + [...df.keys].join(", ") : "", df.removed.length ? "removed: " + df.removed.join(", ") : "", df.body ? "the body" : "", df.msg.length ? df.msg.join(", ") : ""].filter(Boolean).join(" · "); if (note) msgBox.appendChild(h("div", { class: "diff-note" }, "Against the clean case, " + note + ".")); }
       const extras = [];
       const m = built.msg;
       if (m.touchedPaths) extras.push(["touches", m.touchedPaths.join(", ")]);
@@ -650,6 +721,17 @@
       resultBox.textContent = "";
       renderGoals();
       renderPredict();
+    }
+    function caseDiff(built) {
+      const base = S.build(S.merge(b.preset || {}, {}));
+      const bh = base.msg.header, ch = built.msg.header, keys = new Set(), removed = [];
+      Object.keys(ch).forEach((k) => { if (k !== "body" && JSON.stringify(ch[k]) !== JSON.stringify(bh[k])) keys.add(k); });
+      Object.keys(bh).forEach((k) => { if (!(k in ch)) removed.push(k); });
+      const msg = [];
+      ["signer", "lane", "sigValid", "recordOk", "secondSignal", "capability"].forEach((k) => { if (JSON.stringify(built.msg[k]) !== JSON.stringify(base.msg[k])) msg.push(k + " " + (built.msg[k] === undefined ? "unset" : JSON.stringify(built.msg[k]))); });
+      if (JSON.stringify(built.msg.touchedPaths) !== JSON.stringify(base.msg.touchedPaths) && !keys.has("id")) msg.push("paths touched");
+      if (JSON.stringify(built.ctx) !== JSON.stringify(base.ctx)) msg.push("receiver state");
+      return { keys, removed, body: built.msg.bodyText !== base.msg.bodyText, msg };
     }
     function scorePrediction(get) {
       const wrong = dims.filter((d) => JSON.stringify(DIMS[d].get(get)) !== JSON.stringify(pred[d]));
@@ -689,15 +771,15 @@
         if (open.length) resultBox.appendChild(h("div", { class: "fb no" }, h("b", null, "Not yet. "), isPage ? out.note : whyLine(out)));
       }
       if (goals.length) renderGoals();
+      if (c.explain && !tinkered()) resultBox.appendChild(h("div", { class: "lab-explain" }, inline(c.explain)));
       if (isPage) {
-        resultBox.appendChild(h("div", { class: "result " + (out.page ? "d-refused" : "d-admitted") },
-          h("div", { class: "res-main" }, h("span", { class: "d big " + (out.page ? "refused" : "admitted") }, out.page ? "page the owner" : "no page"), h("span", { class: "res-tier" }, "delivered at ", term("ch.axes", out.level))),
+        resultBox.appendChild(h("div", { class: "result" },
+          h("div", { class: "res-main" }, h("span", { class: "d big logged" }, out.page ? "page the owner" : "no page"), h("span", { class: "res-tier" }, "delivered at ", term("ch.axes", out.level))),
           h("dl", { class: "res-kv" }, h("div", null, h("dt", null, "why"), h("dd", null, out.note)), h("div", null, h("dt", null, "decided by"), h("dd", null, h("code", null, "Gate.pageDecision"), ", after the gate admits the alert")))));
       } else {
-        resultBox.appendChild(resultView(out));
+        resultBox.appendChild(resultView(out, { lesson }));
         resultBox.appendChild(traceView(out, { lesson }));
       }
-      if (c.explain && !tinkered()) resultBox.appendChild(h("div", { class: "lab-explain" }, inline(c.explain)));
       if (c.expect && !tinkered()) { const miss = S.check(isPage ? { page: out } : { trace: out }, c.expect); if (miss.length) console.warn("[course] gate case mismatch", key, c.label, JSON.stringify(miss)); }
     }
     runBtn.addEventListener("click", () => run(true));
@@ -712,6 +794,16 @@
       resultBox);
   };
 
+  /* figures and widgets that scroll sideways on a phone say so */
+  function markScrollers(root) {
+    root.querySelectorAll(".scroll").forEach((el) => {
+      if (!el.querySelector(".w-svg, .machine-svg:not(.vertical)")) return;
+      el.classList.add("figscroll");
+      if (!el.nextElementSibling || !el.nextElementSibling.classList.contains("scroll-cue")) el.after(h("div", { class: "scroll-cue" }, "Swipe sideways to see the whole figure →"));
+      const check = () => el.classList.toggle("can-scroll", el.scrollWidth > el.clientWidth + 4);
+      requestAnimationFrame(check);
+    });
+  }
   /* ---------- render a lesson's blocks ---------- */
   function renderBlocks(lesson, container, ctx) {
     (lesson.blocks || []).forEach((b, i) => {
@@ -723,5 +815,5 @@
     });
   }
 
-  Course.kit = { playLink, h, append, svgEl, inline, term, refChip, itemFor, wireView, codeView, traceView, resultView, whyLine, figure, verdict, store, renderBlocks, blocks: B, REPO, reduceMotion, closePop, STEP_ORDER };
+  Course.kit = { markScrollers, visible, playLink, h, append, svgEl, inline, term, refChip, itemFor, wireView, codeView, traceView, resultView, whyLine, figure, verdict, store, renderBlocks, blocks: B, REPO, reduceMotion, closePop, STEP_ORDER };
 })();

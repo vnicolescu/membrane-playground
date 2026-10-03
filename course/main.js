@@ -128,31 +128,33 @@
 
   /* ---------- home ---------- */
   function hero() {
-    const W = 440, H = 400;
-    const svg = K.svgEl("svg", { viewBox: `0 0 ${W} ${H}`, class: "hero-svg", role: "img", "aria-label": "Envelopes cross a membrane and receive one of five dispositions" });
+    const W = 460, H = 420;
+    const svg = K.svgEl("svg", { viewBox: `0 0 ${W} ${H}`, class: "hero-svg", role: "img", "aria-label": "Envelopes meet a membrane and receive one of five dispositions" });
     const bil = K.svgEl("g", {}, svg);
+    // where each envelope comes to rest: sealed before the wall, held inside it, admitted through it, refused turned back, expired fading in the queue
     const lanes = [
-      { y: 62, state: "sealed", end: 0.42 }, { y: 132, state: "held", end: 0.5 }, { y: 202, state: "admitted", end: 0.7 },
-      { y: 272, state: "refused", end: 0.36 }, { y: 342, state: "expired", end: 0.44 }];
+      { y: 64, state: "sealed", end: 0.36 }, { y: 140, state: "held", end: 0.53 }, { y: 216, state: "admitted", end: 0.82 },
+      { y: 292, state: "refused", end: 0.34 }, { y: 368, state: "expired", end: 0.3 }];
     const envs = lanes.map((l, i) => {
-      const g = window.Glyphs.envelope(svg, { x: 30, y: l.y, w: 44, h: 31, state: "sent" });
-      const lab = K.svgEl("text", { x: W - 8, y: l.y + 5, "text-anchor": "end", class: "hero-lab d-" + l.state }, svg);
+      const g = window.Glyphs.envelope(svg, { x: 24, y: l.y, w: 46, h: 32, state: "sent" });
+      const lab = K.svgEl("text", l.state === "held" ? { x: 54, y: 21, "text-anchor": "start", class: "hero-lab d-held" } : { x: 23, y: 50, "text-anchor": "middle", class: "hero-lab d-" + l.state }, g);
       lab.textContent = l.state;
       return { g, l, phase: i * 0.19, lab };
     });
     const still = K.reduceMotion();
     function frame(ts) {
       const t = (ts || 0) / 1000;
-      window.Glyphs.bilayer(bil, { x: W * 0.5, y0: 14, y1: H - 14, spacing: 13, amp: still ? 1.5 : 3.4, t: still ? 1 : t, gap: 11 });
+      window.Glyphs.bilayer(bil, { x: W * 0.53, y0: 12, y1: H - 12, spacing: 17, amp: still ? 1.5 : 3.6, t: still ? 1 : t, gap: 17, r: 5.6 });
       envs.forEach((e) => {
         const p = still ? 1 : ((t * 0.11 + e.phase) % 1.25) / 1.0;
         const q = Math.min(1, p);
-        const x = 30 + q * (W * e.l.end - 30);
-        const y = e.l.y + (e.l.state === "refused" && q > 0.8 ? (q - 0.8) * 60 : 0);
-        e.g.setAttribute("transform", `translate(${x - 22},${y - 15.5})`);
-        e.g.setState(q < 0.35 ? "sent" : q < 0.5 ? "sealed" : e.l.state);
-        e.g.style.opacity = e.l.state === "expired" && q > 0.85 ? String(1 - (q - 0.85) * 4) : "1";
-        e.lab.style.opacity = q > 0.55 ? "1" : "0.35";
+        const turn = e.l.state === "refused" && q > 0.62 ? (q - 0.62) * 2.2 : 0; // refused bounces back off the wall
+        const x = 30 + Math.min(q, e.l.state === "refused" ? 0.62 : 1) * (W * (e.l.state === "refused" ? 0.44 : e.l.end) - 30) - turn * 70;
+        const y = e.l.y;
+        e.g.setAttribute("transform", `translate(${x - 23},${y - 16})`);
+        e.g.setState(q < 0.3 ? "sent" : q < 0.45 ? "sealed" : e.l.state);
+        e.g.style.opacity = e.l.state === "expired" && q > 0.8 ? String(Math.max(0.35, 1 - (q - 0.8) * 3)) : "1";
+        e.lab.style.opacity = q > 0.5 ? "1" : "0";
       });
       if (!still && document.body.contains(svg)) requestAnimationFrame(frame);
     }
@@ -179,7 +181,7 @@
     map.appendChild(coreSec);
     if (annex.length) map.appendChild(h("section", { class: "map-track t-annex" }, h("div", { class: "mt-head" }, h("h4", null, "Annexes"), h("p", null, "Network science, transport and security, each tied back to the mechanism it explains.")), h("div", { class: "lcards" }, annex.map((L) => card(L, "+")))));
     return h("div", { class: "home" },
-      h("section", { class: "hero" },
+      h("section", { class: "hero night" },
         h("div", { class: "hero-text" },
           h("div", { class: "eyebrow" }, h("span", { class: "dots" }, "●●●"), " Contract 0.3 draft · course"),
           h("h1", null, "Membrane, step by step"),
@@ -187,7 +189,7 @@
           h("div", { class: "row hero-cta" },
             next ? h("a", { class: "btn primary", href: "#" + next.id }, started ? "Continue: " + next.title : "Start the course") : null,
             found.length ? h("a", { class: "btn", href: "#" + found[0].id }, "Start with the foundations") : null),
-          h("div", { class: "hero-stats num" }, [core().length + " lessons", mins + " minutes", gates + " gate cases", "21 gate steps"].map((x) => h("span", null, x)))),
+          h("div", { class: "hero-stats num" }, [core().length + " lessons", mins + " minutes", gates + " gate cases", "21 gate steps"].join(" · "))),
         h("div", { class: "hero-art" }, hero())),
       h("section", { class: "how" },
         h("div", null, h("b", null, "Predict"), h("span", null, "Each check asks what the receiver will do before it shows you.")),
@@ -211,6 +213,7 @@
     const finish = h("button", { type: "button", class: "btn primary", onclick: () => {
       store.mark("done", L.id, true);
       meter(); nav(L.id); renderDock(L);
+      const strip = document.getElementById("dockstrip"); if (strip) { strip.classList.remove("flash"); void strip.offsetWidth; strip.classList.add("flash"); }
       finish.textContent = "Finished"; finish.disabled = true;
       const go = nextCore || next;
       if (go) setTimeout(() => { location.hash = "#" + go.id; }, K.reduceMotion() ? 0 : 650);
@@ -223,7 +226,6 @@
         L.kicker ? h("p", { class: "lede" }, inline(L.kicker)) : null,
         h("div", { class: "lesson-meta" },
           L.minutes ? h("span", { class: "chip" }, L.minutes + " min") : null,
-          (L.refs || []).map(refChip),
           (L.prereq || []).some(lessonById) ? h("span", { class: "pre" }, "Before this: ", (L.prereq || []).filter(lessonById).map((id) => h("a", { class: "chip lessonlink", href: "#" + id }, lessonById(id).title))) : null),
         (L.objectives || []).length ? h("div", { class: "objectives" }, h("h4", null, "You will be able to"), h("ul", null, L.objectives.map((o) => h("li", null, inline(o))))) : null),
       body,
@@ -231,7 +233,7 @@
         h("div", { class: "row" }, finish, (L.stamps || []).length ? h("span", { class: "muted small" }, "Stamps ", (L.stamps || []).map((f) => h("code", null, f)), " on the envelope") : null),
         h("nav", { class: "pn", "aria-label": "Lesson navigation" },
           prev ? h("a", { class: "pn-prev", href: "#" + prev.id }, h("span", { class: "muted" }, "Previous"), h("span", null, prev.title)) : h("span"),
-          (nextCore || next) ? h("a", { class: "pn-next", href: "#" + (nextCore || next).id }, h("span", { class: "muted" }, "Next"), h("span", null, (nextCore || next).title)) : h("span"))));
+          (nextCore || next) ? h("a", { class: "pn-next", href: "#" + (nextCore || next).id, onclick: () => { store.mark("done", L.id, true); } }, h("span", { class: "muted" }, "Next"), h("span", null, (nextCore || next).title)) : h("span"))));
     tutor.bind(L, ctx.tutorPrompts, page);
     return page;
   }
@@ -239,9 +241,23 @@
   function renderDock(L) {
     const el = document.getElementById("dock");
     el.textContent = "";
-    if (L && trackOf(L) !== "core") { el.hidden = true; return; }
+    document.body.classList.remove("dock-open");
+    const strip = document.getElementById("dockstrip");
+    if (strip) strip.textContent = "";
+    if (L && trackOf(L) !== "core") { el.hidden = true; if (strip) strip.hidden = true; return; }
     el.hidden = false;
-    el.appendChild(dock(L));
+    if (L && core().indexOf(L) === 0) {
+      el.appendChild(h("div", { class: "dock-in" }, h("div", { class: "dock-k" }, "The running envelope"), h("p", { class: "dock-p" }, "The message in this lesson is the one the course follows. From the next lesson on, it waits here with its fields veiled, and each lesson stamps the fields it teaches.")));
+    } else el.appendChild(dock(L));
+    if (strip) {
+      const have = stamped(), n = ENV_FIELDS.filter((f) => have.has(f)).length;
+      const steps = C.kit.STEP_ORDER, d = done();
+      const lit = steps.filter((id) => { const T = C.teacherOfStep && C.teacherOfStep(id); return T && d[T.id]; }).length;
+      strip.hidden = false;
+      append(strip, [h("span", null, "Envelope ", h("b", { class: "num" }, n + "/" + ENV_FIELDS.length)), h("span", { class: "ds-meter", "aria-hidden": "true" }, h("span", { style: { width: (100 * n / ENV_FIELDS.length) + "%" } })),
+        h("span", null, "Gate ", h("b", { class: "num" }, lit + "/21")),
+        h("button", { type: "button", class: "btn ghost small", onclick: () => document.body.classList.toggle("dock-open") }, "Show")]);
+    }
   }
 
   /* ---------- tutor (the sample capability; hidden where the page cannot ask Claude) ---------- */
@@ -307,7 +323,7 @@
     main.textContent = "";
     document.body.classList.remove("nav-open");
     const L = lessonById(id);
-    if (L) { main.appendChild(lessonPage(L)); document.title = L.title + " · Membrane Course"; renderDock(L); }
+    if (L) { main.appendChild(lessonPage(L)); document.title = L.title + " · Membrane Course"; renderDock(L); C.kit.markScrollers(main); }
     else { main.appendChild(home()); document.title = "Membrane Course"; renderDock(null); try { store.set("last", "home"); } catch (e) {} }
     if (L) store.set("last", L.id);
     nav(L ? L.id : "home");

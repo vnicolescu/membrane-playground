@@ -475,7 +475,7 @@
     let chosen = pre;
     for (const t of checkpoints.slice(1)) {
       const r = releaseAt(t);
-      if (r.refuse && !pre.refuse) { r.refuse = "policy"; r.note += " (tier raised by the " + (t === TIER_OF[patternEffect] && t !== tier ? "pattern flag" : "sensor") + ")"; }
+      if (r.refuse && !pre.refuse) { r.refuse = "policy"; r.note += " (tier raised by the " + (t === TIER_OF[patternEffect] ? "pattern flag" : "sensor") + ")"; }
       if (severity(r) > severity(chosen)) chosen = r; // ties keep the earlier checkpoint and its reason
     }
     if (checkpoints.length > 1 && chosen.tier !== tier) notes.push(`judged at ${checkpoints.join(", ")}: the strictest outcome (at ${chosen.tier}) stands`);

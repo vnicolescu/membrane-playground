@@ -13,8 +13,8 @@
 
 [hidden]{display:none!important}
 body.course{background:var(--ground);color:var(--ink);font-size:var(--fs-body)}
-.skip{position:absolute;left:-999px;top:8px;z-index:90;background:var(--ink);color:var(--ground);padding:8px 12px;border-radius:8px}
-.skip:focus{left:12px}
+a.skip{position:absolute;left:-999px;top:8px;z-index:90;background:var(--ink);color:var(--ground);padding:8px 12px;border-radius:8px}
+a.skip:focus{left:12px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .small{font-size:13px}
 .muted{color:var(--ink-3)}
@@ -56,10 +56,10 @@ body.course{background:var(--ground);color:var(--ink);font-size:var(--fs-body)}
 .nav-track{margin:6px 0 14px}
 .nav-track summary{cursor:pointer;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);padding:6px 8px;list-style:none}
 .nav-track summary::-webkit-details-marker{display:none}
-.nav-track summary::before{content:"▸ ";display:inline-block;transition:transform .2s}
+.nav-track summary::before{content:"▸";display:inline-block;margin-right:6px;transition:transform .2s}
 .nav-track[open] summary::before{transform:rotate(90deg)}
 .nav-blurb{font-size:12px;color:var(--ink-3);margin:0 8px 6px;max-width:none}
-.nav-part{font-family:var(--display);font-weight:400;font-size:14.5px;color:var(--ink-2);margin:12px 8px 4px}
+.nav-part{font-family:var(--display);font-weight:300;font-size:14.5px;color:var(--ink-2);margin:12px 8px 4px}
 .nav-l{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:6px;align-items:baseline;padding:5px 8px;border-radius:7px;color:var(--ink-2);text-decoration:none;line-height:1.35}
 .nav-l:hover{background:var(--surface-2);color:var(--ink)}
 .nav-l.on{background:var(--ink);color:var(--ground)}
@@ -71,7 +71,7 @@ body.course{background:var(--ground);color:var(--ink);font-size:var(--fs-body)}
 
 /* ---- home ---- */
 .home{max-width:1080px;margin:0 auto}
-.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:center;background:radial-gradient(120% 140% at 85% 20%,var(--hero-bg-2),var(--hero-bg) 60%);color:var(--hero-ink);border-radius:16px;padding:clamp(24px,4vw,52px);overflow:hidden}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:center;color:var(--hero-ink);border-radius:16px;padding:clamp(24px,4vw,52px);overflow:hidden}
 .hero h1{color:var(--hero-ink);font-size:clamp(38px,4.4vw,62px);margin:14px 0 16px}
 .hero .lede{color:var(--hero-ink-2);font-style:italic}
 .hero .eyebrow{color:var(--hero-accent)}
@@ -88,8 +88,8 @@ body.course{background:var(--ground);color:var(--ink);font-size:var(--fs-body)}
 @media (max-width:820px){ .hero{grid-template-columns:1fr} .hero-art{order:-1;max-width:420px} }
 .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
 .how{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:28px 0 40px}
-.how>div{display:grid;gap:4px;font-size:14px;color:var(--ink-2)}
-.how b{font-family:var(--display);font-weight:400;font-size:20px;color:var(--ink)}
+.how>div{display:grid;gap:4px;align-content:start;font-size:14px;color:var(--ink-2)}
+.how b{font-family:var(--display);font-weight:300;font-size:20px;color:var(--ink)}
 @media (max-width:700px){ .how{grid-template-columns:1fr} }
 .map{display:grid;gap:36px}
 .mt-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding-bottom:8px;margin-bottom:14px}
@@ -123,7 +123,7 @@ body.course{background:var(--ground);color:var(--ink);font-size:var(--fs-body)}
 .lesson-body{display:grid;gap:18px}
 .lesson-body>p,.lesson-body>.cx-list,.lesson-body>.cx-h,.lesson-body>.callout,.lesson-body>.cx-define{max-width:var(--read)}
 .lesson-body>p{margin:0;font-size:16.5px;line-height:1.65}
-.cx-h{font-family:var(--display);font-weight:400;font-size:clamp(22px,2.4vw,28px);letter-spacing:-.01em;margin:26px 0 0}
+.cx-h{font-family:var(--display);font-weight:300;font-size:clamp(22px,2.4vw,28px);letter-spacing:-.01em;margin:26px 0 0}
 .cx-list{margin:0;padding-left:22px;line-height:1.6}
 .cx-list li{margin:4px 0}
 .lessonlink{color:var(--accent)}
@@ -158,7 +158,7 @@ body.course{background:var(--ground);color:var(--ink);font-size:var(--fs-body)}
 .callout-f{font-size:12px;color:var(--ink-3);margin-top:6px}
 .callout.law{background:var(--accent-soft)}
 .callout.law .callout-k{color:var(--accent)}
-.callout.law .callout-t{font-family:var(--display);font-weight:400;font-size:21px;letter-spacing:-.01em}
+.callout.law .callout-t{font-family:var(--display);font-weight:300;font-size:21px;letter-spacing:-.01em}
 .callout.parent{background:var(--sealed-bg)}
 .callout.parent .callout-k{color:var(--sealed)}
 .callout.field{background:var(--lipid-soft)}
@@ -195,7 +195,7 @@ button.wk{background:none;padding:0;text-decoration:none;border-bottom:1px dotte
 .wv{color:var(--ink)}
 .wdash{color:var(--ink-3)}
 .wb{display:block;color:var(--ink-2);white-space:pre-wrap}
-.jk{color:var(--accent)}.js{color:var(--admitted)}.jn{color:var(--sealed)}.jb{color:var(--held)}.jc{color:var(--ink-3)}.jh{color:var(--ink);font-weight:500}
+.jk{color:var(--accent)}.js{color:var(--ink)}.jn{color:var(--ink-2)}.jb{color:var(--ink-2);font-style:italic}.jc{color:var(--ink-3)}.jh{color:var(--ink);font-weight:500}
 
 /* checks: quiz, sort, steps, machine */
 .cx-check,.cx-steps,.cx-lab,.cx-widget{background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius);padding:18px 20px;min-width:0}
@@ -255,7 +255,7 @@ button.wk{background:none;padding:0;text-decoration:none;border-bottom:1px dotte
 
 /* ---- the gate lab ---- */
 .cx-lab{display:grid;gap:14px}
-.lab-title{font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:-.01em}
+.lab-title{font-family:var(--display);font-weight:300;font-size:22px;letter-spacing:-.01em}
 .lab-intro{margin:4px 0 0;color:var(--ink-2);font-size:14.5px}
 .cases{display:flex;flex-wrap:wrap;gap:6px}
 .case{font:inherit;font-size:13px;padding:6px 11px;border-radius:99px;border:1px solid var(--rule-strong);background:var(--surface);color:var(--ink-2);cursor:pointer}
@@ -403,8 +403,8 @@ button.wk{background:none;padding:0;text-decoration:none;border-bottom:1px dotte
 .bspl-row{display:grid;grid-template-columns:120px 150px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 10px;border-radius:8px;background:var(--surface-2);opacity:.75}
 .bspl-row.on{opacity:1;background:var(--accent-soft)}
 .bspl-row code{margin-right:3px}
-.bspl-row code.have{background:var(--admitted-bg);border-color:transparent}
-.bspl-row code.lack{background:var(--held-bg);border-color:transparent}
+.bspl-row code.have{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.bspl-row code.lack{background:var(--surface-3);border-color:transparent;color:var(--ink-3)}
 @media (max-width:760px){ .bspl-row{grid-template-columns:1fr} }
 .vtable .vrow{cursor:pointer}
 .vtable .vrow:hover td{background:var(--surface-2)}
@@ -478,3 +478,111 @@ button.wk{background:none;padding:0;text-decoration:none;border-bottom:1px dotte
 .dock-steps{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
 .dstep{display:grid;place-items:center;height:22px;border-radius:4px;background:var(--surface-3);color:var(--ink-3);font-family:var(--mono);font-size:10px;text-decoration:none}
 .dstep.on{background:var(--lipid);color:var(--surface)}
+
+/* ---- round-0 engine repairs ---- */
+a.btn{text-decoration:none}
+/* micro-labels inside widgets read as sentence case in the body face; the eyebrow and block kicker stay mono */
+.lab-k,.w-label,.res-kv dt,.kv dt,.dock-k,.objectives h4,.mt-head h4,.cx-take h4,.cx-deeper h4{font-family:var(--sans);text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.lab-k b{font-size:12.5px}
+.w-field>.seg-ctl{justify-self:start}
+.lab-ctx{align-self:start}
+.lab-out .fb{max-width:none}
+.case.on code,.seg-ctl [aria-pressed="true"] code{background:transparent;border-color:currentColor;color:inherit}
+.tr.pass .tr-ref{opacity:.35}
+.tr.skip .tr-ref{visibility:hidden}
+/* toggles: the off state reads as off */
+.course .switch input{background:var(--surface-3);box-shadow:inset 0 0 0 1px var(--rule-strong)}
+.course .switch input::after{background:var(--ink-3)}
+.course .switch input:checked{background:var(--accent);box-shadow:none}
+.course .switch input:checked::after{background:var(--surface)}
+/* native selects, quieted */
+.course select{appearance:none;-webkit-appearance:none;font-family:var(--mono);font-size:12.5px;padding:6px 28px 6px 10px;background-image:linear-gradient(45deg,transparent 50%,var(--ink-3) 50%),linear-gradient(135deg,var(--ink-3) 50%,transparent 50%);background-position:calc(100% - 15px) 52%,calc(100% - 10px) 52%;background-size:5px 5px;background-repeat:no-repeat}
+/* objectives: a plain list under a rule */
+.objectives{background:none;border-top:1px solid var(--rule);border-radius:0;padding:12px 0 0}
+/* code and wire wrap; wrapped code lines hang */
+.code{white-space:pre-wrap;overflow-wrap:anywhere}
+.code .cl{padding-left:2ch;text-indent:-2ch}
+.wire{white-space:pre-wrap;overflow-wrap:anywhere}
+.wire .wl{padding-left:2ch;text-indent:-2ch}
+.dockwire{white-space:pre-wrap}
+@media (max-width:560px){ .wire{font-size:11px;padding:12px} .code{font-size:11.5px;padding:12px} }
+/* invisible characters made visible */
+.inv{display:inline-block;font-family:var(--mono);font-size:.78em;line-height:1.2;padding:0 3px;margin:0 1px;border-radius:3px;background:var(--refused-bg);color:var(--refused);text-indent:0}
+/* what a case changed against the clean case */
+.wl.diff{background:var(--accent-soft);margin:0 -16px;padding-right:16px;padding-left:calc(16px + 2ch)}
+.wb.diff{background:var(--accent-soft);margin:0 -16px;padding:0 16px}
+.diff-note{font-size:12.5px;color:var(--accent)}
+/* inline references: small, raised, and kept with their punctuation */
+.nb{white-space:nowrap}
+.lesson-body p .chip.ref,.lesson-body li .chip.ref,.lesson-body td .chip.ref,.callout .chip.ref,.lab-explain .chip.ref,.fb .chip.ref,.cx-define .chip.ref{background:none;border:0;padding:0 0 0 .12em;font-size:.7em;vertical-align:.4em;color:var(--accent);gap:2px}
+.lesson-body p .chip.ref::before,.lesson-body li .chip.ref::before,.callout .chip.ref::before,.lab-explain .chip.ref::before,.fb .chip.ref::before{content:""}
+/* define: a strip of words */
+.cx-terms{max-width:var(--read);display:grid;gap:8px}
+.terms-row{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;font-size:14px}
+.terms-k{font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.term-word{font:inherit;font-family:var(--mono);font-size:13px;background:none;border:0;padding:2px 0;color:var(--accent);border-bottom:1px dotted var(--accent);cursor:pointer}
+.term-word[aria-expanded="true"]{color:var(--ink);border-bottom-style:solid}
+.term-def{font-size:14.5px;color:var(--ink-2);padding:8px 0 8px 14px;border-left:2px solid var(--accent-soft)}
+.term-def b{color:var(--ink);font-family:var(--mono);font-weight:500;margin-right:6px}
+/* the result card reads first, the trace folds */
+.trace-fold>summary{cursor:pointer;font-size:12.5px;color:var(--ink-2);padding:4px 0;list-style:none}
+.trace-fold>summary::-webkit-details-marker{display:none}
+.trace-fold>summary::before{content:"▸";display:inline-block;margin-right:6px;transition:transform .2s}
+.trace-fold[open]>summary::before{transform:rotate(90deg)}
+.res-later{color:var(--ink-3);font-size:11.5px;margin-left:4px}
+/* the trace bar drawn as a membrane */
+.tmem{width:100%;height:auto;display:block}
+.tmem text{font-family:var(--mono);font-size:9.5px;fill:var(--ink-3)}
+/* prediction: "no disposition" set apart */
+.pick-sep{width:1px;height:20px;background:var(--rule-strong);margin:0 4px}
+/* figures on phones keep legible text and say they scroll */
+.figscroll{position:relative}
+.scroll-cue{display:none;font-size:12px;color:var(--ink-3);margin-top:4px}
+@media (max-width:560px){ .figscroll>.w-svg{min-width:600px} .figscroll.can-scroll+.scroll-cue,.figscroll.can-scroll>.scroll-cue{display:block} }
+/* edge labels sit on a halo */
+.w-svg text.halo,.machine-svg text.halo{paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
+.env-outline rect{fill:var(--surface)!important;stroke:var(--ink-3);stroke-width:1.2}
+.env-outline path{stroke:var(--ink-3)}
+/* lineage badges: one ink, four forms (colour stays with the dispositions) */
+.rel{font-family:var(--mono);font-size:11.5px;padding:3px 8px;border-radius:99px;white-space:nowrap}
+.rel.borrowed{background:var(--ink);color:var(--ground)}
+.rel.extended{border:1px solid var(--ink-2);color:var(--ink)}
+.rel.breaks{border:1px dashed var(--ink-2);color:var(--ink)}
+.rel.absent{color:var(--ink-3);border:1px dotted var(--rule-strong)}
+/* sentences in place of stat strips */
+.w-sentence{font-size:14px;color:var(--ink-2);margin:8px 0}
+.w-sentence code{font-size:12.5px}
+/* tables stack on phones */
+@media (max-width:560px){
+  .cx-t thead{display:none}
+  .cx-t tr{display:block;padding:8px 0;border-bottom:1px solid var(--rule)}
+  .cx-t td{display:block;border:0;padding:2px 0}
+  .cx-t td[data-label]::before{content:attr(data-label) " · ";font-size:11.5px;font-weight:600;color:var(--ink-3)}
+}
+/* sorts on phones: the buckets come to the item */
+.cx-check.sort.armed .sort-buckets{position:sticky;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:6;background:var(--surface);padding:8px;border-radius:var(--radius-sm);box-shadow:var(--shadow)}
+.sort-how{font-size:12.5px;color:var(--ink-3);margin:-6px 0 10px}
+/* red-team levels as a grid */
+.rt-levels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+@media (max-width:560px){ .rt-levels{grid-template-columns:repeat(2,minmax(0,1fr))} }
+.rt-level{font:inherit;font-size:13px;text-align:left;padding:8px 10px;border:1px solid var(--rule-strong);border-radius:8px;background:var(--surface);color:var(--ink-2);cursor:pointer;display:grid;gap:2px}
+.rt-level b{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--ink-3)}
+.rt-level[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.rt-level[aria-pressed="true"] b{color:var(--ground)}
+/* the dock as a strip under the bar below 1280px */
+.dock-strip{display:none}
+@media (max-width:1279px){
+  .dock-strip{display:flex;position:sticky;top:calc(var(--bar-h) + env(safe-area-inset-top,0px));z-index:30;gap:12px;align-items:center;padding:8px clamp(16px,4vw,56px);background:color-mix(in srgb,var(--ground) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule);font-size:12.5px;color:var(--ink-2)}
+  .dock-strip .ds-meter{flex:0 0 72px;height:5px;border-radius:99px;background:var(--surface-3);overflow:hidden}
+  .dock-strip .ds-meter span{display:block;height:100%;background:var(--admitted)}
+  .dock-strip button{margin-left:auto}
+  .dock-strip.flash{animation:stamp .9s var(--ease)}
+  .cx-dock{display:none}
+  body.dock-open .cx-dock{display:block;position:fixed;top:calc(var(--bar-h) + 44px + env(safe-area-inset-top,0px));right:0;bottom:0;width:min(360px,100vw);z-index:34;background:var(--surface);box-shadow:var(--shadow);overflow-y:auto;padding:16px}
+}
+.hero.night{border:0;box-shadow:inset 0 0 120px rgba(0,0,0,.55)}
+.hero-lab{font-size:12.5px;letter-spacing:.04em;paint-order:stroke;stroke:#0b1110;stroke-width:4px}
+.hero-stats{display:block;white-space:normal}
+.hero .hero-svg{overflow:visible}
+.wire .wl.mark{padding-left:calc(16px + 2ch)}
+.dockwire .wl.fresh{padding-left:calc(14px + 2ch)}
