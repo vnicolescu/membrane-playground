@@ -25,7 +25,9 @@
 
   /* ================= graphLab ================= */
   C.widget("graphLab", (props) => {
-    const st = { model: props.model || "smallworld", n: 60, k: 4, beta: 0.12, p: 0.07, m: 2, seed: 7, mode: "look", theta: 0.25, sybil: false, attack: 3 };
+    const MODEL = { random: "random", er: "random", "erdos-renyi": "random", smallworld: "smallworld", "small-world": "smallworld", ws: "smallworld", scalefree: "scalefree", "scale-free": "scalefree", ba: "scalefree" };
+    const st = { model: MODEL[String(props.model || "smallworld").toLowerCase()] || "smallworld", n: 60, k: 4, beta: props.beta ?? 0.12, p: props.p ?? 0.07, m: props.m ?? 2, seed: props.seed ?? 7,
+      mode: props.mode === "cascade" ? "cascade" : "look", theta: props.theta ?? 0.25, sybil: !!props.sybil, attack: props.attack ?? 3 };
     let G = null, layout = null, adopted = new Set(), step = 0;
     const svgBox = h("div", { class: "graph-box" }), stats = h("div", { class: "w-row" }), hist = h("div"), note = h("div", { class: "fig-explain" });
 
@@ -47,7 +49,7 @@
         const S = 20, base = n;
         for (let i = 0; i < S; i++) adj.push(new Set());
         for (let a = base; a < base + S; a++) for (let b = a + 1; b < base + S; b++) if (r() < 0.45) link(a, b);
-        for (let i = 0; i < st.attack; i++) link(base + Math.floor(r() * S), Math.floor(r() * n));
+        for (let i = 0; i < st.attack; i++) link(base + Math.floor(r() * S), 1 + Math.floor(r() * (n - 1))); // attack edges land on honest peers, never on brainboi itself
         honest = n;
       }
       G = { adj, n: adj.length, honest };
@@ -85,9 +87,12 @@
       let cc = 0;
       for (let a = 0; a < n; a++) { const nb = [...adj[a]].filter((b) => b < n); const k = nb.length; if (k < 2) continue; let t = 0; for (let i = 0; i < k; i++) for (let j = i + 1; j < k; j++) if (adj[nb[i]].has(nb[j])) t++; cc += t / (k * (k - 1) / 2); }
       cc /= n;
-      let tot = 0, pairs = 0, unreach = 0;
-      for (let s = 0; s < n; s++) { const dist = new Array(n).fill(-1); dist[s] = 0; const q = [s]; while (q.length) { const a = q.shift(); adj[a].forEach((b) => { if (b < n && dist[b] < 0) { dist[b] = dist[a] + 1; q.push(b); } }); } for (let t = 0; t < n; t++) if (t !== s) { if (dist[t] > 0) { tot += dist[t]; pairs++; } else unreach++; } }
-      return { deg, mean, cc, L: pairs ? tot / pairs : 0, maxd: Math.max(...deg), unreach };
+      // components first, so a split graph cannot hide behind its mean path
+      const comp = new Array(n).fill(-1); let nc = 0, giant = 0, giantId = 0;
+      for (let s0 = 0; s0 < n; s0++) { if (comp[s0] >= 0) continue; const q = [s0]; comp[s0] = nc; let size = 0; while (q.length) { const a = q.shift(); size++; adj[a].forEach((b) => { if (b < n && comp[b] < 0) { comp[b] = nc; q.push(b); } }); } if (size > giant) { giant = size; giantId = nc; } nc++; }
+      let tot = 0, pairs = 0;
+      for (let s = 0; s < n; s++) { if (comp[s] !== giantId) continue; const dist = new Array(n).fill(-1); dist[s] = 0; const q = [s]; while (q.length) { const a = q.shift(); adj[a].forEach((b) => { if (b < n && dist[b] < 0) { dist[b] = dist[a] + 1; q.push(b); } }); } for (let t = 0; t < n; t++) if (t !== s && dist[t] > 0) { tot += dist[t]; pairs++; } }
+      return { deg, mean, cc, L: pairs ? tot / pairs : 0, maxd: Math.max(...deg), giant, comps: nc };
     }
     function trust() {
       // symmetric: global PageRank (every node vouches equally); asymmetric: personalised PageRank from node 0, brainboi's own view
@@ -103,7 +108,9 @@
         return v;
       };
       const share = (v) => v.slice(G.honest).reduce((a, b) => a + b, 0);
-      return { sym: share(pr(false)), asym: share(pr(true)), frac: (n - G.honest) / n };
+      const bestRank = (v) => { const order = v.map((x, i) => [x, i]).sort((a, b) => b[0] - a[0]); return order.findIndex(([, i]) => i >= G.honest) + 1; };
+      const g = pr(false), pz = pr(true);
+      return { sym: share(g), asym: share(pz), frac: (n - G.honest) / n, rankSym: bestRank(g), rankAsym: bestRank(pz), n };
     }
     function draw() {
       const W = 560, H = 380, sx = (x) => W / 2 + x * W * 0.95, sy = (y) => H / 2 + y * H * 0.92;
@@ -126,9 +133,16 @@
       draw();
       const m = metrics();
       stats.textContent = "";
-      [stat(m.mean.toFixed(1), "mean degree"), stat(m.cc.toFixed(2), "clustering"), stat(m.L.toFixed(2), "mean path"), stat(String(m.maxd), "largest hub")].forEach((x) => stats.appendChild(x));
+      [stat(m.mean.toFixed(1), "mean degree"), stat(m.cc.toFixed(2), "clustering"), stat(m.L.toFixed(2), m.comps > 1 ? "mean path, largest piece" : "mean path"), stat(String(m.maxd), "largest hub"),
+        stat(m.giant + "/" + G.honest, m.comps > 1 ? "nodes in the largest piece (" + m.comps + " pieces)" : "nodes, all connected", m.comps > 1)].forEach((x) => stats.appendChild(x));
       if (st.mode === "cascade") stats.appendChild(stat(adopted.size + "/" + G.honest, "adopted · step " + step));
-      if (st.sybil) { const t = trust(); stats.appendChild(stat((100 * t.sym).toFixed(0) + "%", "Sybil share · symmetric rank", true)); stats.appendChild(stat((100 * t.asym).toFixed(1) + "%", "Sybil share · flow from brainboi")); }
+      if (st.sybil) {
+        const t = trust();
+        stats.appendChild(stat((100 * t.frac).toFixed(0) + "%", "of the nodes are Sybils"));
+        stats.appendChild(stat((100 * t.sym).toFixed(0) + "%", "of global PageRank (every node vouches)", t.sym > t.frac));
+        stats.appendChild(stat((100 * t.asym).toFixed(1) + "%", "of trust flowing out from brainboi (personalised PageRank)"));
+        stats.appendChild(stat("#" + t.rankSym + " → #" + t.rankAsym, "best Sybil's rank: global → from brainboi"));
+      }
       const maxd = Math.max(...m.deg), bins = new Array(maxd + 1).fill(0); m.deg.forEach((d) => bins[d]++);
       const HW = 260, HH = 70, bw = HW / bins.length;
       const hs = el("svg", { viewBox: `0 0 ${HW} ${HH + 14}`, class: "w-svg hist", role: "img", "aria-label": "Degree distribution" });
@@ -143,7 +157,7 @@
         random: "**Random (Erdős–Rényi).** Every pair is linked with the same probability. Degrees bunch around the mean, clustering is low, and paths are short.",
         smallworld: "**Small world (Watts–Strogatz).** A ring of neighbours, a few links rewired at random. A little rewiring keeps the clustering of a village and gives the short paths of a random graph: gossip crosses the network in a few hops.",
         scalefree: "**Scale-free (Barabási–Albert).** New nodes link to well-connected ones. A few hubs carry most links. Hubs speed spreading and are where an attacker or a failure hurts most."
-      }[st.model] + (st.sybil ? " **Sybil region (red).** Twenty fake identities, densely linked to each other, joined to the honest network by a few attack edges. A rank where everyone vouches equally lets them inflate one another; trust that flows only outward from brainboi's own view reaches them only through the attack edges [[P§9.4]]." : "") + (st.mode === "cascade" ? " **Cascade.** Tap nodes to seed an idea. A node adopts once the share of its neighbours that adopted reaches the threshold, so dense clusters resist a single source and fall to several." : "")));
+      }[st.model] + (st.sybil ? " **Sybil region (red).** Twenty fake identities, densely linked to each other, joined to honest peers by a few attack edges. Global PageRank hands them about their share of the nodes, sometimes more. Trust that flows outward from brainboi can reach them only across the attack edges, so their share tracks how many attack edges there are, which is the result the SybilRank line of work builds on. Membrane's standing is computed the second way: locally, from the receiver's own view [[P§9.4]]." : "") + (st.mode === "cascade" ? " **Cascade.** Tap nodes to seed an idea. A node adopts once the share of its neighbours that adopted reaches the threshold, so dense clusters resist a single source and fall to several." : "")));
     }
     const params = h("div", { class: "w-grid" });
     function paramUI() {
