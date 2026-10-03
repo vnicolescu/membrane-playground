@@ -54,6 +54,19 @@ for (const L of lessons) {
     if (!BLOCKS.has(b.t)) return err(w, "unknown block type");
     if (b.t === "quiz" && !(Array.isArray(b.options) && Number.isInteger(b.answer) && b.answer >= 0 && b.answer < b.options.length)) err(w, "quiz needs options and an answer index inside them");
     if (b.t === "sort") (b.items || []).forEach((it) => { if (!(b.buckets || []).some((x) => x.id === it.bucket)) err(w, "item '" + it.text + "' names unknown bucket " + it.bucket); });
+    if (b.t === "machine") (b.targets || []).forEach((tg, j) => {
+      const known = (id) => (b.states || []).some((x) => x.id === id);
+      if (!tg.text || !tg.state) err(w, "target " + (j + 1) + " needs text and a state");
+      [tg.state].concat(tg.via || [], tg.avoid || []).filter(Boolean).forEach((id) => { if (!known(id)) err(w, "target " + (j + 1) + " names an unknown state " + id); });
+      // reachable: a walk from the start reaches the target through every `via` without touching an `avoid` (search over states, with the via set as part of the state)
+      const start = b.start || ((b.states || [])[0] || {}).id, via = tg.via || [], avoid = new Set(tg.avoid || []);
+      const seen = new Set(), q = [[start, via.filter((v) => v === start)]];
+      let ok = false;
+      while (q.length && !ok) { const [cur, got] = q.shift(); const key = cur + "|" + got.slice().sort().join(","); if (seen.has(key) || avoid.has(cur)) continue; seen.add(key);
+        if (cur === tg.state && via.every((v) => got.includes(v))) { ok = true; break; }
+        (b.edges || []).filter((e) => e.from === cur).forEach((e) => q.push([e.to, via.includes(e.to) && !got.includes(e.to) ? got.concat(e.to) : got])); }
+      if (!ok && known(tg.state)) err(w, "target " + (j + 1) + " cannot be reached from " + start + " under its via and avoid");
+    });
     if (b.t === "machine") (b.edges || []).forEach((e) => { if (!(b.states || []).some((s) => s.id === e.from) || !(b.states || []).some((s) => s.id === e.to)) err(w, "edge " + e.from + "→" + e.to + " names an unknown state"); });
     // inline {{item}} terms must exist in spec.js
     const text = JSON.stringify(b);
