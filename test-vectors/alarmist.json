@@ -1,0 +1,368 @@
+{
+  "scenario": "alarmist",
+  "basis": "run",
+  "vectors": [
+    {
+      "id": "alarmist.pass",
+      "scenario": "alarmist",
+      "kind": "pass",
+      "category": "accept",
+      "basis": "run",
+      "layer": "gate",
+      "title": "A sender who marks everything urgent",
+      "clause": "ch.page, ch.urgency: at most 2 owner pages per week from one sender",
+      "refs": [
+        "R6·F2",
+        "R6·F19"
+      ],
+      "steps": [
+        {
+          "label": "alert is admitted (record, pointer matched)",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T09:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "vox": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "vox": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "vox": "key-vox"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {
+              "vox": "interrupt"
+            },
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "vo-130000000001",
+              "from": "vox",
+              "to": [
+                "brainboi"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T08:40:00Z",
+              "body": "$body",
+              "form": "alert",
+              "evidence": "record",
+              "context": "vox-0",
+              "expires": "2026-09-15T08:40:00Z",
+              "urgency": "immediate",
+              "severity": "extreme",
+              "certainty": "observed"
+            },
+            "bodyText": "Disk on the relay crossed 80%.\n",
+            "signer": "vox",
+            "lane": "vox",
+            "touchedPaths": [
+              "lanes/vox/out/vo-130000000001.md"
+            ],
+            "recordOk": true
+          },
+          "expect": {
+            "disposition": "admitted",
+            "reason": null,
+            "decisiveStep": "release",
+            "admittedAs": "fact"
+          }
+        },
+        {
+          "label": "page decision, first interrupt this week",
+          "call": "pageDecision",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T09:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "vox": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "vox": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "vox": "key-vox"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {
+              "vox": "interrupt"
+            },
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "vo-130000000001",
+              "from": "vox",
+              "to": [
+                "brainboi"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T08:40:00Z",
+              "body": "$body",
+              "form": "alert",
+              "evidence": "record",
+              "context": "vox-0",
+              "expires": "2026-09-15T08:40:00Z",
+              "urgency": "immediate",
+              "severity": "extreme",
+              "certainty": "observed"
+            },
+            "bodyText": "Disk on the relay crossed 80%.\n",
+            "signer": "vox",
+            "lane": "vox",
+            "touchedPaths": [
+              "lanes/vox/out/vo-130000000001.md"
+            ],
+            "recordOk": true
+          },
+          "expect": {
+            "page": true,
+            "level": "interrupt"
+          }
+        },
+        {
+          "label": "page decision, two interrupts already this week",
+          "call": "pageDecision",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T09:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "vox": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "vox": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "vox": "key-vox"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {
+              "vox": "interrupt"
+            },
+            "interruptsThisWeek": {
+              "vox": 2
+            },
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "vo-130000000001",
+              "from": "vox",
+              "to": [
+                "brainboi"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T08:40:00Z",
+              "body": "$body",
+              "form": "alert",
+              "evidence": "record",
+              "context": "vox-0",
+              "expires": "2026-09-15T08:40:00Z",
+              "urgency": "immediate",
+              "severity": "extreme",
+              "certainty": "observed"
+            },
+            "bodyText": "Disk on the relay crossed 80%.\n",
+            "signer": "vox",
+            "lane": "vox",
+            "touchedPaths": [
+              "lanes/vox/out/vo-130000000001.md"
+            ],
+            "recordOk": true
+          },
+          "expect": {
+            "page": false,
+            "level": "prompt"
+          }
+        }
+      ],
+      "notes": "The urgency ceiling is not a disposition: Gate.pageDecision is called on admitted alerts. With interruptBudget 2 the third eligible alert drops to prompt."
+    },
+    {
+      "id": "alarmist.break.ceilingEnforced",
+      "scenario": "alarmist",
+      "kind": "break",
+      "category": "accept",
+      "basis": "run",
+      "layer": "gate",
+      "title": "A sender who marks everything urgent, ceilingEnforced off (existing break)",
+      "clause": "ch.urgency",
+      "params": {
+        "ceilingEnforced": false
+      },
+      "refs": [
+        "R6·F2"
+      ],
+      "steps": [
+        {
+          "label": "page decision, two interrupts already this week",
+          "call": "pageDecision",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T09:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "vox": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "vox": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "vox": "key-vox"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {
+              "vox": "interrupt"
+            },
+            "interruptsThisWeek": {
+              "vox": 2
+            },
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "vo-130000000001",
+              "from": "vox",
+              "to": [
+                "brainboi"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T08:40:00Z",
+              "body": "$body",
+              "form": "alert",
+              "evidence": "record",
+              "context": "vox-0",
+              "expires": "2026-09-15T08:40:00Z",
+              "urgency": "immediate",
+              "severity": "extreme",
+              "certainty": "observed"
+            },
+            "bodyText": "Disk on the relay crossed 80%.\n",
+            "signer": "vox",
+            "lane": "vox",
+            "touchedPaths": [
+              "lanes/vox/out/vo-130000000001.md"
+            ],
+            "recordOk": true
+          },
+          "expect": {
+            "page": true,
+            "level": "interrupt"
+          }
+        }
+      ],
+      "notes": "The sender's claim is the urgency: every immediate alert pages."
+    }
+  ]
+}

@@ -1,0 +1,419 @@
+{
+  "scenario": "lost-receipt",
+  "basis": "read",
+  "vectors": [
+    {
+      "id": "lost-receipt.pass",
+      "scenario": "lost-receipt",
+      "kind": "pass",
+      "category": "reject-code",
+      "basis": "run",
+      "layer": "gate",
+      "title": "Receipt lost, message resent",
+      "clause": "env.id, rc.duplicate: a resend with the same id gets the original receipt; nothing duplicated",
+      "refs": [
+        "P§4.2"
+      ],
+      "steps": [
+        {
+          "label": "first delivery: synthesis, no second signal",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T14:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "echo": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "echo": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "echo": "key-echo"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "ec-0c0000000001",
+              "from": "echo",
+              "to": [
+                "brainboi"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T08:00:00Z",
+              "body": "$body",
+              "evidence": "synthesis",
+              "context": "relay-health"
+            },
+            "bodyText": "Relay latency to the partner agent has doubled since 06:00; likely a routing change.\n",
+            "signer": "echo",
+            "lane": "echo",
+            "touchedPaths": [
+              "lanes/echo/out/ec-0c0000000001.md"
+            ]
+          },
+          "expect": {
+            "disposition": "held",
+            "reason": "awaiting-signal",
+            "decisiveStep": "release",
+            "awaiting": "second-signal",
+            "evidence": "synthesis",
+            "receiptOwed": true
+          }
+        },
+        {
+          "label": "resend with the same id and body (the held receipt was lost)",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T16:00:00Z",
+            "seenIds": {
+              "echo|ec-0c0000000001": {
+                "body": "$hash:Relay latency to the partner agent has doubled since 06:00; likely a routing change.\n",
+                "disposition": "held",
+                "receiptOwed": true,
+                "effect": "none",
+                "receipt": {
+                  "header": {
+                    "membrane": 0,
+                    "id": "br-0c0000000002",
+                    "from": "brainboi",
+                    "to": [
+                      "echo"
+                    ],
+                    "act": "declare",
+                    "form": "receipt",
+                    "re": "ec-0c0000000001",
+                    "echo": "$hash:Relay latency to the partner agent has doubled since 06:00; likely a routing change.\n",
+                    "disposition": "held",
+                    "reason": "awaiting-signal"
+                  }
+                }
+              }
+            },
+            "acceptedContracts": {
+              "echo": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "echo": "S1"
+            },
+            "holdsToday": {
+              "echo": 1
+            },
+            "rateToday": {
+              "echo": 1
+            },
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "echo": "key-echo"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "ec-0c0000000001",
+              "from": "echo",
+              "to": [
+                "brainboi"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T08:00:00Z",
+              "body": "$body",
+              "evidence": "synthesis",
+              "context": "relay-health"
+            },
+            "bodyText": "Relay latency to the partner agent has doubled since 06:00; likely a routing change.\n",
+            "signer": "echo",
+            "lane": "echo",
+            "touchedPaths": [
+              "lanes/echo/out/ec-0c0000000001.md"
+            ]
+          },
+          "expect": {
+            "disposition": "held",
+            "reason": "duplicate",
+            "decisiveStep": "duplicate",
+            "duplicate": true,
+            "receiptOwed": true,
+            "originalReceipt": {
+              "header": {
+                "membrane": 0,
+                "id": "br-0c0000000002",
+                "from": "brainboi",
+                "to": [
+                  "echo"
+                ],
+                "act": "declare",
+                "form": "receipt",
+                "re": "ec-0c0000000001",
+                "echo": "$hash:Relay latency to the partner agent has doubled since 06:00; likely a routing change.\n",
+                "disposition": "held",
+                "reason": "awaiting-signal"
+              }
+            }
+          }
+        }
+      ],
+      "notes": "The ctx of step 2 is what the sim stores after step 1 (seenIds entry with the original receipt, one hold, one message today). The trace carries the original receipt; the hold count stays at 1."
+    },
+    {
+      "id": "lost-receipt.break.dedupReceipts",
+      "scenario": "lost-receipt",
+      "kind": "proposed-break",
+      "category": "known-gap",
+      "basis": "read",
+      "layer": "gate",
+      "status": "proposed",
+      "title": "Receipt lost, message resent, dedupReceipts off (proposed break)",
+      "clause": "rc.duplicate and env.id (P§4.2 rule 7)",
+      "params": {
+        "dedupReceipts": false
+      },
+      "refs": [
+        "P§4.2",
+        "R6·F9"
+      ],
+      "steps": [
+        {
+          "label": "first delivery: synthesis, no second signal",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T14:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "echo": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "echo": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "echo": "key-echo"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "ec-0c0000000001",
+              "from": "echo",
+              "to": [
+                "brainboi"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T08:00:00Z",
+              "body": "$body",
+              "evidence": "synthesis",
+              "context": "relay-health"
+            },
+            "bodyText": "Relay latency to the partner agent has doubled since 06:00; likely a routing change.\n",
+            "signer": "echo",
+            "lane": "echo",
+            "touchedPaths": [
+              "lanes/echo/out/ec-0c0000000001.md"
+            ]
+          },
+          "expect": {
+            "disposition": "held",
+            "reason": "awaiting-signal",
+            "decisiveStep": "release",
+            "awaiting": "second-signal",
+            "evidence": "synthesis",
+            "receiptOwed": true
+          }
+        },
+        {
+          "label": "resend with the same id and body, judged as new",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T16:00:00Z",
+            "seenIds": {
+              "echo|ec-0c0000000001": {
+                "body": "$hash:Relay latency to the partner agent has doubled since 06:00; likely a routing change.\n",
+                "disposition": "held",
+                "receiptOwed": true,
+                "effect": "none",
+                "receipt": {
+                  "header": {
+                    "membrane": 0,
+                    "id": "br-0c0000000002",
+                    "from": "brainboi",
+                    "to": [
+                      "echo"
+                    ],
+                    "act": "declare",
+                    "form": "receipt",
+                    "re": "ec-0c0000000001",
+                    "echo": "$hash:Relay latency to the partner agent has doubled since 06:00; likely a routing change.\n",
+                    "disposition": "held",
+                    "reason": "awaiting-signal"
+                  }
+                }
+              }
+            },
+            "acceptedContracts": {
+              "echo": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "echo": "S1"
+            },
+            "holdsToday": {
+              "echo": 1
+            },
+            "rateToday": {
+              "echo": 1
+            },
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "echo": "key-echo"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "ec-0c0000000001",
+              "from": "echo",
+              "to": [
+                "brainboi"
+              ],
+              "act": "assert",
+              "at": "2026-09-14T08:00:00Z",
+              "body": "$body",
+              "evidence": "synthesis",
+              "context": "relay-health"
+            },
+            "bodyText": "Relay latency to the partner agent has doubled since 06:00; likely a routing change.\n",
+            "signer": "echo",
+            "lane": "echo",
+            "touchedPaths": [
+              "lanes/echo/out/ec-0c0000000001.md"
+            ]
+          },
+          "expect": {
+            "disposition": "held",
+            "reason": "awaiting-signal",
+            "decisiveStep": "release",
+            "awaiting": "second-signal",
+            "receiptOwed": true,
+            "originalReceipt": null
+          }
+        }
+      ],
+      "notes": "Needs the new dedupReceipts param and the step-7 guard from docs/proposals/scenarios-breaking-rules.md §2. Today gate.js has no such knob, so this vector fails until the guard is added (the gate would return duplicate). id-reuse is unaffected.",
+      "confirm": [
+        "Knob name dedupReceipts and the guard placement in step 7"
+      ]
+    }
+  ]
+}

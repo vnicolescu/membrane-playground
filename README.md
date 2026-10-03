@@ -106,11 +106,15 @@ spec.js           the contract: window.MEMBRANE, the data every view renders
 glyphs.js         shared SVG grammar: agents, envelopes, the membrane, dispositions
 store.js          comments, proposals, locks, stances, attempts (artifact db or localStorage)
 gate.js           Gate.evaluate: pure, synchronous, no DOM, no clock, no randomness
+ARCH.md           the contract between modules: components, envelope, gate steps, evidence
 app.js  app.css   router, Abstract, Contract explorer and drawer, Decisions, Sources
 sim.js  sim.css   Playground: engine (part 1) and view (part 2)
 game.js game.css  Gatekeeper: message builder, gate trace, sensor, red team
 research/         R1 to R11, the threads the draft was built from
 whitepaper/       second-reader review of draft 0.1
+test-vectors/     29 conformance vectors for the gate, and run.js to run them
+docs/proposals/   proposed changes to the contract, not yet part of it
+docs/explorer/    a one-file click-through of the gate's 21 steps
 docs/readme/      images for this file
 ```
 
@@ -132,6 +136,24 @@ flowchart LR
 ```
 
 No view hardcodes a field name, an enum value or a reason code; all of it comes from `spec.js`. The gate reads nothing outside its arguments, so the simulation, the game and a future implementation can share it and be checked against each other. Every item carries references (`P§6.2` for the paper, `R3·F5` for a research finding, `Rev02·#7` for a reviewer finding, or the A2A/MCP name it maps to), and the drawer resolves them.
+
+## Module contract, test vectors and the gate explorer
+
+Four additions came as a pack from brobber, an agent on the other side of the test pair. It read the code at `2ca3d45` and wrote them from the text. Nothing in them copies the repository's code. They cite it by file and line.
+
+**`ARCH.md`** is the contract between modules that `gate.js` and `game.js` cite and the export lacked. It covers the components and their globals, the envelope and its flow, the gate's 21 steps with their reason codes, the release rule by tier, the evidence kinds and the independence rule. Items marked *Confirm* are readings the owners have to settle. Items marked *Proposed* are suggestions: single-use grants, named profiles, a release rule for gate changes.
+
+**`test-vectors/`** holds 29 conformance vectors, 54 steps, in JSON. Each step states the receiver's full state, the message and the expected trace, so a third implementation can be checked against this gate without the simulation. This is where decision D11 ends up being used. Run them with Node:
+
+```bash
+node test-vectors/run.js
+```
+
+The first run here, against the gate as brobber read it, gave 54 of 54 steps run and 51 of 54 passed. The 3 failures were predicted in the pack: they belong to proposed vectors that need a rule the repository did not have yet.
+
+**`docs/proposals/scenarios-breaking-rules.md`** proposes a breaking rule for the four scenarios that had none: `happy`, `lost-receipt`, `authority-spoof` and `escalation`.
+
+**`docs/explorer/membrane-gate-explorer.html`** is a one-file click-through of the gate. Pick an envelope, step through the 21 steps, toggle the scenario's rule. It is an explainer written from the text and does not load `gate.js`. Where the two differ, `Gate.evaluate` is right. It makes no network calls.
 
 ## Research
 
@@ -181,7 +203,7 @@ Two house sweeps (S1, S2) and the first reviewer (Rev01) are cited in the contra
 
 ## Not included
 
-The working paper (draft 0.2) is linked from the footer and from every `P§` reference, but its source is not here. `ARCH.md`, which the file headers cite as the contract between modules, was not in the export. The licence is decision D16 and is not yet settled.
+The working paper (draft 0.2) is linked from the footer and from every `P§` reference, but its source is not here. `ARCH.md`, which the file headers cite as the contract between modules, was not in the export; the one here is a draft written afterwards from the code. The licence is decision D16 and is not yet settled.
 
 ## Images
 

@@ -1,0 +1,43 @@
+{
+  "format": "membrane-test-vectors/0",
+  "contract": "0.3-draft",
+  "commit": "2ca3d45",
+  "basis": "read",
+  "run": { "runner": "run.js", "date": "2026-10-03", "gateAt": "2ca3d45", "steps": 54, "passed": 51, "note": "the 3 failures are proposed vectors that wait for a change; vectors the run confirmed carry basis run" },
+  "T0": "2026-09-14T08:00:00Z",
+  "tokens": {
+    "$body": "replace with Gate.simHash(msg.bodyText)",
+    "$hash:<text>": "replace with Gate.simHash(<text>), in keys and values"
+  },
+  "ctxTypes": {
+    "now": "ISO string, convert with Date.parse",
+    "seenIds": "Map",
+    "expiredBodies": "Map",
+    "ownerSigned": "Set",
+    "secondSignals": "Set",
+    "sensor": "\"heuristic\" means (m, s) => Gate.sensorHeuristic(m, s); absent means no sensor function"
+  },
+  "categories": {
+    "accept": "must be admitted (or paged) as stated",
+    "reject-code": "must be refused, held, expired or logged with this exact reason code",
+    "adversarial": "a hostile sender's attempt; must be stopped with this exact code (break vectors show it getting through)",
+    "known-gap": "documents a check the gate does not make yet (env.state, single-use grants) or a scenario with break: null today; expected to change"
+  },
+  "defaultParams": "Gate.defaults() (MEMBRANE.params); vector params, then step params, are merged over it",
+  "files": [
+    "happy.json",
+    "receipt-loop.json",
+    "lost-receipt.json",
+    "clock-skew.json",
+    "laundering.json",
+    "trust-root.json",
+    "hold-flood.json",
+    "exfiltration.json",
+    "authority-spoof.json",
+    "alarmist.json",
+    "owner-away.json",
+    "newcomer.json",
+    "escalation.json",
+    "known-gaps.json"
+  ]
+}

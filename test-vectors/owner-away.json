@@ -1,0 +1,369 @@
+{
+  "scenario": "owner-away",
+  "basis": "run",
+  "vectors": [
+    {
+      "id": "owner-away.pass",
+      "scenario": "owner-away",
+      "kind": "pass",
+      "category": "reject-code",
+      "basis": "run",
+      "layer": "gate",
+      "title": "Two days without the owner",
+      "clause": "disp.expired, env.expires: expired asks get one honest resend",
+      "refs": [
+        "spec.js:392"
+      ],
+      "steps": [
+        {
+          "label": "boundary ask while the owner is away",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-14T14:00:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "partner": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "partner": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "partner": "key-partner"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "pa-140000000001",
+              "from": "partner",
+              "to": [
+                "brainboi"
+              ],
+              "act": "request",
+              "at": "2026-09-14T08:10:00Z",
+              "body": "$body",
+              "form": "ask",
+              "context": "cx-140000000001",
+              "contract": "$hash:pilot contract v1\n",
+              "by": "2026-09-18T08:10:00Z",
+              "effect": "boundary",
+              "turn": 1,
+              "acceptance": "a slot with a confirmed time"
+            },
+            "bodyText": "Add the owner's Thursday pilot review to your calendar and confirm the slot.\n",
+            "signer": "partner",
+            "lane": "partner",
+            "touchedPaths": [
+              "lanes/partner/out/pa-140000000001.md"
+            ]
+          },
+          "expect": {
+            "disposition": "held",
+            "reason": "awaiting-signal",
+            "decisiveStep": "release",
+            "awaiting": "second-signal",
+            "tier": "T3",
+            "receiptOwed": true
+          }
+        },
+        {
+          "label": "a message that arrives after its expires (default at + 48 h)",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-16T08:30:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "partner": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "partner": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "partner": "key-partner"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {},
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "pa-140000000003",
+              "from": "partner",
+              "to": [
+                "brainboi"
+              ],
+              "act": "request",
+              "at": "2026-09-14T08:10:00Z",
+              "body": "$body",
+              "form": "ask",
+              "context": "cx-140000000003",
+              "contract": "$hash:pilot contract v1\n",
+              "by": "2026-09-18T08:10:00Z",
+              "effect": "boundary",
+              "turn": 1,
+              "acceptance": "a slot with a confirmed time"
+            },
+            "bodyText": "Add the owner's Thursday pilot review to your calendar and confirm the slot.\n(late copy)\n",
+            "signer": "partner",
+            "lane": "partner",
+            "touchedPaths": [
+              "lanes/partner/out/pa-140000000003.md"
+            ]
+          },
+          "expect": {
+            "disposition": "expired",
+            "reason": null,
+            "decisiveStep": "expiry",
+            "receiptOwed": true
+          }
+        },
+        {
+          "label": "honest resend of the expired body, new id, re names the original",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-16T08:14:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "partner": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "partner": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "partner": "key-partner"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {
+              "$hash:Add the owner's Thursday pilot review to your calendar and confirm the slot.\n": 1
+            },
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "pa-140000000002",
+              "from": "partner",
+              "to": [
+                "brainboi"
+              ],
+              "act": "request",
+              "at": "2026-09-16T08:12:00Z",
+              "body": "$body",
+              "form": "ask",
+              "context": "cx-140000000001",
+              "re": "pa-140000000001",
+              "contract": "$hash:pilot contract v1\n",
+              "by": "2026-09-19T08:12:00Z",
+              "effect": "boundary",
+              "turn": 1,
+              "acceptance": "a slot with a confirmed time"
+            },
+            "bodyText": "Add the owner's Thursday pilot review to your calendar and confirm the slot.\n",
+            "signer": "partner",
+            "lane": "partner",
+            "touchedPaths": [
+              "lanes/partner/out/pa-140000000002.md"
+            ]
+          },
+          "expect": {
+            "disposition": "held",
+            "reason": "awaiting-signal",
+            "decisiveStep": "release",
+            "awaiting": "second-signal",
+            "tier": "T3",
+            "receiptOwed": true
+          }
+        }
+      ],
+      "notes": "Step 2 is a separate envelope that shows the gate's expired path (step 9). In the sim the first ask expires through the hold timer, not the gate; step 3's ctx records that one expiry.",
+      "confirm": [
+        "Step 2 is an added illustration of disposition expired, not an event from SCRIPTS['owner-away']"
+      ]
+    },
+    {
+      "id": "owner-away.break.resendPolicy",
+      "scenario": "owner-away",
+      "kind": "break",
+      "category": "reject-code",
+      "basis": "run",
+      "layer": "gate",
+      "title": "The owner is away, resendPolicy none (existing break)",
+      "clause": "disp.expired",
+      "params": {
+        "resendPolicy": "none"
+      },
+      "refs": [
+        "spec.js:392"
+      ],
+      "steps": [
+        {
+          "label": "same honest resend, policy none",
+          "call": "evaluate",
+          "ctx": {
+            "receiver": "brainboi",
+            "now": "2026-09-16T08:14:00Z",
+            "seenIds": {},
+            "acceptedContracts": {
+              "partner": "$hash:pilot contract v1\n"
+            },
+            "contractEffects": {
+              "ask": "disclose",
+              "accept": "none",
+              "reply": "none",
+              "receipt": "none",
+              "pulse": "none",
+              "card": "none",
+              "alert": "none"
+            },
+            "standing": {
+              "partner": "S1"
+            },
+            "holdsToday": {},
+            "rateToday": {},
+            "paused": false,
+            "trustRoot": {
+              "pinned": true,
+              "keys": {
+                "partner": "key-partner"
+              },
+              "transportKeys": {}
+            },
+            "shareable": [
+              "pilot/shareable/"
+            ],
+            "sensor": "heuristic",
+            "expiredBodies": {
+              "$hash:Add the owner's Thursday pilot review to your calendar and confirm the slot.\n": 1
+            },
+            "measurements": [
+              "lease-probe"
+            ],
+            "ceiling": {},
+            "interruptsThisWeek": {},
+            "capabilities": {},
+            "ownerSigned": [],
+            "secondSignals": []
+          },
+          "msg": {
+            "header": {
+              "membrane": 0,
+              "id": "pa-140000000002",
+              "from": "partner",
+              "to": [
+                "brainboi"
+              ],
+              "act": "request",
+              "at": "2026-09-16T08:12:00Z",
+              "body": "$body",
+              "form": "ask",
+              "context": "cx-140000000001",
+              "re": "pa-140000000001",
+              "contract": "$hash:pilot contract v1\n",
+              "by": "2026-09-19T08:12:00Z",
+              "effect": "boundary",
+              "turn": 1,
+              "acceptance": "a slot with a confirmed time"
+            },
+            "bodyText": "Add the owner's Thursday pilot review to your calendar and confirm the slot.\n",
+            "signer": "partner",
+            "lane": "partner",
+            "touchedPaths": [
+              "lanes/partner/out/pa-140000000002.md"
+            ]
+          },
+          "expect": {
+            "disposition": "refused",
+            "reason": "expired-before",
+            "decisiveStep": "expiry",
+            "receiptOwed": true
+          }
+        }
+      ]
+    }
+  ]
+}
