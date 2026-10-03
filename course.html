@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Membrane Course</title>
+<meta name="description" content="A step-by-step course on Membrane, MCP and A2A: what a receiving agent does with a message from an agent it does not own.">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300;0,7..72,400;1,7..72,300;1,7..72,400&family=Instrument+Sans:wght@400;500;600&family=Fragment+Mono&display=swap">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="course/course.css">
+</head>
+<body class="course">
+<a class="skip" href="#main">Skip to the lesson</a>
+<header class="bar">
+  <div class="bar-in">
+    <button type="button" class="btn ghost menu" id="menu" aria-label="Lessons">☰</button>
+    <a class="brand" href="#home"><b>Membrane</b><span>course</span></a>
+    <div class="progress" id="progress" aria-label="Progress"></div>
+    <nav class="tabs" aria-label="Elsewhere">
+      <a href="index.html" target="_blank" rel="noopener">Playground</a>
+      <a href="https://github.com/vnicolescu/membrane-playground" target="_blank" rel="noopener">Repository</a>
+    </nav>
+  </div>
+</header>
+
+<div class="cx">
+  <nav class="cx-nav" id="nav" aria-label="Lessons"></nav>
+  <main class="cx-main" id="main" tabindex="-1"></main>
+  <aside class="cx-dock" id="dock" aria-label="The running envelope"></aside>
+</div>
+
+<button type="button" class="tutor-btn" id="tutor-btn" hidden>Ask the tutor</button>
+<section class="tutor" id="tutor" hidden aria-label="Tutor">
+  <div class="tutor-head"><span class="tutor-title">Ask about this lesson</span><button type="button" class="btn ghost small tutor-close" aria-label="Close the tutor">✕</button></div>
+  <div class="tutor-sugg"></div>
+  <div class="tutor-out" aria-live="polite"></div>
+  <form class="tutor-form">
+    <label for="tutor-q" class="sr">Your question</label>
+    <textarea id="tutor-q" rows="2" placeholder="Ask about this lesson"></textarea>
+    <div class="row"><button type="submit" class="btn primary small">Ask</button><button type="button" class="btn ghost small tutor-stop">Stop</button><span class="muted small">Answers use your Claude account.</span></div>
+  </form>
+</section>
+
+<footer class="foot">
+  <span>Membrane contract 0.3 draft · paper draft 0.2 · nothing has run between the two test agents yet.</span>
+  <span>The gate on these pages is <code>gate.js</code>, the same code the Playground and the test vectors run.</span>
+</footer>
+
+<script src="spec.js"></script>
+<script src="glyphs.js"></script>
+<script src="gate.js"></script>
+<script src="course/scenario.js"></script>
+<script src="course/kit.js"></script>
+<script src="course/widgets.js"></script>
+<script src="course/figures.js"></script>
+<script src="course/labs.js"></script>
+<script src="course/manifest.js"></script>
+<script src="course/main.js"></script>
+</body>
+</html>

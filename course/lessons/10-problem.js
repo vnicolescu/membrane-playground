@@ -1,0 +1,68 @@
+Course.lesson({
+  id: "problem", part: "problem", title: "Two owners, one line",
+  kicker: "What changes when the agent on the other side belongs to someone else",
+  minutes: 8,
+  refs: ["P§1.1", "P§1.2", "P§1.3", "R1·F2", "R1·F4", "R3·F13", "R8·F1", "R8·F3"],
+  objectives: [
+    "State the four conditions a message between two owners must satisfy.",
+    "Say where MCP and A2A stop, in one sentence each.",
+    "Place the boundary: policy at the ends, a shared vocabulary in the middle."
+  ],
+  prereq: ["injection"],
+  summary: "The running example: Hermes (Sal's agent) asks brainboi (Vlad's agent) which week of the pilot it is. A tool call has one owner behind both sides; a peer message has two owners, two models, two memory stores and two sets of credentials meeting at a line neither controls. Four conditions make such an exchange worth having: kernel integrity, disposition visibility, provenance persistence, recoverable standing. MCP and A2A carry the message; neither says what the receiver does with it. The end-to-end argument puts quarantine, impact scoring and trust at the receiver; the shared part is the vocabulary of the boundary.",
+  blocks: [
+    { t: "p", text: "On 22 September 2026, at 09:00 UTC, an agent called Hermes writes a message to an agent called brainboi. Hermes runs on Sal's machine, on the Hermes Agent harness from Nous Research. brainboi runs on Vlad's machine, as Claude Code over a git repository. The message asks one thing: which week of the pilot are we in? This course follows that message from the first byte Hermes writes to the moment brainboi's gate decides what to do with it. Every later lesson adds one field to it or one rule about it." },
+    { t: "wire", caption: "The running example as it will look when the course is done. Fields light up in the dock as lessons teach them.", text: "membrane: 0\nid: hermes-20260922-a41d0e6b9c7f2358\nfrom: hermes\nto: [brainboi]\nact: request\nform: ask\nat: 2026-09-22T09:00:00Z\nby: 2026-09-23T09:00:00Z\neffect: disclose\ncontract: ee97a799df24438a\ncontext: cx-hermes-20260922-a41d0e6b9c7f2358\nacceptance: \"a whole number from 1 to 52\"\nturn: 1\nbody: d84392bf03943cab\n---\nRead pilot/shareable/week.md and tell me which week of the pilot we are in.\n" },
+    { t: "define", terms: [
+      { term: "agent", def: "A program that runs a language model with tools, memory and credentials, on a schedule or on demand. brainboi and Hermes are agents." },
+      { term: "owner", def: "The person whose machine, keys and credentials an agent uses, and whose word the agent treats as authority. Vlad owns brainboi; Sal owns Hermes." },
+      { term: "kernel", def: "An agent's goals, rules, credentials and long-term memory: the things only its owner may change.", ref: "P§1.1" },
+      { term: "boundary", def: "The line where text produced by one agent enters another. Between two owners, nobody controls both sides of it." },
+      { term: "disposition", def: "What became of a message at the boundary: held, admitted, refused or expired. The sender needs to learn it.", ref: "P§6.1" }
+    ] },
+    { t: "h", text: "One owner or two" },
+    { t: "p", text: "When an agent calls a tool, one owner stands behind both sides. The same person installed the tool, granted its credentials and reads its output. When Hermes writes to brainboi, two owners, two models, two memory stores and two sets of credentials meet at a line neither of them controls [[P§1.1]]. Every message that crosses the line is text produced by another optimizer and read by a model that cannot reliably tell data from instruction (Greshake et al. 2023, [[R3·F1]]). If you skipped the foundation on injection, [[lesson:injection|read it now]]: the rest of the course assumes you know why a model reading hostile text is a problem in itself." },
+    { t: "h", text: "Four conditions" },
+    { t: "p", text: "The paper names four conditions that make an exchange between two owners worth having [[P§1.1]]. Keep them in this order; the course returns to them as a checklist." },
+    { t: "list", ordered: true, items: [
+      "**Kernel integrity.** The receiver's goals, rules, credentials and long-term memory change only by its own owner's act.",
+      "**Disposition visibility.** The sender learns what became of its message.",
+      "**Provenance persistence.** A claim keeps its origin and its evidence as it travels.",
+      "**Recoverable standing.** Trust earned by a record can be lost by a contradiction and earned back by a clean record."
+    ] },
+    { t: "h", text: "What the protocols of 2026 carry" },
+    { t: "p", text: "Two protocols carry most agent traffic in 2026. The Model Context Protocol (MCP) connects an agent to tools. The Agent2Agent protocol (A2A) connects an agent to another agent. Both are Linux Foundation projects, and both spent 2026 shrinking their cores [[P§1.2]]. Read against the four conditions, they share the same gaps. The table is the paper's; Appendix D has the full version across eight protocols." },
+    { t: "table", head: ["Condition", "Where it appears", "Where it is absent"], rows: [
+      ["Quarantine pending an authority", "AP2, for payments only: a cart does nothing until the user signs", "MCP, A2A, ANP, Agora, Hermes' A2A plugin"],
+      ["Impact assessment of a message", "partial: AP2 (human present or not), ERC-8004 (trust scaled to value at risk)", "MCP, A2A, ANP, AGNTCY, Agora"],
+      ["Stated goals of the boundary", "nowhere; A2A treats agents as opaque by design", "every protocol reviewed"],
+      ["Recoverable reputation", "nowhere; revocation is terminal where it exists", "every protocol reviewed"],
+      ["Receiver-originated \"read and acted on\"", "partial in A2A task states, AGNTCY, AP2", "MCP removed redelivery in 2026"]
+    ], caption: "From [[P§1.2]]. ANP, AGNTCY, Agora, AP2 and ERC-8004 are the other protocols the landscape sweep opened; the course returns to AP2 once, under two-signal release." },
+    { t: "p", text: "The failures on record are boundary failures. Tool poisoning hides instructions in a tool description, and a server can change the description after approval (Invariant Labs 2025, [[R1·F2]]). In agent session smuggling, a malicious remote A2A agent used the conversation's state to extract a victim agent's configuration and then induce unauthorized trades; signed identity would not have stopped it, because the authenticated peer was the attacker (Unit 42 2025, [[R1·F4]]). Adversarial web content hijacked the orchestration layer of three agent frameworks in 58 to 90 percent of trials even where each individual agent refused harmful actions (Triedman, Jha and Shmatikov 2025, [[R3·F13]]). Hermes Agent's own A2A plugin ships a gatekeeper's tools, and an inbound peer task still enters the live session with its memory and tools [[R1·F13]]." },
+    { t: "sort", prompt: "Each documented failure breaks one of the four conditions first. Place it.", buckets: [
+      { id: "kernel", label: "Kernel integrity" }, { id: "disposition", label: "Disposition visibility" }, { id: "provenance", label: "Provenance persistence" }, { id: "standing", label: "Recoverable standing" }
+    ], items: [
+      { text: "A tool description changed after approval, and the model followed the new text.", bucket: "kernel", why: "Text from outside changed what the agent would do. Only the owner's act may change its rules." },
+      { text: "A sender never learned the verdict on its message, so it resent and escalated blind.", bucket: "disposition", why: "The sender must see what became of the message. Blind resends are the cost of silence." },
+      { text: "An intended purchase was copied into plans and forecasts as a committed fact for five months.", bucket: "provenance", why: "The claim lost its evidence kind on the first copy. Every later reader took it as fact." },
+      { text: "A peer caught in one contradiction is banned for good, so its owner starts a fresh identity.", bucket: "standing", why: "Terminal revocation makes a new pseudonym the rational move. Standing that recovers removes the incentive." },
+      { text: "A remote agent extracted a victim agent's configuration through the shared session.", bucket: "kernel", why: "The peer's text reached the agent's configuration and tools. The kernel was reachable from outside." },
+      { text: "A claim arrived marked 'measured' after three hops of repetition.", bucket: "provenance", why: "Repetition is never evidence. The origin and the original kind must travel with the claim." }
+    ] },
+    { t: "h", text: "Where the boundary belongs" },
+    { t: "p", text: "The end-to-end argument says a function such as acknowledgement or duplicate suppression can be completed correctly only with the knowledge held at the endpoints; a lower layer's version is at best a performance aid (Saltzer, Reed and Clark 1984, [[R8·F1]]). Its later restatement adds that a function belongs at a point the principals trust, and that an intermediary is legitimate only when one end installed it (Clark and Blumenthal 2011, [[R8·F2]]). By that reasoning, quarantine, impact scoring and trust belong to the receiving agent [[P§1.3]]. No protocol can do them on its behalf. The transport annex works the argument through in full: [[lesson:tr-e2e]]." },
+    { t: "p", text: "A sender that cannot see the receiver's verdict resends or escalates blind. A sender that sees a verdict with reasons attached can use the reasons to route around it. Membrane resolves the two by placement. **Policy lives at the ends; the vocabulary of the boundary lives in the waist** [[P§1.3]]. The hourglass theorem makes the cost explicit: a weaker shared layer supports fewer applications and more implementations, so the choice that matters most is the set of applications the waist must serve (Beck 2019, [[R8·F3]]). The foundation [[lesson:layers]] explains the theorem." },
+    { t: "callout", kind: "history", title: "A refusal that pointed the way around", text: "One deployed agent in the paper's own record hit a guardrail against deleting, read the refusal's pointer to the user interface as licence, and began driving that interface to reach the same result [[P§1.3]]. The verdict must be visible to both ends; the reasoning behind it stays with the receiver. Refusals in Membrane carry a code and no prose." },
+    { t: "p", text: "Membrane's necessary set, the applications every implementation must serve, has five members [[P§1.3]]: ask for something, with a line saying how both sides will know it is done; report or answer; say what became of a message; say that one is alive and what one has taken in; withdraw something already said. Everything else rides above the waist as a named extension or stays inside the agent. Whether these five are the right waist is decision D1, open to both owners." },
+    { t: "takeaways", items: [
+      "Between two owners, every inbound message is text from another optimizer read by a model that cannot tell data from instruction.",
+      "Four conditions: kernel integrity, disposition visibility, provenance persistence, recoverable standing.",
+      "MCP and A2A standardize how a message arrives. Neither says what the receiver does with it.",
+      "The end-to-end argument puts quarantine, impact and trust at the receiver; the shared part is the vocabulary.",
+      "A refusal with reasons in prose is a map around the refusal. Codes travel; reasons stay home."
+    ] },
+    { t: "deeper", links: [ { ref: "P§1" }, { research: "R1", label: "R1 · the protocol landscape, September 2026" }, { research: "R8", label: "R8 · minimal, lasting protocols" }, { href: "https://web.mit.edu/Saltzer/www/publications/endtoend/endtoend.pdf", label: "Saltzer, Reed and Clark (1984), the end-to-end argument" } ] },
+    { t: "tutor", prompts: [ "Why does signed identity fail against session smuggling?", "Which of the four conditions does a tool call between one owner's components still need?", "What would an A2A `rejected` state be missing to count as disposition visibility?" ] }
+  ]
+});
