@@ -4,6 +4,8 @@
 
 *How these were checked: by reading `spec.js`, `gate.js` and `sim.js` as text. None of this has been run. "Expected" means expected from reading the code. One proposal uses an existing knob. Three need a new knob, written as a `params` entry with a short code sketch.*
 
+*Status, 3 Oct 2026: all four were adopted as written. The `break` values and the three params are in `spec.js`, the two guards are in `gate.js`, and the R5 change is in `sim.js`. Run afterwards: every scenario passes under default params and fails with its rule off, on seeds 1, 2, 3, 7 and 42, with the failure text each section expects. The knob names and the `happy` baseline question stay open under their Confirm marks.*
+
 ---
 
 ## Summary

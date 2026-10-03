@@ -13,7 +13,7 @@
       "clause": "tier.T1, env.acceptance: no unshareable data leaves",
       "refs": [
         "R1·F4",
-        "spec.js:389"
+        "spec.js:392"
       ],
       "steps": [
         {
@@ -196,7 +196,7 @@
         "quarantinedAnswer": false
       },
       "refs": [
-        "spec.js:389"
+        "spec.js:392"
       ],
       "steps": [
         {

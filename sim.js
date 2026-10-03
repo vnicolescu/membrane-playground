@@ -377,7 +377,7 @@
       verdict(e) {
         const s = e.flags.spoof;
         const pass = !!s && s.reason === "lane" && s.sensor === null && e.metrics.admittedAttacks === 0;
-        return { pass, text: pass ? "Refused with lane at step 2; no model read it. The signed claim was held and refused." : !s ? "The spoof never arrived." : `Spoof handled as ${s.disposition} ${s.reason || ""}; attacks admitted ${e.metrics.admittedAttacks}.` };
+        return { pass, text: pass ? "Refused with lane at step 2; no model read it. The signed claim was held and refused." : !s ? "The spoof never arrived." : `Spoof handled as ${s.disposition} ${s.reason || ""}; attacks admitted ${e.metrics.admittedAttacks}.` + (s.reason === "contract-mismatch" ? " Still stopped, but later and only by contract bookkeeping: with a contract on file for the borrowed name it would reach the effect, evidence and sensor steps." : "") };
       }
     },
     alarmist: {
@@ -452,7 +452,15 @@
           (x) => { x.agents.hermes.suspect = true; x.flags.suspectAt = x.t; x.logSys("R2 · Hermes suspect: lease lapsed; probing the lease, not the message", { agent: "hermes", why: "lad.R2" }); },
           (x) => { x.send("brainboi", "hermes", { act: "assert", form: "alert", evidence: "record", context: x.flags.ask.header.context, expires: iso(x.t + DAY), urgency: "expected", severity: "moderate", certainty: "likely" }, "Unanswered ask; by passes in 20 hours.\n"); x.logSys("R3 · alert to Hermes; its ceiling decides whether Sal is paged", { agent: "brainboi", why: "lad.R3" }); },
           (x) => { x.page(x.agents.brainboi, "brainboi", "R4 · dependent actions in safe hold"); },
-          (x) => { x.tension = true; x.logSys("R5 · filed as a tension: owner Vlad, goal: pilot review, threshold: Thursday. Stop.", { agent: "brainboi", why: "lad.R5", tension: true }); x.q = x.q.filter((ev) => ev.type === "day"); }
+          (x) => {
+            if (x.params.ladderStops === false) { // the break: no tension, no stop; climb again from R3 until the ask's by passes
+              if (x.t + 65 * 3 > DAY) { x.logSys("R5 · ladder exhausted again and the ask's by has passed; no tension was ever filed", { agent: "brainboi", why: "lad.R5" }); x.q = x.q.filter((ev) => ev.type === "day"); return; }
+              x.logSys("R5 · the ladder does not stop: climbing again from R3", { agent: "brainboi", why: "lad.R5" });
+              [2, 3, 4].forEach((i, k) => x.push(x.t + 65 * (k + 1), { type: "call", fn: (y) => { y.rung = i + 1; y.vis({ kind: "rung", rung: i + 1 }); steps[i](y); } }));
+              return;
+            }
+            x.tension = true; x.logSys("R5 · filed as a tension: owner Vlad, goal: pilot review, threshold: Thursday. Stop.", { agent: "brainboi", why: "lad.R5", tension: true }); x.q = x.q.filter((ev) => ev.type === "day");
+          }
         ];
         steps.forEach((fn, i) => e.push(65 * (i + 1), { type: "call", fn: (x) => { x.rung = i + 1; x.vis({ kind: "rung", rung: i + 1 }); fn(x); } }));
       },

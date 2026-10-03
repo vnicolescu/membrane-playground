@@ -1,6 +1,6 @@
 {
   "scenario": "authority-spoof",
-  "basis": "read",
+  "basis": "run",
   "vectors": [
     {
       "id": "authority-spoof.pass",
@@ -186,12 +186,11 @@
     {
       "id": "authority-spoof.break.laneBound",
       "scenario": "authority-spoof",
-      "kind": "proposed-break",
-      "category": "known-gap",
-      "basis": "read",
+      "kind": "break",
+      "category": "adversarial",
+      "basis": "run",
       "layer": "gate",
-      "status": "proposed",
-      "title": "Claimed approval from Vlad, laneBound off (proposed break)",
+      "title": "Claimed approval from Vlad, laneBound off (break adopted 3 Oct 2026)",
       "clause": "rc.lane, env.from, inv.authority (R9·§7, L2)",
       "params": {
         "laneBound": false
@@ -281,7 +280,7 @@
           }
         }
       ],
-      "notes": "Needs the new laneBound param and the step-2 guard from docs/proposals/scenarios-breaking-rules.md §3. The spoof gets past step 2 and is stopped at step 10 because no contract is on file for the borrowed name: refused, but for the wrong reason, so the scenario fails.",
+      "notes": "Adopted on 3 Oct 2026: the laneBound param and the step-2 guard are in spec.js and gate.js. The spoof gets past step 2 and is stopped at step 10 because no contract is on file for the borrowed name: refused, but for the wrong reason, so the scenario fails.",
       "confirm": [
         "Knob name laneBound and the guard placement in step 2"
       ]

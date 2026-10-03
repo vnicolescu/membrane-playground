@@ -345,12 +345,11 @@
     {
       "id": "happy.break.cumulativeAck",
       "scenario": "happy",
-      "kind": "proposed-break",
-      "category": "known-gap",
+      "kind": "break",
+      "category": "accept",
       "basis": "run",
       "layer": "gate",
-      "status": "proposed",
-      "title": "A clean ask, accept and reply, with cumulativeAck off (proposed break)",
+      "title": "A clean ask, accept and reply, with cumulativeAck off (break adopted 3 Oct 2026)",
       "clause": "form.receipt: receipts never earn receipts; an admitted message's receipt is deferred (P§6.1)",
       "params": {
         "cumulativeAck": false
@@ -685,7 +684,7 @@
           }
         }
       ],
-      "notes": "Proposed in docs/proposals/scenarios-breaking-rules.md §1. The knob exists; only the scenario's break entry is new. Every admitted step, the verdict receipt included, now owes a receipt, so m.receipts > 0 and the pass line fails.",
+      "notes": "Adopted on 3 Oct 2026 as the scenario's break in spec.js; the knob already existed. Every admitted step, the verdict receipt included, now owes a receipt, so m.receipts > 0 and the pass line fails.",
       "confirm": [
         "Whether happy keeps break: null as the deliberate baseline"
       ]

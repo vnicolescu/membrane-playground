@@ -40,10 +40,10 @@
 
 | Category | What the vector asserts | Count |
 |---|---|---|
-| `accept` | the envelope is admitted (or paged) as stated: the clean path still works | 6 |
-| `reject-code` | the envelope is refused, held, expired or logged **with this exact reason code** and decisive step, not merely "not admitted" | 10 |
-| `adversarial` | a hostile sender's attempt (`trust-root`, `hold-flood`, `exfiltration`, `authority-spoof`) is stopped with the exact code; the `break` vectors in this category show it getting through with the rule off | 7 |
-| `known-gap` | something the gate does not do yet, written as today's behaviour so it flips visibly when fixed: `env.state` is not checked (`known-gaps.state-unchecked`), the four scenarios with `break` set to null (`happy`, `lost-receipt`, `authority-spoof`, `escalation`, as their `proposed-break` vectors), and capability reuse (`known-gaps.capability-reuse`, see "Grants" below) | 6 |
+| `accept` | the envelope is admitted (or paged) as stated: the clean path still works | 8 |
+| `reject-code` | the envelope is refused, held, expired or logged **with this exact reason code** and decisive step, not merely "not admitted" | 11 |
+| `adversarial` | a hostile sender's attempt (`trust-root`, `hold-flood`, `exfiltration`, `authority-spoof`) is stopped with the exact code; the `break` vectors in this category show it getting through with the rule off | 8 |
+| `known-gap` | something the gate does not do yet, written as today's behaviour so it flips visibly when fixed: `env.state` is not checked (`known-gaps.state-unchecked`), and capability reuse (`known-gaps.capability-reuse`, see "Grants" below). The four scenarios that had `break` set to null were in this category until their rules were adopted | 2 |
 
 A `break` vector keeps the category of its scenario's `pass` vector; `kind` says the knob is off. *(Confirm: or give break vectors a category of their own.)*
 
@@ -57,7 +57,7 @@ A `break` vector keeps the category of its scenario's `pass` vector; `kind` says
 
 - `"evaluate"`: `Gate.evaluate(msg, ctx, params)` (`gate.js:201`), compare the trace.
 - `"pageDecision"`: `Gate.pageDecision(msg, ctx, params)` (`gate.js:185`), compare `{ page, level }`.
-- `"engine"`: a sim-layer check. Construct the playground's simulation engine (`SimEngine.Engine`, `sim.js:466`) with the scenario, the params and a seed, run it to the end, and compare the verdict fields named in `expect` (`tension`, `suspectAtSet`, meaning the engine's suspect-at flag has been set, `pagesAtMost` / `pagesMoreThan` against the engine's page count). Two steps use it, both in `escalation`, because the ladder lives in `SCRIPTS.escalation`, not in `gate.js`.
+- `"engine"`: a sim-layer check. Construct the playground's simulation engine (`SimEngine.Engine`, `sim.js:474`) with the scenario, the params and a seed, run it to the end, and compare the verdict fields named in `expect` (`tension`, `suspectAtSet`, meaning the engine's suspect-at flag has been set, `pagesAtMost` / `pagesMoreThan` against the engine's page count). Two steps use it, both in `escalation`, because the ladder lives in `SCRIPTS.escalation`, not in `gate.js`.
 
 **JSON encoding: a runner must convert before calling the gate.** JSON has no `Map`, `Set`, function or millisecond clock, and the hashes depend on the gate's own hash function, so the vectors store some `ctx` and `msg` values in an encoded form. Passing a step's `ctx` or `msg` to `Gate.evaluate` unconverted gives wrong results: for example the duplicate lookup would find nothing, so every duplicate would read as new. Apply these rules, in this order, to every step:
 
@@ -106,7 +106,15 @@ current vectors: 46 of 46 run, 46 of 46 passed
 proposed vectors: 8 of 8 run, 5 of 8 passed
 ```
 
-The three failures are the ones this file predicts: `lost-receipt.break.dedupReceipts` step 2 and `authority-spoof.break.laneBound` step 1 return today's outcome because the knobs do not exist yet, and `escalation.break.ladderStops` needs the R5 script change. Every vector the run confirmed now carries `"basis": "run"`. The three that wait for a change keep `"basis": "read"`.
+The three failures were the ones this file predicted: `lost-receipt.break.dedupReceipts` step 2 and `authority-spoof.break.laneBound` step 1 returned the outcome of the gate as it then was, because the knobs did not exist, and `escalation.break.ladderStops` needed the R5 script change.
+
+The four breaking rules were then adopted (three new params, two guards in `gate.js`, the R5 change in `sim.js`). Second run, same day:
+
+```
+all steps: 54 of 54 run, 54 of 54 passed
+```
+
+Every vector now carries `"basis": "run"`. The four that were `proposed-break` are plain `break` vectors and took the category of their scenario's `pass` vector, as the rule below says. Two `known-gap` vectors remain: `env.state` and capability reuse. The text from here on is the pack as written, before adoption, with counts and line numbers brought up to date.
 
 ## Wiring it in (the original sketch)
 

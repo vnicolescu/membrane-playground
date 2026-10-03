@@ -2,7 +2,7 @@
 
 *Draft for `membrane-playground`, contract **0.3-draft** (`spec.js`: `version: "0.3-draft"`, `date: "2026-09-14"`), written against commit `2ca3d45`. `gate.js` and `game.js` cite this file ("Order follows ARCH.md 'Gate contract'", "Code against the Gate contract in ARCH.md"), but it was not in the export. Everything below comes from the repository text. Items marked *Confirm* are readings only the author can settle; items marked *Proposed* are suggestions, not repo text.*
 
-*Provenance: drafted by brobber from reading the repository, and added to it on 3 Oct 2026. "We", "ours" and "a private project of ours" below are brobber's side speaking, not the repository's owners. One example tied to a single vendor was made general on the way in.*
+*Provenance: drafted by brobber from reading the repository, and added to it on 3 Oct 2026. "We", "ours" and "a private project of ours" below are brobber's side speaking, not the repository's owners. One example tied to a single vendor was made general on the way in. The four breaking rules it mentions have since been adopted, so `MEMBRANE.params` has nineteen knobs and every scenario names a break.*
 
 ---
 
@@ -247,6 +247,6 @@ Public repositories of ours that this draft borrows rules from (all four checked
 
 ## 12. Not covered here
 
-- **Parameters** (`MEMBRANE.params`, sixteen knobs) are starting values, unmeasured.
-- **Scenario contract:** `{ id, title, cast, shows, break, pass, refs }`, with a script in `SimEngine.SCRIPTS[id]` giving `start`, `verdict` and optional `setup`, `drop`, `onReceive`, `ownerDecides`, `onTrustEdit`, `noAnswer` and `horizon`. Four scenarios have `break: null`. See `docs/proposals/scenarios-breaking-rules.md`.
+- **Parameters** (`MEMBRANE.params`, nineteen knobs since the breaking rules were adopted) are starting values, unmeasured.
+- **Scenario contract:** `{ id, title, cast, shows, break, pass, refs }`, with a script in `SimEngine.SCRIPTS[id]` giving `start`, `verdict` and optional `setup`, `drop`, `onReceive`, `ownerDecides`, `onTrustEdit`, `noAnswer` and `horizon`. Four scenarios had `break: null` at `2ca3d45`; their rules were adopted from `docs/proposals/scenarios-breaking-rules.md`.
 - **Sources** `S1`, `S2` and `Rev01`, and the paper `whitepaper/membrane-v0.2.md`, are cited but not included.

@@ -1,6 +1,6 @@
 {
   "scenario": "lost-receipt",
-  "basis": "read",
+  "basis": "run",
   "vectors": [
     {
       "id": "lost-receipt.pass",
@@ -215,12 +215,11 @@
     {
       "id": "lost-receipt.break.dedupReceipts",
       "scenario": "lost-receipt",
-      "kind": "proposed-break",
-      "category": "known-gap",
-      "basis": "read",
+      "kind": "break",
+      "category": "reject-code",
+      "basis": "run",
       "layer": "gate",
-      "status": "proposed",
-      "title": "Receipt lost, message resent, dedupReceipts off (proposed break)",
+      "title": "Receipt lost, message resent, dedupReceipts off (break adopted 3 Oct 2026)",
       "clause": "rc.duplicate and env.id (P§4.2 rule 7)",
       "params": {
         "dedupReceipts": false
@@ -410,7 +409,7 @@
           }
         }
       ],
-      "notes": "Needs the new dedupReceipts param and the step-7 guard from docs/proposals/scenarios-breaking-rules.md §2. Today gate.js has no such knob, so this vector fails until the guard is added (the gate would return duplicate). id-reuse is unaffected.",
+      "notes": "Adopted on 3 Oct 2026: the dedupReceipts param and the step-7 guard are in spec.js and gate.js. With it off the same-body resend is judged as new and held a second time. id-reuse is unaffected.",
       "confirm": [
         "Knob name dedupReceipts and the guard placement in step 7"
       ]

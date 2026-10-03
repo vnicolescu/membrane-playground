@@ -13,7 +13,7 @@
       "clause": "form.receipt, env.turn: chatter stays under 5 messages per ask",
       "refs": [
         "RFC 3834",
-        "spec.js:383"
+        "spec.js:386"
       ],
       "steps": [
         {
@@ -191,7 +191,7 @@
         "cumulativeAck": false
       },
       "refs": [
-        "spec.js:383"
+        "spec.js:386"
       ],
       "steps": [
         {

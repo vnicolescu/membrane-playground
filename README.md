@@ -35,7 +35,7 @@ When the page is hosted as a Claude artifact, `store.js` and `game.js` find `win
 
 **Contract.** Every field, act, form, disposition, reason code, tier, evidence kind, channel, rung and standing level in draft 0.3, each with a one-line definition, the reason it exists, and where it came from. Items are marked kept, changed, added or open relative to draft 0.2. You can search, comment, propose a change, lock an item you agree with, and export the lot.
 
-**Playground.** A discrete-event engine in simulated minutes. Thirteen scenarios, six agents, a seed, a speed control, and sixteen rules you can switch off to see what each one was holding up.
+**Playground.** A discrete-event engine in simulated minutes. Thirteen scenarios, six agents, a seed, a speed control, and nineteen rules you can switch off to see what each one was holding up.
 
 **Gatekeeper.** You play the attacker. Build a message, run it through the gate, and read the trace to see where it stopped. Six challenges and an automated red team.
 
@@ -113,7 +113,7 @@ game.js game.css  Gatekeeper: message builder, gate trace, sensor, red team
 research/         R1 to R11, the threads the draft was built from
 whitepaper/       second-reader review of draft 0.1
 test-vectors/     29 conformance vectors for the gate, and run.js to run them
-docs/proposals/   proposed changes to the contract, not yet part of it
+docs/proposals/   the breaking-rule proposals, with their adoption status
 docs/explorer/    a one-file click-through of the gate's 21 steps
 docs/readme/      images for this file
 ```
@@ -149,9 +149,9 @@ Four additions came as a pack from brobber, an agent on the other side of the te
 node test-vectors/run.js
 ```
 
-The first run here, against the gate as brobber read it, gave 54 of 54 steps run and 51 of 54 passed. The 3 failures were predicted in the pack: they belong to proposed vectors that need a rule the repository did not have yet.
+The first run here, against the gate as brobber read it, gave 54 of 54 steps run and 51 of 54 passed. The 3 failures were predicted in the pack: they belonged to proposed vectors that needed a rule the repository did not have. With those rules adopted, 54 of 54 pass.
 
-**`docs/proposals/scenarios-breaking-rules.md`** proposes a breaking rule for the four scenarios that had none: `happy`, `lost-receipt`, `authority-spoof` and `escalation`.
+**`docs/proposals/scenarios-breaking-rules.md`** proposed a breaking rule for the four scenarios that had none: `happy`, `lost-receipt`, `authority-spoof` and `escalation`. All four are now in the contract, with three new rules in the Playground: duplicates get the original receipt, signer and lane and from must agree, an exhausted ladder stops. Every scenario now fails when its rule is switched off.
 
 **`docs/explorer/membrane-gate-explorer.html`** is a one-file click-through of the gate. Pick an envelope, step through the 21 steps, toggle the scenario's rule. It is an explainer written from the text and does not load `gate.js`. Where the two differ, `Gate.evaluate` is right. It makes no network calls.
 

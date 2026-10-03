@@ -12,7 +12,7 @@
       "title": "Two days without the owner",
       "clause": "disp.expired, env.expires: expired asks get one honest resend",
       "refs": [
-        "spec.js:392"
+        "spec.js:395"
       ],
       "steps": [
         {
@@ -278,7 +278,7 @@
         "resendPolicy": "none"
       },
       "refs": [
-        "spec.js:392"
+        "spec.js:395"
       ],
       "steps": [
         {

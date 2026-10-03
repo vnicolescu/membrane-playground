@@ -12,7 +12,7 @@
       "title": "A peer whose clock runs ahead",
       "clause": "env.at, rc.clock: skewed messages refused with clock until tolerance covers the skew",
       "refs": [
-        "spec.js:385"
+        "spec.js:388"
       ],
       "steps": [
         {
@@ -110,7 +110,7 @@
         "clockToleranceMin": 30
       },
       "refs": [
-        "spec.js:385"
+        "spec.js:388"
       ],
       "steps": [
         {

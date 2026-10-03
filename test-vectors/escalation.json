@@ -1,6 +1,6 @@
 {
   "scenario": "escalation",
-  "basis": "read",
+  "basis": "run",
   "vectors": [
     {
       "id": "escalation.pass",
@@ -273,12 +273,11 @@
     {
       "id": "escalation.break.ladderStops",
       "scenario": "escalation",
-      "kind": "proposed-break",
-      "category": "known-gap",
-      "basis": "read",
+      "kind": "break",
+      "category": "accept",
+      "basis": "run",
       "layer": "sim",
-      "status": "proposed",
-      "title": "A peer that stops answering, ladderStops off (proposed break)",
+      "title": "A peer that stops answering, ladderStops off (break adopted 3 Oct 2026)",
       "clause": "lad.R5 (P§7.3, L5)",
       "params": {
         "ladderStops": false
@@ -301,7 +300,7 @@
           }
         }
       ],
-      "notes": "Needs the new ladderStops param and the R5 script change from docs/proposals/scenarios-breaking-rules.md §4. No gate call: the ladder is script logic.",
+      "notes": "Adopted on 3 Oct 2026: the ladderStops param is in spec.js and the R5 step in SCRIPTS.escalation re-climbs from R3 when it is off. No gate call: the ladder is script logic.",
       "confirm": [
         "Knob name ladderStops; ladder timers in the script or in the engine"
       ]

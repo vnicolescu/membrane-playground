@@ -12,7 +12,7 @@
       "title": "A peer tampers with the key list",
       "clause": "env.contract, rc.scope: contract swap refused with scope; pinned root untouched",
       "refs": [
-        "spec.js:387"
+        "spec.js:390"
       ],
       "steps": [
         {
@@ -183,7 +183,7 @@
         "trustRootPinned": false
       },
       "refs": [
-        "spec.js:387"
+        "spec.js:390"
       ],
       "steps": [
         {
