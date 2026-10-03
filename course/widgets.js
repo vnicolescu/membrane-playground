@@ -241,7 +241,7 @@
 
   /* ---------- ladder: the escalation ladder P§7.3, sender-side timers ---------- */
   C.widget("ladder", () => {
-    const st = { cycle: 360, byH: 24, ackAt: null, brake: false, stops: true };
+    const st = { cycle: 360, byH: 48, ackAt: null, brake: false, stops: true };
     const out = h("div", { class: "w-out" });
     const RUNG = M.groups.find((g) => g.id === "ladder").items;
     function events() {
@@ -261,12 +261,12 @@
       K.svgEl("line", { x1: 30, y1: 70, x2: W - 30, y2: 70, stroke: "var(--rule-strong)" }, svg);
       const byX = x(st.byH * 60);
       K.svgEl("line", { x1: byX, y1: 20, x2: byX, y2: 100, stroke: "var(--refused)", "stroke-dasharray": "4 3" }, svg);
-      const bt = K.svgEl("text", { x: byX, y: 14, "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 10.5, fill: "var(--refused)" }, svg); bt.textContent = "by";
+      const bt = K.svgEl("text", { x: byX + 4, y: 14, "text-anchor": "start", "font-family": "var(--mono)", "font-size": 10.5, fill: "var(--refused)" }, svg); bt.textContent = "by";
       if (st.ackAt != null && !st.brake) { const ax = x(st.ackAt); K.svgEl("line", { x1: ax, y1: 30, x2: ax, y2: 100, stroke: "var(--admitted)", "stroke-width": 2 }, svg); const t = K.svgEl("text", { x: ax, y: 112, "text-anchor": "middle", "font-size": 10.5, fill: "var(--admitted)" }, svg); t.textContent = "acknowledged"; }
       ev.forEach((e, i) => {
         const cx = x(e.t);
         K.svgEl("circle", { cx, cy: 70, r: 7, fill: e.cancelled ? "var(--surface-3)" : e.storm ? "var(--refused)" : e.rung === "R5" ? "var(--ink)" : "var(--accent)" }, svg);
-        const t = K.svgEl("text", { x: cx, y: i % 2 ? 98 : 50, "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 11, fill: e.cancelled ? "var(--ink-3)" : "var(--ink)" }, svg); t.textContent = e.rung;
+        const t = K.svgEl("text", { x: e.rung === "R5" ? cx - 10 : cx, y: i % 2 ? 98 : 50, "text-anchor": e.rung === "R5" ? "end" : "middle", "font-family": "var(--mono)", "font-size": 11, fill: e.cancelled ? "var(--ink-3)" : "var(--ink)" }, svg); t.textContent = e.rung;
       });
       out.textContent = "";
       out.appendChild(h("div", { class: "scroll" }, svg));
