@@ -624,7 +624,7 @@
 
   /* ---------- mailQueue: store and forward, judged on the receiver's clock (P§6.1, P§7.1) ---------- */
   C.widget("mailQueue", () => {
-    const st = { cycle: 360, outage: 54, expiry: 48, resend: "once", msgs: [] };
+    const st = { cycle: 360, senderCycle: 60, outage: 54, expiry: 48, resend: "once", msgs: [] };
     const out = h("div", { class: "w-out" });
     const T0 = Date.parse("2026-09-22T09:00:00Z"), HOUR = 3600e3;
     const iso = (ms) => new Date(ms).toISOString().replace(".000Z", "Z");
@@ -667,17 +667,17 @@
       const last = res[res.length - 1];
       resendBtn.disabled = !last || last.trace.disposition !== "expired";
     }
-    const resendBtn = h("button", { type: "button", class: "btn", onclick: () => { const res = evaluateAll(), last = res[res.length - 1]; st.msgs.push({ at: last.fetch, re: last.id }); render(); } }, "Resend the same body, new id");
+    const resendBtn = h("button", { type: "button", class: "btn", onclick: () => { const res = evaluateAll(), last = res[res.length - 1]; st.msgs.push({ at: last.fetch + st.senderCycle * 60e3, re: last.id }); render(); } }, "Resend the same body, new id"); // the expiry receipt waits for Hermes' next run before a resend exists
     const reset = () => { st.msgs = [{ at: T0 }]; render(); };
     st.msgs = [{ at: T0 }];
     const sl = (label, min, max, step, key, fmt) => { const o = h("output", { class: "num" }, fmt(st[key])); const i = h("input", { type: "range", min, max, step, value: st[key] }); i.addEventListener("input", () => { st[key] = Number(i.value); o.textContent = fmt(st[key]); reset(); }); return field(label, h("span", null, o, i)); };
     render();
     return h("div", null, h("div", { class: "check-k" }, "A mailbox on the receiver's clock"),
       h("p", { class: "small muted" }, "Hermes writes an ask into its lane at hour 0. brainboi fetches only when it runs, and the gate judges expiry at the fetch, on brainboi's clock."),
-      h("div", { class: "w-grid" }, sl("brainboi's cycle", 60, 720, 60, "cycle", (v) => v / 60 + " h"), sl("Transport outage", 0, 72, 6, "outage", (v) => v + " h"), sl("Expiry", 6, 96, 6, "expiry", (v) => v + " h"),
+      h("div", { class: "w-grid" }, sl("brainboi's cycle", 60, 720, 60, "cycle", (v) => v / 60 + " h"), sl("Transport outage", 0, 72, 6, "outage", (v) => v + " h"), sl("Expiry", 6, 96, 6, "expiry", (v) => v + " h"), sl("Hermes' cycle (reads the receipt, resends)", 60, 720, 60, "senderCycle", (v) => v / 60 + " h"),
         field("Resend policy", select(["none", "once", "unlimited"], st.resend, (v) => { st.resend = v; reset(); }))),
       h("div", { class: "w-row" }, resendBtn, h("button", { type: "button", class: "btn ghost small", onclick: reset }, "Start over")), out,
-      h("p", { class: "small muted" }, "SMTP's precedent: retry at least 30 minutes apart and give up after four to five days (RFC 5321 §4.5.4.1, from RFC 1123 §5.3.1.1)."));
+      h("p", { class: "small muted" }, "SMTP's precedent: retry at least 30 minutes apart and keep trying for at least four to five days (RFC 5321 §4.5.4.1, from RFC 1123 §5.3.1.1)."));
   });
 
 })();
