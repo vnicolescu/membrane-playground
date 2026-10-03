@@ -9,7 +9,7 @@ Course.lesson({
     "Name the five failure modes of an immune architecture and the counter for each.",
     "Recite the boundary agent's four goals in rank order."
   ],
-  summary: "Each of the nine laws was reached in at least two fields outside the paper before it was written down; the convergence is the evidence and the protocol consequence is what Membrane takes. L1 messages trigger and never instruct; L2 the reader of hostile content holds no authority; L3 completion is declared by the other party; L4 the sender claims urgency and the receiver caps it; L5 absence is a signal; L6 consequential release needs two independent signals; L7 records are permanent and their weight forgets; L8 shape checks can be imitated; L9 format travels and meaning stays local. Immunology supplies presentation, missing self, danger over novelty, costimulation and named failure modes. The boundary agent's charter ranks four goals: protect the kernel, represent, probe, keep compatibility.",
+  summary: "Each of the nine laws was reached in at least two fields outside the paper before it was written down; the convergence is the evidence and the protocol consequence is what Membrane takes. L1 messages trigger without instructing; L2 the reader of hostile content holds no authority; L3 completion is declared by the other party; L4 the sender claims urgency and the receiver caps it; L5 absence is a signal; L6 consequential release needs two independent signals; L7 records are permanent and their weight forgets; L8 shape checks can be imitated; L9 format travels and meaning stays local. Immunology supplies presentation, missing self, danger over novelty, costimulation and named failure modes. The boundary agent's charter ranks four goals: protect the kernel, represent, probe, keep compatibility.",
   blocks: [
     { t: "p", text: "Every rule in the last nine lessons traces to one of nine laws, and the paper's claim for them is specific: each was reached in at least two fields outside its own record before it appeared here [[P§2]]. Before the table, one question to carry: which law does the hold budget serve? It is a rule about owner attention, and none of the nine mentions attention. The sort at the end asks it." },
     { t: "table", head: ["Law", "Fields that reached it", "Protocol consequence"], rows: [
@@ -64,7 +64,7 @@ Course.lesson({
       { text: "A refusal carries a registry code and no prose", bucket: "L9", why: "The code is the shared format; the reasoning stays local with the receiver." }
     ] },
     { t: "takeaways", items: [
-      "Nine laws, each reached by two or more outside fields; the convergence is the evidence.",
+      "Nine laws, each reached by two or more outside fields before the paper named it.",
       "Immunology gives presentation, missing self, danger over novelty and two signals, and names five failure modes with counters.",
       "The boundary agent protects the kernel first, represents second, probes third, keeps compatibility fourth, and lives outside the agent it guards."
     ] },

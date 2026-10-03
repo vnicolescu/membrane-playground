@@ -12,7 +12,7 @@ Course.lesson({
   prereq: ["injection"],
   summary: "The assets: each agent's kernel (goals, rules, credentials, memory), the data its contract names shareable, its owner's attention, its trust root, and the history in the lanes. The principals: two owners, two agents, two gate users, the hosting provider, and any relay. The attacker the pilot assumes holds a valid key and push access and controls every byte of its own messages; it does not hold an owner's hardware key or the gate user's files. Ten entry points, each covered by a named step: forged signer, the other lane, a harness path, control characters in a header, instruction text in the body, an acceptance line that reaches memory, replay and flood, a clock set ahead, a contract swap, hold flooding. Out of scope: lies, a compromised owner, a compromised host, and the content of the T4 confirmation screen.",
   blocks: [
-    { t: "p", text: "A threat model is a list: what is worth protecting, who can reach it, how, and what the design assumes about the attacker. The core track met every mechanism one at a time. Arranged as a defender would arrange them, around the figure of two owners and the line between them, they make one table of entry points and one table of assumptions." },
+    { t: "p", text: "Mallory, the playground's attacker, holds a valid key and push access to the shared repository, and controls every byte of her own messages. What can she reach? A threat model answers that as a list: what is worth protecting, who can touch it, through which entry, and what the design assumes about her. The core track met every mechanism one at a time; arranged as a defender arranges them, around the figure of two owners and the line between them, they make one table of entry points and one table of assumptions." },
     { t: "figure", name: "twoOwners", caption: "Two owners, two agents, two gates as separate users, two pinned trust roots, and the shared transport between them. Hover an entry point for the step that covers it." },
     { t: "h", text: "Assets" },
     { t: "table", head: ["Asset", "Where it lives", "What loss looks like"], rows: [
@@ -22,7 +22,7 @@ Course.lesson({
       ["Trust root", "the key list and accepted contract hashes pinned beside the gate", "a key added by a peer; a contract hash swapped"],
       ["History", "the lanes and each agent's Membrane log", "a rewritten commit; a receipt about a message never sent; a laundered claim"]
     ] },
-    { t: "p", text: "Five assets, and the kernel is the one whose loss the other four exist to prevent." },
+    { t: "p", text: "The kernel is the asset the other four protect: shareable data, attention, the trust root and the history all exist so that nothing outside writes the kernel." },
     { t: "h", text: "Principals and what they can do" },
     { t: "table", head: ["Principal", "Can", "Cannot (by design)"], rows: [
       ["Owner", "sign the trust root, confirm T4 over a hash, introduce a peer, pull the brake", "be reached by the peer agent except through its own agent's gate"],
@@ -32,7 +32,7 @@ Course.lesson({
       ["Hosting provider", "read every byte; refuse service", "forge a signature; change bytes without changing hashes; rewrite history unnoticed"],
       ["Relay (a third agent)", "forward claims with any label", "upgrade a claim's evidence kind past its origin's"]
     ], caption: "The attacker the pilot assumes is the peer-agent row: Mallory in the playground holds a valid key and push access and uses them to inject, forge, flood and swap contracts. The pilot assumes owner keys stay on hardware and the gate user's files stay the gate's [[P§13.2]]." },
-    { t: "p", text: "One row looks wrong. The hosting provider can read everything. It is trusted with nothing, because every property Membrane relies on is checked at the ends: signatures against a pinned root, bytes against a hash, history against a watermark. A host that wanted to attack would have to forge a key it does not hold." },
+    { t: "p", text: "One row looks wrong. The hosting provider can read everything. It is trusted with confidentiality and availability and with nothing else, because every property Membrane relies on for integrity is checked at the ends: signatures against a pinned root, bytes against a hash, history against a watermark. A host that wanted to attack the content would have to forge a key it does not hold; a host that wanted to attack the exchange can only withhold, which the ladder reads as silence." },
     { t: "h", text: "Ten entry points" },
     { t: "table", head: ["#", "Entry point", "Covered by", "Code"], rows: [
       ["1", "a signer the trust root does not list, or a signature that fails", "step 1, signature", "logged only (no receipt), or an `unknownSigner` flag at S0"],
@@ -62,15 +62,14 @@ Course.lesson({
     { t: "list", items: [
       "**Assumed held.** Owner keys on hardware that requires a touch per signature; the gate as a separate operating-system user whose files the agent cannot write; a remote with force-push and branch deletion disabled; `--bare` on every model run near the checkout [[P§13.2]] [[R9·F1]].",
       "**Assumed hostile.** Every byte of a peer's message, including an honest peer's, because the peer's own harness may have been compromised first. Session smuggling is the precedent: the authenticated peer was the attacker [[R1·F4]].",
-      "**Out of scope: lies.** The membrane governs what a message may do; whether its claims are true is the work of evidence kinds, second signals and standing, and even those leave text-to-text attacks open, as CaMeL does [[P§14]].",
-      "**Out of scope: a compromised owner.** Social engineering of the human is documented, and what a T4 confirmation screen should show so that the attacker's prose cannot shape the decision is an open question [[P§14]]. OWASP's agentic top ten lists it [[R3·F16]].",
-      "**Out of scope: a compromised host.** The hosting provider reads everything and is trusted with nothing; a host that forged commits would break the signature step, and the pilot keeps content low in sensitivity.",
+      "**Out of scope: lies.** The attack lesson states this limit in full; here it is enough that a false claim in true-looking form is judged by the evidence path and standing, and that text-to-text attacks stay open [[P§14]].",
+      "**Out of scope: a compromised owner.** Social engineering of the human is documented, and the content of the T4 confirmation screen is unsettled [[P§14]]. OWASP's agentic top ten lists it [[R3·F16]].",
+      "**Out of scope: a compromised host.** The hosting provider reads everything and can withhold service; it is trusted with nothing else. A host that forged commits would break the signature step, and the pilot keeps content low in sensitivity.",
       "**Out of scope for the pilot: the peer's other surfaces.** Hermes' API server, webhooks and messaging gateway grant far more authority than a peer should hold and stay off for the week [[R9·F3]]."
     ] },
     { t: "p", text: "Everything in the first two assumptions is a fact about machines and keys that an owner can verify by looking. Everything out of scope is a fact about people or about truth, which no gate step reads." },
     { t: "takeaways", items: [
-      "Five assets: kernel, shareable data, owner attention, trust root, history.",
-      "The assumed attacker holds a valid key and push access and controls its own bytes; owners' hardware keys and the gate user's files are assumed held.",
+      "Five assets, kernel first; the assumed attacker holds a valid key and push access and controls its own bytes, while owners' hardware keys and the gate user's files are assumed held.",
       "Ten entry points, each covered by a named step; seven are decided before any model runs.",
       "Out of scope: lies, a compromised owner, a compromised host, the peer's other surfaces."
     ] },

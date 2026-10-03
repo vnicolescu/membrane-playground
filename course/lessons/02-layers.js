@@ -1,6 +1,6 @@
 Course.lesson({
   id: "layers", part: "foundations", title: "The narrow waist",
-  kicker: "Why the internet is shaped like an hourglass, and what Membrane pays for the same shape",
+  kicker: "What Membrane pays for being shaped like the internet's hourglass",
   minutes: 7,
   refs: ["P§1.3", "P§3", "P§4.3", "R8·F3", "R8·F4", "R8·F8"],
   objectives: [
@@ -30,7 +30,7 @@ Course.lesson({
     { t: "figure", name: "hourglass", caption: "Applications above, bindings below, the waist fixed. For the internet the waist is IP; for Membrane it is the vocabulary of the boundary." },
     { t: "p", text: "The internet has many applications on top and many link technologies underneath, and one thin layer, IP, that everyone implements." },
     { t: "p", text: "Beck formalised why the shape recurs [[R8·F3]]. Order protocol specifications by logical strength. A weaker spanning layer supports fewer possible applications, since less can be built on fewer promises, and more possible implementations, since more things can keep fewer promises. So there is a trade, and the design decision that matters most is choosing the set of applications the waist must serve, then picking the weakest layer sufficient for them. Beck calls that set the necessary set, and his example of a logically weak primitive that spread everywhere is Unix's `fork()`." },
-    { t: "p", text: "The paper applies the theorem directly: Membrane's necessary set has five members (ask, with a line that says how both sides know it is done; report or answer; say what became of a message; say that one is alive and what one has taken in; withdraw something already said), and everything else rides above the waist as a named form or extension or stays inside the agent [[P§1.3]]. Whether the five are the right set is decision D1." },
+    { t: "p", text: "The paper applies the theorem directly. Membrane's necessary set has five members, in short names: ask, answer, disposition, liveness, withdraw. The problem lesson spells each out; everything outside the five rides above the waist as a named form or extension or stays inside the agent [[P§1.3]]. Whether the five are the right set is decision D1." },
     { t: "h", text: "Waists ossify, and newcomers live in gaps" },
     { t: "p", text: "A waist, once it is everyone's dependency, stops changing: every obligation added to it shrinks the set of possible implementations, and the installed base will not follow. Akhshabi and Dovrolis built an evolutionary model in which protocols gain value from the layers above and die when a same-layer competitor overlaps their products; it reproduces the hourglass from generic starting conditions, and in it a newcomer survives only in a niche the incumbents leave empty [[R8·F4]]. Membrane's niche is asynchronous, file-native, owner-auditable messaging between agents of different owners; it binds onto A2A and MCP as transports." },
     { t: "p", text: "The other cost of a fixed waist is that observers freeze whatever they see, including accidents. QUIC's answer was to publish a short list of invariants and declare that everything else may change between versions [[R8·F8]]. Membrane does the same in [[P§4.3]]: the first line, the seven required fields, the byte rules, the four acts, the five dispositions, the unknown-handling rules, and the rule that inbound content carries no authority. An implementation may depend on those and on nothing else." },
@@ -46,7 +46,7 @@ Course.lesson({
     { t: "takeaways", items: [
       "A layer promises a little upward and hides how; what it does not promise belongs to the layer above.",
       "Weaker waist: fewer applications, more implementations. Choose the necessary set first.",
-      "Waists ossify; a newcomer survives in a niche the incumbents leave empty.",
+      "A waist stops changing once it is everyone's dependency, and newcomers live in the niches it leaves empty.",
       "Publish the invariants so observers freeze those and nothing else."
     ] },
     { t: "deeper", links: [ { ref: "P§1.3" }, { ref: "P§3" }, { ref: "P§4.3" }, { href: "https://arxiv.org/abs/1607.07183", label: "Beck · On the hourglass model" }, { href: "https://www.rfc-editor.org/rfc/rfc8999.html", label: "RFC 8999 · Version-independent properties of QUIC" }, { research: "R8", label: "R8 · minimal, lasting protocols" } ] }

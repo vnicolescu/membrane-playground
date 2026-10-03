@@ -1,6 +1,6 @@
 Course.lesson({
   id: "delivery", part: "foundations", title: "Delivery semantics",
-  kicker: "What a lossy channel can promise, and what only the endpoints can",
+  kicker: "Exactly once is something two endpoints build over a channel that promises less",
   minutes: 9,
   refs: ["P§4.2", "P§5.4", "R6·F9", "R6·F13", "R2·F8", "R8·F1"],
   objectives: [
@@ -25,7 +25,7 @@ Course.lesson({
     ] },
     { t: "h", text: "Exactly once belongs to the ends" },
     { t: "p", text: "The 1984 argument settles where the fix goes. Saltzer, Reed and Clark's example is a careful file transfer. The sender's application computes a checksum, the receiver's application reads the stored copy back and recomputes it, and only when the two agree does the transfer count as committed; a reliable network underneath reduces the number of retries and changes nothing about correctness [[R8·F1]]. Duplicate suppression is the same case: the application retries on a lost acknowledgement and so creates duplicates that only it can recognise, so the mechanism that removes them must live at the end and key on something inside the message. Exactly-once is therefore built, at the endpoints, out of at-least-once plus one of two things: an operation that does not mind repetition, or a memory of identifiers." },
-    { t: "p", text: "Membrane chooses the second for its envelope and gets the first from its contracts. A message with a seen `from` and `id` and the same body is a duplicate: the receiver resends its original receipt, if one was owed, and does nothing else [[P§4.2]]. Under a contract a binding is set once, so a repeated `accept` or `reply` binds nothing new; duplicates become harmless and resending is the recovery [[R2·F8]]." },
+    { t: "p", text: "Membrane chooses the second for its envelope and gets the first from its contracts. A repeat of a seen `from` plus `id` with the same body gets the receipt it earned the first time and causes nothing new [[P§4.2]]. Under a contract a binding is set once, so a repeated `accept` or `reply` binds nothing further. Resending is the recovery [[R2·F8]]." },
     { t: "h", text: "Order" },
     { t: "p", text: "Order is a promise about time. A live connection can number its segments and hold back the ones that arrive early. A mailbox read every six hours cannot promise anything about the order in which two messages were written, and two agents on different clocks cannot even agree on which one was first. Lamport's clocks give the one direction that holds: if event a caused event b, a's timestamp is smaller, and the reverse does not follow, so a timestamp alone cannot prove causality [[R6·F13]]. Membrane therefore assumes no message ordering and lets order follow from information: each message type in a contract states what it needs to know already, and a `reply` that needs `accepted` cannot be sent before an `accept`, whatever order they arrive in [[P§5.4]]. Session types give strong guarantees and assume first-in-first-out channels, which two agents on different schedules do not have." },
     { t: "sort", prompt: "Match each mechanism to the guarantee it provides.", buckets: [ { id: "amo", label: "At-most-once" }, { id: "alo", label: "At-least-once" }, { id: "eo", label: "Exactly-once at the endpoints" } ], items: [
@@ -44,8 +44,7 @@ Course.lesson({
         { label: "The same id with a different body", change: { ctx: { seenIds: { "hermes|hermes-20260922-a41d0e6b9c7f2358": { body: "$hash:a different body\n", disposition: "admitted" } } } }, expect: { disposition: "refused", reason: "id-reuse" }, explain: "A second message wearing the first one's identifier. Step 7 refuses with `id-reuse` and logs it, because every receipt that cited the id would otherwise be ambiguous." }
       ] },
     { t: "takeaways", items: [
-      "Commit before processing: at-most-once. Commit after: at-least-once. The channel offers nothing better.",
-      "Exactly-once is built at the endpoints from at-least-once plus idempotency or a memory of identifiers.",
+      "Commit before processing gives at-most-once and commit after gives at-least-once; exactly-once is built at the endpoints from at-least-once plus idempotency or a memory of identifiers.",
       "Membrane: `from` plus `id` is the dedup key; a duplicate gets the original receipt; bindings are set once.",
       "A mailbox cannot promise order; order follows from what each message needs to know."
     ] },

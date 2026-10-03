@@ -22,17 +22,17 @@ Course.lesson({
       { id: "borrowed", label: "Borrowed" }, { id: "extended", label: "Extended" }, { id: "breaks", label: "Breaks" }, { id: "absent", label: "Absent" }
     ], items: [
       { text: "MCP: `notifications/cancelled` is cooperative and a late response is ignored", bucket: "borrowed", why: "Membrane's `cancel` is the same cooperative withdrawal; the original stays on record." },
-      { text: "A2A: a server must set `contextId` on every message it sends", bucket: "borrowed", why: "Becomes `context`, carried on every message after the first." },
-      { text: "MCP: a tool list may vary by authorization and must never vary per connection", bucket: "borrowed", why: "Statelessness: what a peer may do is rechecked on every message against its standing and contract, with nothing carried over from a session." },
-      { text: "MCP: URL-mode elicitation sends the human to a browser page out of band", bucket: "borrowed", why: "An owner-to-owner channel outside both agents, for whatever must not pass through either; and `accept` there means consent, with the outcome still to be learned." },
+      { text: "A2A: an agent that creates a `contextId` must return it, and later messages carry it", bucket: "borrowed", why: "Becomes `context`, required on every message after the first." },
+      { text: "MCP: a tool list may vary by authorization and must never vary per connection", bucket: "extended", why: "Statelessness, with a rule added: what a peer may do is rechecked on every message against its standing and its contract, and nothing carries over from a session." },
+      { text: "MCP: URL-mode elicitation sends the human to a browser page out of band", bucket: "extended", why: "An out-of-band channel, with a rule added: `accept` there means consent, and the outcome is still a claim to be judged." },
       { text: "MCP: a resource's `cacheScope: private`", bucket: "extended", why: "The seed of a use scope: Membrane's shareable list in the contract says what may leave and to whom." },
-      { text: "A2A: push notifications to a webhook, delivered at least once", bucket: "extended", why: "The `alert` form keeps the shape and adds an urgency claim, `expires`, and a ceiling the receiver owns." },
+      { text: "A2A: push notifications to a webhook, one delivery attempt promised and duplicates possible", bucket: "extended", why: "The `alert` form keeps the webhook's shape and adds an urgency claim, `expires`, a ceiling the receiver owns, and a resend rule the sender can rely on." },
       { text: "MCP: `notifications/progress` with a monotone counter during a long call", bucket: "extended", why: "A `pulse` adds a lease term and a watermark, and silence past the lease is a signal." },
       { text: "A2A: a JWS signature over the Agent Card, optional", bucket: "extended", why: "The `card` form keeps the shape and makes the signature required." },
       { text: "MCP: `prompts/get` returns a template the server wrote for the user to pick", bucket: "breaks", why: "A peer's template is instruction text from another owner, so it is treated as quarantined data and kept out of the kernel." },
       { text: "A2A: agents never expose memory, reasoning or framework", bucket: "breaks", why: "Opacity leaves a peer no way to judge the interior or notice its absence; presentation and stated goals open a small, attested window." },
-      { text: "A receiver tells the sender what became of its message: held, admitted, refused or expired", bucket: "absent", why: "A2A has `rejected` alone; MCP has nothing. Dispositions, `echo` and verdicts are new primitives." },
-      { text: "A trust level that drops after a contradiction and returns after a clean month", bucket: "absent", why: "Neither parent has standing at all; revocation elsewhere is terminal." }
+      { text: "Neither parent: a receiver tells the sender what became of its message: held, admitted, refused or expired (sealed is never sent back)", bucket: "absent", why: "A2A has `rejected` alone; MCP has nothing. Dispositions, `echo` and verdicts are new primitives." },
+      { text: "Neither parent: a trust level that drops after a contradiction and returns after a clean month", bucket: "absent", why: "Neither parent has standing at all; revocation elsewhere is terminal." }
     ] },
     { t: "figure", name: "twoParents", caption: "The contract's lineage table, by relation. Opening a row shows the Membrane form the idea became." },
     { t: "p", text: "Where your sort disagreed with the figure, the lineage row says why." },
@@ -50,15 +50,15 @@ Course.lesson({
       ["A stateful session groups turns", "the context belongs to one user", "the peer's text lands in the live session with memory and tools", "`context` kept; content sealed and answered in a quarantined run"]
     ], caption: "The first three rows are MCP's, the last two A2A's [[R11·§7]]. The session row is the session-smuggling fix." },
     { t: "h", text: "The five absences" },
-    { t: "p", text: "Both parents lack five things, and Membrane adds a primitive for each. The waist part of the course covers two of them, the dispositions with their receipts and the sealed and held states that are quarantine ([[lesson:dispositions|the lesson on what becomes of a message]]); the gate part covers the effect class computed from a contract ([[lesson:effects|the tiers]]) and the evidence kind ([[lesson:evidence|the evidence paths]]); the time part covers standing that recovers on a clock ([[lesson:standing|identity and standing]]). The paper's gap table marks every one of them absent in MCP and A2A, and most of them absent in the six other protocols the sweep opened [[P§D]]." },
+    { t: "p", text: "Both parents lack five things, and Membrane adds a primitive for each: dispositions with their receipts, the sealed and held states that are quarantine, the effect class computed from a contract, the evidence kind on every claim, and standing that recovers on a clock. Each has its own lesson ahead. The paper's gap table marks quarantine and impact assessment absent in both parents, gives A2A a partial for receiver acknowledgement and both parents a partial for reputation, and has no row for evidence kinds; the contract records all five as primitives the parents lack [[P§D]]." },
     { t: "p", text: "A new protocol survives by offering what the incumbents do not and dies competing head-on: in the evolutionary model that reproduces the internet's hourglass, a newcomer in an incumbent's niche needs about ninety percent of the incumbent's value to live (Akhshabi and Dovrolis 2011, [[R8·F4]]). Membrane's niche is asynchronous, file-native, owner-auditable messaging between agents of different owners, and it binds onto A2A and MCP as transports [[P§15]]." },
     { t: "callout", kind: "note", title: "Decision D2: extension profile or its own protocol", text: "Membrane could ship as an A2A extension, as a separate specification with an A2A binding, or both. The constraint the research found: A2A extensions may not add fields to core types or values to enums, so dispositions would live under `metadata[uri]` and could never be a TaskState [[R10·§10]]. The paper's position is that the core must also work where no server listens: over a shared folder, a git repository or a mailbox [[P§1.2]]. Both owners decide." },
     { t: "takeaways", items: [
-      "Four relations: borrowed, extended, breaks, absent; what breaks is whatever assumed one owner.",
+      "Four relations: borrowed, extended, breaks, absent; the breaks are the rules that assumed one owner.",
       "Five absences become five primitives: dispositions, quarantine, evidence kind, effect class, standing.",
       "D2: an A2A extension cannot add a TaskState, so dispositions would ride in metadata; the core must also work with no server listening."
     ] },
     { t: "deeper", links: [ { ref: "P§D" }, { ref: "P§3" }, { research: "R11", label: "R11 §7 · the extension map, row by row" }, { research: "R8", label: "R8 · F3 and F4, waists and niches" } ] },
-    { t: "tutor", prompts: [ "Which single Membrane field would an A2A extension profile have the hardest time carrying, and why?", "Is `cancel` borrowed or extended? Argue both ways.", "What would make the host-holds-consent model work again between two owners?" ] }
+    { t: "tutor", prompts: [ "Which single Membrane field would an A2A extension profile have the hardest time carrying, and why?", "Is `cancel` borrowed or extended? Argue both ways." ] }
   ]
 });
