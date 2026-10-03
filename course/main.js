@@ -52,7 +52,7 @@
     if (!done()[L.id]) return false;
     if (!(L.blocks || []).some((b) => SCORED.includes(b.t))) return true;
     const ans = store.get("answers", {});
-    return Object.keys(ans).some((k) => k.startsWith(L.id + ":") && ans[k].ok);
+    return Object.keys(ans).some((k) => k.startsWith(L.id + ":") && ans[k].ok && ans[k].kind !== "cold");
   }
   function stamped() {
     const set = new Set();
@@ -94,7 +94,7 @@
   function gateSide() {
     const steps = C.kit.STEP_ORDER;
     const d = done();
-    const lit = steps.map((id) => { const T = C.teacherOfStep && C.teacherOfStep(id); return !!(T && d[T.id]); });
+    const lit = steps.map((id) => { const T = C.teacherOfStep && C.teacherOfStep(id); return !!(T && earned(T)); }); // the same rule as the stamps: finished, with a right answer
     const n = lit.filter(Boolean).length;
     return h("div", { class: "dock-gate" },
       h("div", { class: "dock-k" }, "brainboi's gate"),
@@ -109,7 +109,7 @@
   function meter() {
     const el = document.getElementById("progress");
     if (!el) return;
-    const d = done(), ans = Object.values(store.get("answers", {}));
+    const d = done(), ans = Object.values(store.get("answers", {})).filter((a) => a.kind !== "cold"); // a cold open is a warm-up, never scored
     const total = ORDER.length, n = ORDER.filter((L) => d[L.id]).length;
     const right = ans.filter((a) => a.ok).length;
     el.textContent = "";

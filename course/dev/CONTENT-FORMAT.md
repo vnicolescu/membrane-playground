@@ -134,3 +134,13 @@ Named interactives the renderer provides. `props` tune them; `spec` describes in
 | `twoParents` | what Membrane borrowed, extended, broke and found absent in MCP and A2A |
 
 A lesson may name a widget or figure that is not in these tables. Give it a `spec` precise enough to build from (inputs, what moves, what the reader learns, which gate functions it calls if any). Keep new ones few.
+
+## Round-1 engine additions
+
+- **Cold opens.** A `gate` block before the lesson's first `h` block is the cold open: titled "Cold open · not scored", it stores the reader's guess and never counts toward checks or stamps. Set `cold: false` on a block to opt out, or `cold: true` to mark one placed after a heading. A later case whose label starts "From the cold open", or that has `fromCold: true`, shows the reader's earlier guess under each prediction row.
+- **`whyNot`** on a case (preset or variant): one sentence shown after the per-part feedback when the prediction is wrong. The engine already explains each wrong part from its trace field; use `whyNot` only for the misconception the case is built to catch.
+- **Machine targets.** A `machine` block takes `targets: [{ text, state, via?: [stateIds], avoid?: [stateIds] }]`. A target ticks when the reader's walk reaches `state` having passed every `via` and none of the `avoid` states, and it counts as a make. Write prose targets ("Reach violated without the creditor ever acting") as data instead.
+- **Tier and standing.** A message that stops before step 16 has no tier, and one that stops before step 18 has no standing: predict `null` ("not read") or leave the part out. The checker rejects `expect.tier` on such a case and accepts `tier: null`.
+- **Quizzes.** The checker prints where right answers land (slots A–D) and fails when the right option is the longest in more than a third of the quizzes. Keep the right option within 20% of the longest distractor.
+- **Minutes** are counted from the lesson (words, cases, checks, widgets); the `minutes` field is ignored.
+- **Hero copy and labels** belong to the engine. "Next" finishes a lesson, so lessons need no closing instruction.

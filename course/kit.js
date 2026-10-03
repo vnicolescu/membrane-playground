@@ -434,6 +434,19 @@
     });
     let cur = b.start || (states[0] && states[0].id);
     const trail = [cur];
+    // targets: [{ text, state, via?: [ids], avoid?: [ids] }] tick when the walk reaches `state` having passed every `via` and no `avoid`
+    const targets = b.targets || [], tkey = (j) => blockKey(ctx, i) + ":target:" + j, answersM = store.get("answers", {});
+    const targetBox = targets.length ? h("ul", { class: "goals m-targets" }) : null;
+    function renderTargets() {
+      if (!targetBox) return;
+      targets.forEach((t, j) => {
+        if (answersM[tkey(j)]) return;
+        const hit = cur === t.state && (t.via || []).every((v) => trail.includes(v)) && !(t.avoid || []).some((v) => trail.includes(v));
+        if (hit) { answersM[tkey(j)] = { ok: true, kind: "make" }; store.mark("answers", tkey(j), answersM[tkey(j)]); }
+      });
+      targetBox.textContent = "";
+      targets.forEach((t, j) => { const ok = !!answersM[tkey(j)]; targetBox.appendChild(h("li", { class: "goal" + (ok ? " done" : "") }, h("span", { class: "goal-box", "aria-hidden": "true" }, ok ? "✓" : ""), h("span", null, inline(t.text)))); });
+    }
     const choices = h("div", { class: "m-choices" });
     const note = h("div", { class: "m-note", "aria-live": "polite" });
     function render() {
@@ -448,9 +461,10 @@
       if (!out.length) choices.appendChild(h("span", { class: "muted" }, "No way out of this state: it is terminal."));
       out.forEach((e) => choices.appendChild(h("button", { type: "button", class: "btn", onclick: () => { cur = e.to; trail.push(cur); render(); } }, inline(e.label || "→ " + e.to), " → ", states.find((x) => x.id === e.to).label)));
       choices.appendChild(h("button", { type: "button", class: "btn ghost", onclick: () => { cur = b.start || states[0].id; trail.length = 0; trail.push(cur); render(); } }, "Reset"));
+      renderTargets();
     }
     render();
-    return h("div", { class: "cx-check machine" }, h("div", { class: "check-k" }, inline(b.title || "State machine")), b.prompt ? h("div", { class: "check-q" }, inline(b.prompt)) : null,
+    return h("div", { class: "cx-check machine" }, h("div", { class: "check-k" }, inline(b.title || "State machine")), b.prompt ? h("div", { class: "check-q" }, inline(b.prompt)) : null, targetBox,
       narrow ? listEl : h("div", { class: "scroll" }, svg), note, choices, b.caption ? h("div", { class: "cap" }, inline(b.caption)) : null);
   };
 
@@ -655,6 +669,10 @@
     const dims = b.predict === false ? [] : Array.isArray(b.predict) ? b.predict.filter((d) => DIMS[d]) : [isPage ? "page" : "disposition"];
     const cases = [{ label: b.presetLabel || "The clean case", change: {}, expect: b.expect, explain: b.explain }].concat(b.variants || []);
     const editable = b.editable === "wire" || goals.length > 0;
+    // a lab before the lesson's first heading is its cold open: a warm-up, stored with the reader's guess, never scored; a later case labelled "From the cold open" recalls the guess
+    const blocks = (lesson && lesson.blocks) || [], firstH = blocks.findIndex((x) => x.t === "h");
+    const coldIndex = blocks.findIndex((x, j) => x.t === "gate" && (x.cold === true || (x.cold !== false && firstH > j)));
+    const isCold = coldIndex === i;
     let ci = 0, pred = {}, editedWire = null, rehash = true, knobState = {};
     let goalTries = 0, solutionNote = null; const shown = new Set(); // "Show one way" appears after a run that missed; a goal reached from a shown solution is recorded as shown, never as made
     const answers = store.get("answers", {});
@@ -724,6 +742,8 @@
           });
         }
         if (dim === "disposition") row.appendChild(h("p", { class: "predict-hint" }, "Every handled message is sealed first; predict where it ends."));
+        const recall = (cases[ci].fromCold || /^From the cold open/.test(cases[ci].label || "")) && coldIndex >= 0 && coldIndex !== i ? store.get("answers", {})[(lesson && lesson.id) + ":" + coldIndex + ":0"] : null; // read fresh: the cold lab wrote it after this lab rendered
+        if (recall && recall.pred && dim in recall.pred) row.appendChild(h("p", { class: "predict-hint" }, "Before the lesson you said: " + showVal(dim, recall.pred[dim]) + "."));
         predictBox.appendChild(row);
       });
       markRun();
@@ -795,7 +815,7 @@
     function recordCase(ok) {
       if (tinkered()) return;
       const k = key + ":" + ci;
-      if (!answers[k]) { answers[k] = { ok, kind: "gate" }; store.mark("answers", k, answers[k]); } // the first attempt counts
+      if (!answers[k]) { answers[k] = isCold ? { ok, kind: "cold", pred: Object.assign({}, pred) } : { ok, kind: "gate" }; store.mark("answers", k, answers[k]); } // the first attempt counts
       [...caseBar.children][ci].classList.add(answers[k].ok ? "got" : "miss");
     }
     function checkGoals(get) {
@@ -848,7 +868,7 @@
     skip.addEventListener("click", () => run(false));
     renderCase();
     return h("div", { class: "cx-lab" + (goals.length ? " goal-mode" : "") },
-      h("div", { class: "lab-head" }, h("div", { class: "check-k" }, goals.length ? "Gate lab · goals to reach" : "Gate lab"), h("div", { class: "lab-title" }, inline(b.title || "Run it through the gate")), b.intro ? h("p", { class: "lab-intro" }, inline(b.intro)) : null),
+      h("div", { class: "lab-head" }, h("div", { class: "check-k" }, isCold ? "Cold open · not scored" : goals.length ? "Gate lab · goals to reach" : "Gate lab"), h("div", { class: "lab-title" }, inline(b.title || "Run it through the gate")), b.intro ? h("p", { class: "lab-intro" }, inline(b.intro)) : null),
       cases.length > 1 ? caseBar : null,
       goalBox,
       h("div", { class: "lab-grid" }, msgBox, ctxBox),

@@ -631,3 +631,4 @@ a.btn{text-decoration:none}
 /* labels in sentence case and the sans: mono capitals read slowly */
 .check-k{font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:0;text-transform:none}
 .predict-hint{flex-basis:100%;font-size:12.5px;color:var(--ink-3);margin:2px 0 0}
+.m-targets{list-style:none;padding:0;margin:8px 0 12px;display:grid;gap:6px}
