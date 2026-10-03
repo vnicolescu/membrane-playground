@@ -93,7 +93,7 @@ Course.lesson({
       { text: "not-understood", bucket: "declare", why: "Declares that the receiver could not handle the message; the one form every implementation must have." }
     ] },
     { t: "takeaways", items: [
-      "Four acts, each defined by what it does to a public commitment store. Checkable, so fixed.",
+      "An act is defined by its effect on a public commitment store. A checkable definition can stay fixed, so there are four and will stay four.",
       "A commitment is conditional until its antecedent holds; only the creditor releases; a passed deadline is expiry or violation depending on whether the debtor was bound.",
       "Forms are compositions of acts; an unknown form falls back to its act, a known form's fields are critical.",
       "Completion takes two parties: assert done, declare met or unmet or unverifiable.",

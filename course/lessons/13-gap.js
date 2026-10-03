@@ -20,7 +20,7 @@ Course.lesson({
     ] },
     { t: "figure", name: "twoParents", caption: "Every lineage row in the contract, by relation. Opening a row shows the Membrane form the idea became." },
     { t: "compare", caption: "What each protocol fixes, in one column each.", cols: [
-      { title: "MCP", items: [ "agent to tool", "JSON-RPC, per-request version and capabilities", "tools, resources, prompts; three loci of control", "consent at the host, unenforced on the wire", "no receipts, no quarantine, no evidence kind" ] },
+      { title: "MCP", items: [ "agent to tool", "JSON-RPC, per-request version and capabilities", "tools, resources, prompts; three loci of control", "consent at the host, unenforced on the wire", "silent on receipts, on quarantine and on the evidence behind a claim" ] },
       { title: "A2A", items: [ "agent to agent, transport", "card, message, task; nine task states", "three bindings over one protobuf model", "REJECTED as the one boundary word", "agents opaque by design" ] },
       { title: "Membrane", items: [ "what the receiver does with a peer's message", "envelope, four acts, five dispositions, reason codes", "effect class from a contract; evidence kind on every claim", "a gate outside the agent, under its owner", "standing that recovers; receipts both sides sign" ] }
     ] },
