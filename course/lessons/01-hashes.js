@@ -16,7 +16,8 @@ Course.lesson({
     { t: "widget", name: "hashLab", props: {} },
     { t: "define", terms: [
       { term: "hash", def: "A fixed-size digest of bytes of any length; SHA-256 gives 64 hex characters.", ref: "P§4.1" },
-      { term: "collision resistance", def: "Infeasible to find two inputs with one digest, or an input for a given digest." },
+      { term: "collision resistance", def: "Infeasible to find two inputs with one digest." },
+      { term: "preimage resistance", def: "Infeasible to find an input for a given digest." },
       { term: "signature", def: "A value from a message and a private key, checkable with the public key." },
       { term: "key rotation", def: "Replacing a signing key while keeping the identifier.", ref: "P§9.2" },
       { term: "pre-rotation", def: "Publishing the next key's digest before using the key.", ref: "R7·F1" }

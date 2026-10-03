@@ -66,13 +66,13 @@ Course.lesson({
       "Nothing about safety; the annotation is a hint from an untrusted server, and consent is still the host's to obtain",
       "The server is lying, since a tool named delete is always destructive, and the host should refuse to list the tool to the model at all",
       "The schema is invalid, because `destructiveHint` defaults to true and a server may only omit the field; setting it to false is forbidden"
-    ], answer: 1, explain: "Annotations are self-description. Clients must treat them as untrusted unless the server is trusted, and the host must still obtain consent before invoking any tool. The pessimistic default exists for servers that say nothing; a server that says something is still a server.", why: [
+    ], answer: 1, explain: "Annotations are self-description. Clients must treat them as untrusted unless the server is trusted, and the host must still obtain consent before invoking any tool. The pessimistic default covers servers that say nothing; a server that sets the flag false has made a claim the host checks like any other.", why: [
       "Hints never settle safety.",
       "Correct.",
-      "Maybe, and the host cannot know; the point is that it need not decide.",
+      "Maybe, and the host cannot know; it asks the user either way.",
       "A default is what applies when the field is absent; setting it false is valid."
     ] },
-    { t: "callout", kind: "parent", title: "What Membrane takes from here", text: "Per-request declaration becomes the `membrane` field and the contract hash on every message. Statelessness becomes `context` and `re` carried on every message, with authority rechecked each time. The MRTR `requestState` recipe becomes the optional `state` field, which the playground's gate does not check yet. Audience binding becomes the no-passthrough rule. What breaks: one host consenting for all servers. Between two owners there is no shared host, so consent moves to each receiver's gate, outside the agent, under its owner's tiers [[R11·§7]]. [[lesson:gap|The next lesson]] sorts the whole list." },
+    { t: "callout", kind: "parent", title: "What Membrane takes from here", text: "Per-request declaration becomes the `membrane` field and the contract hash on every message. Statelessness becomes `context` and `re` carried on every message, with authority rechecked each time. The MRTR `requestState` recipe becomes the optional `state` field, which the playground's gate does not check yet. Audience binding becomes the no-passthrough rule. What breaks: one host consenting for all servers. Between two owners there is no shared host, so consent moves to each receiver's gate, outside the agent, under its owner's tiers [[R11·§7]] [[P§1.2]]." },
     { t: "takeaways", items: [
       "MCP is JSON-RPC between a host's clients and servers; since 2026-07-28 every request declares its version and capabilities and nothing depends on connection state.",
       "A server that needs input returns input_required with an opaque state and the client retries.",
