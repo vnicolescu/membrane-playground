@@ -58,8 +58,8 @@
     const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "w-svg" + (narrow ? " tall" : ""), role: "img", "aria-label": "Dispositions: received, sealed, held, then admitted, refused or expired" });
     const ex = explainer("Every message the gate accepts for handling is sealed, may be held, and ends in exactly one of admitted, refused or expired. Tap a state.");
     const N = {
-      received: { x: 56, y: 118, s: "sent", say: "**Received.** The message has arrived in the transport. Nothing has read it yet." },
-      logged: { x: 56, y: 222, s: "sent", label: "logged only", say: "**Logged only.** A message whose signature fails, or that is malformed, gets no receipt. Answering a forged sender would make the receiver a source of backscatter against whoever the forger named [[P§4.2]]." },
+      received: { x: 70, y: 118, s: "sent", say: "**Received.** The message has arrived in the transport. Nothing has read it yet." },
+      logged: { x: 70, y: 222, s: "sent", label: "logged only", say: "**Logged only.** A message whose signature fails, or that is malformed, gets no receipt. Answering a forged sender would make the receiver a source of backscatter against whoever the forger named [[P§4.2]]." },
       sealed: { x: 236, y: 118, s: "sealed", say: "**{{disp.sealed|sealed}}.** Stored verbatim with its hash before any model reads it. Every later decision refers to the hash, so a summary can never be the thing confirmed." },
       held: { x: 416, y: 200, s: "held", say: "**{{disp.held|held}}.** In quarantine, outside memory and outside the transport, waiting for the owner or a second signal. A held message always has a clock: {{env.expires}}." },
       admitted: { x: 616, y: 40, s: "admitted", say: "**{{disp.admitted|admitted}}.** Entered the receiver's constructed layer at its tier. Admission never means execution: an admitted request is a proposal." },
@@ -68,7 +68,7 @@
     };
     if (narrow) Object.assign(N.received, { x: 90, y: 44 }), Object.assign(N.logged, { x: 270, y: 44 }), Object.assign(N.sealed, { x: 90, y: 180 }), Object.assign(N.held, { x: 260, y: 300 }),
       Object.assign(N.admitted, { x: 56, y: 470 }), Object.assign(N.refused, { x: 180, y: 470 }), Object.assign(N.expired, { x: 300, y: 470 });
-    const edges = [["received", "sealed", "checks pass", -1], ["received", "logged", "unsigned or malformed", 1], ["sealed", "admitted", "low tier, released by the gate", -1], ["sealed", "refused", "a rule refuses", -1], ["sealed", "held", "needs the owner or a signal", 1], ["held", "admitted", "released", -1], ["held", "refused", "refused", 1], ["held", "expired", "clock runs out", 1]];
+    const edges = [["received", "sealed", "checks pass", -1], ["received", "logged", "unsigned or malformed", 1], ["sealed", "admitted", "low tier, released by the gate", -1], ["sealed", "refused", "a rule refuses", -1], ["sealed", "held", "needs the owner or a signal", 1], ["held", "admitted", "released", 1], ["held", "refused", "refused", 1], ["held", "expired", "clock runs out", 1]];
     const defs = el("defs", {}, svg);
     const mk = el("marker", { id: "dz-arr", viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs);
     el("path", { d: "M0,0 L10,5 L0,10 z", fill: "var(--ink-3)" }, mk);

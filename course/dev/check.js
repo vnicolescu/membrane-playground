@@ -59,7 +59,9 @@ for (const L of lessons) {
         const got = r.page || r.trace;
         if (verbose) console.log("    · " + L.id + " · " + label + " → " + (r.page ? JSON.stringify(r.page) : (got.disposition || "logged only") + (got.reason ? " (" + got.reason + ")" : "") + " at " + got.decisiveStep + ", " + got.tier));
         if (!expect) return err(w + " · " + label, "no expect: every gate case states what the gate will do");
-        const miss = S.check(r, expect);
+        if (r.trace && expect.tier && !r.trace.steps.some((st) => st.id === "effect")) err(w + " · " + label, "expects tier " + expect.tier + " but the message stops at " + r.trace.decisiveStep + ", before step 16 computes a tier; expect `tier: null` or drop it");
+        const exp2 = Object.assign({}, expect); if (r.trace && exp2.tier === null) { delete exp2.tier; if (r.trace.steps.some((st) => st.id === "effect")) err(w + " · " + label, "expects no tier but step 16 ran"); }
+        const miss = S.check(r, exp2);
         if (miss.length) err(w + " · " + label, miss.map((x) => x.key + " want " + JSON.stringify(x.want) + " got " + JSON.stringify(x.got)).join("; "));
         else ok++;
       };

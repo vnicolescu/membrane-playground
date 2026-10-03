@@ -166,7 +166,7 @@
     const next = ORDER.find((L) => trackOf(L) === "core" && !d[L.id]) || core()[0];
     const started = Object.keys(d).length > 0;
     const mins = core().reduce((a, L) => a + (L.minutes || 0), 0);
-    const gates = C.LESSONS.reduce((a, L) => a + (L.blocks || []).filter((b) => b.t === "gate").reduce((x, b) => x + 1 + (b.variants || []).length, 0), 0);
+    const gates = core().reduce((a, L) => a + (L.blocks || []).filter((b) => b.t === "gate").reduce((x, b) => x + 1 + (b.variants || []).length, 0), 0); // counted over the same lessons as the minutes
     const map = h("div", { class: "map" });
     const card = (L, n) => h("a", { class: "lcard" + (d[L.id] ? " done" : ""), href: "#" + L.id },
       h("span", { class: "lc-n num" }, d[L.id] ? "✓" : n), h("span", { class: "lc-b" }, h("span", { class: "lc-t" }, L.title), L.kicker ? h("span", { class: "lc-k" }, L.kicker) : null), h("span", { class: "lc-m num" }, (L.minutes || "") + (L.minutes ? " min" : "")));

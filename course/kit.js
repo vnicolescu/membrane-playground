@@ -268,9 +268,11 @@
   };
   B.wire = (b) => figure(wireView(b.text, b.mark), b.caption);
   B.code = (b) => figure(codeView(b.lang, b.text, b.mark), b.caption);
-  B.table = (b) => figure(h("div", { class: "scroll" }, h("table", { class: "t cx-t" },
+  B.table = (b) => { const long = (b.rows || []).length > 8; const tbl = figure(h("div", { class: "scroll" }, h("table", { class: "t cx-t" + (long ? " longtable" : "") },
     h("thead", null, h("tr", null, (b.head || []).map((c) => h("th", null, inline(c))))),
     h("tbody", null, (b.rows || []).map((r) => h("tr", null, r.map((c, j) => h("td", { "data-label": (b.head || [])[j] ? String(b.head[j]).replace(/[`*]/g, "") : null }, inline(c)))))))), b.caption);
+    if (long) { const btn = h("button", { type: "button", class: "btn ghost small table-more" }, "Show all " + b.rows.length + " rows"); btn.addEventListener("click", () => { tbl.classList.toggle("expanded"); btn.textContent = tbl.classList.contains("expanded") ? "Show fewer rows" : "Show all " + b.rows.length + " rows"; }); tbl.appendChild(btn); }
+    return tbl; };
   B.compare = (b) => figure(h("div", { class: "cx-compare", style: { "--n": (b.cols || []).length } }, (b.cols || []).map((c) =>
     h("div", { class: "col" }, h("h4", null, inline(c.title)), c.text ? h("p", null, inline(c.text)) : null, c.items ? h("ul", null, c.items.map((t) => h("li", null, inline(t)))) : null))), b.caption);
   B.takeaways = (b) => h("section", { class: "cx-take" }, h("h4", null, "Keep"), h("ol", null, (b.items || []).map((t) => h("li", null, inline(t)))));
@@ -542,7 +544,7 @@
     return h("div", { class: "result d-" + dc },
       h("div", { class: "res-main" }, h("span", { class: "d big " + dc }, dispName(d)),
         trace.reason ? term("rc." + trace.reason, trace.reason) : null,
-        h("span", { class: "res-tier" }, term("tier." + (trace.tier || "T0"), trace.tier || "T0"), laterTag("tier", cur))),
+        trace.steps.some((s) => s.id === "effect") ? h("span", { class: "res-tier" }, term("tier." + (trace.tier || "T0"), trace.tier || "T0"), laterTag("tier", cur)) : h("span", { class: "res-tier muted small" }, "no tier: stopped before the effect class is computed")),
       h("dl", { class: "res-kv" },
         h("div", null, h("dt", null, "deciding step"), h("dd", null, trace.decisiveStep ? (STEP_ORDER.indexOf(trace.decisiveStep) + 1) + " · " + window.Gate.STEPS[trace.decisiveStep].label : "–")),
         trace.admittedAs ? h("div", null, h("dt", null, "enters as"), h("dd", null, trace.admittedAs, laterTag("admittedAs", cur))) : null,
@@ -594,7 +596,7 @@
   const REASONS = () => (M.groups.find((g) => g.id === "reasons") || { items: [] }).items.map((i) => i.name);
   const DIMS = {
     disposition: { label: "Disposition", opts: () => [["admitted"], ["held"], ["refused"], ["expired"], [null, "no disposition · logged only"]], get: (t) => t.disposition, chip: true },
-    tier: { label: "Tier", opts: () => ["T0", "T1", "T2", "T3", "T4"].map((x) => [x]), get: (t) => t.tier },
+    tier: { label: "Tier", opts: () => ["T0", "T1", "T2", "T3", "T4"].map((x) => [x]).concat([[null, "no tier: stops before step 16"]]), get: (t) => (t.steps && t.steps.some((s) => s.id === "effect") ? t.tier : null) },
     reason: { label: "Reason code", select: true, opts: () => [[null, "none"]].concat(REASONS().map((r) => [r])), get: (t) => t.reason || null },
     decisiveStep: { label: "Deciding step", select: true, opts: () => STEP_ORDER.map((id, n) => [id, (n + 1) + " · " + window.Gate.STEPS[id].label]), get: (t) => t.decisiveStep },
     receiptOwed: { label: "A receipt now?", opts: () => [[true, "yes, a receipt is owed"], [false, "no receipt now"]], get: (t) => !!t.receiptOwed },
