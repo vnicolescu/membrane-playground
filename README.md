@@ -203,7 +203,7 @@ Two house sweeps (S1, S2) and the first reviewer (Rev01) are cited in the contra
 
 ## Not included
 
-The working paper (draft 0.2) is linked from the footer and from every `P§` reference, but its source is not here. `ARCH.md`, which the file headers cite as the contract between modules, was not in the export; the one here is a draft written afterwards from the code. The licence is decision D16 and is not yet settled.
+The working paper (draft 0.2) is linked from the footer and from every `P§` reference, but its source is not here. `ARCH.md`, which the file headers cite as the contract between modules, was not in the export; the one here is a draft written afterwards from the code. The licence is decision D16 and is not yet settled. Until it is, all rights are reserved: see `LICENSE`. You may read the repository and run it locally to evaluate it; anything else needs permission.
 
 ## Images
 
