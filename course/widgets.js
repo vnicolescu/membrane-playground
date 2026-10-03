@@ -213,7 +213,7 @@
       const H = 34 * log.length + 50, W = 520;
       const svg = K.svgEl("svg", { viewBox: `0 0 ${W} ${H}`, class: "w-svg", role: "img", "aria-label": "Message sequence" });
       [["hermes", 110], ["brainboi", 410]].forEach(([n, x]) => {
-        const t = K.svgEl("text", { x, y: 18, "text-anchor": "middle", "font-weight": 600, fill: "var(--ink)" }, svg); t.textContent = n;
+        const t = K.svgEl("text", { x, y: 18, "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 12, fill: "var(--ink-2)" }, svg); t.textContent = n;
         K.svgEl("line", { x1: x, y1: 28, x2: x, y2: H - 6, stroke: "var(--rule-strong)", "stroke-dasharray": "3 4" }, svg);
       });
       log.forEach((m, i) => {
@@ -571,15 +571,23 @@
       const peers = PEERS.slice(0, st.peers), holds = {}, rate = {}, ints = {}, rows = {};
       peers.forEach((p) => { holds[p] = 0; rate[p] = 0; ints[p] = 0; rows[p] = []; });
       let totalHolds = 0, pages = 0;
+      const isAlertAt = (i, k) => st.alerts > 0 && ((i + k) % Math.max(1, Math.round(1 / st.alerts))) === 0;
+      // the slider is a share: of each peer's non-alert messages, exactly round(share × n) trip the sensor, spread evenly through the day
+      const tripSet = {};
+      peers.forEach((p, k) => {
+        const calm = []; for (let i = 0; i < st.perDay; i++) if (!isAlertAt(i, k)) calm.push(i);
+        const n = calm.length, m = Math.round(st.trip * n); tripSet[p] = new Set();
+        for (let j = 0; j < n; j++) if (Math.floor(((j + 1) * m) / n) > Math.floor((j * m) / n)) tripSet[p].add(calm[(j + k) % n]);
+      });
       for (let i = 0; i < st.perDay; i++) {
         peers.forEach((p, k) => {
-          const isAlert = st.alerts > 0 && ((i + k) % Math.max(1, Math.round(1 / st.alerts))) === 0;
-          const trips = !isAlert && st.trip > 0 && ((i * 7 + k * 3) % 100) / 100 < st.trip;
+          const isAlert = isAlertAt(i, k);
+          const trips = !isAlert && tripSet[p].has(i);
           const id = p + "-20260922-" + String(i).padStart(2, "0") + k + "a1b2c3d4e5f6a7b8";
           const ctx = { standing: { [p]: "S1" }, acceptedContracts: { [p]: S.CONTRACT }, holdsToday: { [p]: st.cap ? totalHolds : holds[p] }, rateToday: { [p]: rate[p] },
             interruptsThisWeek: { [p]: ints[p] }, ceiling: { [p]: "interrupt" }, trustRoot: { pinned: true, keys: { hermes: "k", echo: "k", vox: "k", brainboi: "k" }, transportKeys: {} } };
           const d = isAlert ? { base: "alert", header: { from: p, id, measurement: "lease-probe" }, ctx, params: { holdBudget: st.holdBudget, interruptBudget: st.interruptBudget } }
-            : trips ? { base: "reply", header: { from: p, id }, body: TRIP, ctx, params: { holdBudget: st.holdBudget, interruptBudget: st.interruptBudget } }
+            : trips ? { base: "accept", header: { from: p, id }, body: TRIP, ctx, params: { holdBudget: st.holdBudget, interruptBudget: st.interruptBudget } } // an accept carries effect none (T0), so the pattern flag lifts it to a tier S1 may send and the sensor holds it; a T1 carrier would be raised past S1 and refused
             : { header: { from: p, id }, body: CALM, ctx, params: { holdBudget: st.holdBudget, interruptBudget: st.interruptBudget } };
           const r = S.run(d), t = r.trace;
           let paged = false;
@@ -601,11 +609,8 @@
       out.appendChild(h("div", { class: "af-legend" }, h("span", null, h("span", { class: "af-t d admitted" }), " admitted"), h("span", null, h("span", { class: "af-t d held" }), " held (costs a read)"), h("span", null, h("span", { class: "af-t d refused" }), " refused"), h("span", null, h("span", { class: "af-t d admitted" }, "!"), " paged the owner")));
       const pct = Math.min(100, (100 * r.used) / st.minutes), over = r.used > st.minutes;
       out.appendChild(h("div", { class: "af-meter" + (over ? " over" : "") }, h("span", { style: { width: pct + "%" } })));
-      out.appendChild(h("div", { class: "w-row" },
-        h("div", { class: "stat" + (over ? " hot" : "") }, h("b", { class: "num" }, r.used + " / " + st.minutes), h("span", null, "owner minutes today")),
-        h("div", { class: "stat" }, h("b", { class: "num" }, String(r.totalHolds)), h("span", null, "holds × " + st.holdCost + " min")),
-        h("div", { class: "stat" }, h("b", { class: "num" }, String(r.pages)), h("span", null, "pages × " + st.pageCost + " min")),
-        h("span", { class: "small muted" }, over ? (st.cap ? "Over budget even with the cap: pages are budgeted per sender per week, not per day." : "Each peer stayed inside its own budget, and the owner's day still overflowed.") : "Inside the owner's day.")));
+      out.appendChild(h("p", { class: "w-say" }, h("b", { class: "num" }, r.used + " of " + st.minutes), " owner minutes today: " + r.totalHolds + (r.totalHolds === 1 ? " hold" : " holds") + " at " + st.holdCost + " min and " + r.pages + (r.pages === 1 ? " page" : " pages") + " at " + st.pageCost + ". ",
+        over ? (st.cap ? "Over budget even with the cap: pages are budgeted per sender per week, not per day." : "Each peer stayed inside its own budget, and the owner's day still overflowed.") : "Inside the owner's day."));
     }
     const sl = (label, min, max, step, key, fmt) => { const o = h("output", { class: "num" }, fmt ? fmt(st[key]) : String(st[key])); const i = h("input", { type: "range", min, max, step, value: st[key] }); i.addEventListener("input", () => { st[key] = Number(i.value); o.textContent = fmt ? fmt(st[key]) : String(st[key]); render(); }); return field(label, h("span", null, o, i)); };
     render();

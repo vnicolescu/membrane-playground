@@ -235,7 +235,7 @@
     }
     const filt = h("div", { class: "seg-ctl" }, ["all", "MCP", "A2A"].map((v) => { const b = h("button", { type: "button", "aria-pressed": String(v === src) }, v); b.addEventListener("click", () => { src = v; [...filt.children].forEach((x) => x.setAttribute("aria-pressed", String(x === b))); render(); }); return b; }));
     render();
-    return h("div", null, h("div", { class: "w-row" }, filt, h("span", { class: "small muted" }, "borrowed · extended · breaks (holds inside one owner, fails between two) · absent")), box, ex);
+    return h("div", null, h("div", { class: "w-row" }, filt, h("span", { class: "lin-legend small" }, [["borrowed", "borrowed"], ["extended", "extended"], ["breaks", "breaks: holds inside one owner, fails between two"], ["absent", "absent"]].map(([k, l]) => h("span", null, h("span", { class: "rel " + k }, k), l === k ? "" : l.slice(k.length))))), box, ex);
   });
 
   /* ---------- twoOwners: the threat surface of a two-owner exchange, each entry point with the gate step that covers it ---------- */

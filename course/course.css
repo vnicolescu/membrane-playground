@@ -605,3 +605,23 @@ a.btn{text-decoration:none}
   .table-more{display:inline-flex;margin-top:6px}
   .figscroll>.w-svg.tall{min-width:0}
 }
+
+/* round 1 finish */
+.goal.shown{background:var(--surface-2)}
+.goal.shown .goal-box{border-style:dashed;color:var(--ink-3)}
+.cx-t td code,.lesson-body td code{white-space:nowrap}
+@media (max-width:899px){ .bar .progress{display:none} }
+@media (max-width:560px){
+  .predict .pick-sep{display:block;flex-basis:100%;width:auto;height:0;margin:2px 0;background:none}
+  .sort-buckets{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .bucket{min-height:44px;padding:8px 10px;gap:4px}
+  .bucket-l{font-size:12.5px}
+}
+@media (max-width:560px){ .tmem text{font-size:11px} }
+.deeper-list{margin:8px 0 0;padding-left:18px;font-size:14px;line-height:1.5}
+.deeper-list li{margin:2px 0}
+.hero-stats>div{white-space:nowrap}
+.w-say{font-size:14px;line-height:1.5;margin:10px 0 0;max-width:var(--read);color:var(--ink-2)}
+.w-say b{color:var(--ink);font-size:15px}
+.lin-legend{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;color:var(--ink-3)}
+.af-legend>span{display:inline-flex;align-items:center;gap:6px}

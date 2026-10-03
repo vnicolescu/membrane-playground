@@ -19,8 +19,24 @@
   const partOf = (L) => C.PARTS.find((p) => p.id === L.part) || { id: L.part, title: L.part, track: "core" };
   const trackOf = (L) => L.track || partOf(L).track || "core";
   let ORDER = [];
+  /* a lesson's minutes are counted, never set: prose at 200 words a minute, each gate case 0.75, each check 1, each widget 1.5.
+     Gate presets, wire and code are skipped as reading; the cases that use them are counted instead. */
+  function minutesOf(L) {
+    let words = 0, cases = 0, checks = 0, widgets = 0;
+    const SKIP = new Set(["preset", "change", "expect", "goals", "solution", "props", "mark", "t", "name", "ref", "research", "lesson", "href"]);
+    const walk = (v, k) => { if (SKIP.has(k)) return; if (typeof v === "string") words += v.split(/\s+/).filter(Boolean).length; else if (Array.isArray(v)) v.forEach((x) => walk(x)); else if (v && typeof v === "object") Object.entries(v).forEach(([kk, x]) => walk(x, kk)); };
+    (L.blocks || []).forEach((b) => {
+      if (b.t === "gate") { cases += 1 + (b.variants || []).length + (b.goals || []).length; walk(b.intro); walk(b.explain); (b.variants || []).forEach((v) => { walk(v.label); walk(v.explain); }); return; }
+      if (b.t === "quiz" || b.t === "sort") checks++;
+      if (b.t === "widget" || b.t === "figure") widgets++;
+      if (b.t === "wire" || b.t === "code" || b.t === "tutor") { walk(b.caption); return; }
+      walk(b);
+    });
+    return Math.max(3, Math.round(words / 200 + cases * 0.75 + checks + widgets * 1.5));
+  }
   function computeOrder() {
     const pIndex = new Map(C.PARTS.map((p, i) => [p.id, i]));
+    C.LESSONS.forEach((L) => { L.minutes = minutesOf(L); });
     ORDER = C.LESSONS.slice().sort((a, b) => (TRACK_ORDER[trackOf(a)] - TRACK_ORDER[trackOf(b)]) || ((pIndex.get(a.part) ?? 99) - (pIndex.get(b.part) ?? 99)) || (C.LESSONS.indexOf(a) - C.LESSONS.indexOf(b)));
     C.coreIds = ORDER.filter((L) => trackOf(L) === "core").map((L) => L.id);
   }
@@ -173,7 +189,7 @@
     const found = ORDER.filter((L) => trackOf(L) === "foundation");
     const annex = ORDER.filter((L) => trackOf(L) === "annex");
     if (found.length) map.appendChild(h("section", { class: "map-track t-foundation" }, h("div", { class: "mt-head" }, h("h4", null, "Foundations"), h("p", null, "Prerequisites the course leans on. Each core lesson links the ones it needs.")), h("div", { class: "lcards" }, found.map((L) => card(L, "·")))));
-    const coreSec = h("section", { class: "map-track t-core" }, h("div", { class: "mt-head" }, h("h4", null, "The course"), h("p", null, "In order. Each lesson ends with a check you can run.")));
+    const coreSec = h("section", { class: "map-track t-core" }, h("div", { class: "mt-head" }, h("h4", null, "The course"), h("p", null, "In order. The checks run the real gate.")));
     C.PARTS.filter((p) => core().some((L) => L.part === p.id)).forEach((p) => {
       coreSec.appendChild(h("div", { class: "map-part" }, h("div", { class: "mp-t" }, p.title), p.blurb ? h("div", { class: "mp-b" }, p.blurb) : null,
         h("div", { class: "lcards" }, core().filter((L) => L.part === p.id).map((L) => card(L, String(core().indexOf(L) + 1))))));
@@ -189,7 +205,7 @@
           h("div", { class: "row hero-cta" },
             next ? h("a", { class: "btn primary", href: "#" + next.id }, started ? "Continue: " + next.title : "Start the course") : null,
             found.length ? h("a", { class: "btn", href: "#" + found[0].id }, "Start with the foundations") : null),
-          h("div", { class: "hero-stats num" }, [core().length + " lessons", mins + " minutes", gates + " gate cases", "21 gate steps"].join(" · "))),
+          h("div", { class: "hero-stats num" }, h("div", null, core().length + " lessons · about " + Math.round(mins / 60 * 2) / 2 + " hours"), h("div", null, gates + " gate cases · 21 gate steps"))),
         h("div", { class: "hero-art" }, hero())),
       h("section", { class: "how" },
         h("div", null, h("b", null, "Predict"), h("span", null, "Each check asks what the receiver will do before it shows you.")),
@@ -210,15 +226,15 @@
     const prev = ORDER[idx - 1], next = ORDER[idx + 1];
     const nextCore = t === "core" ? cs[n + 1] : null;
     const isDone = !!done()[L.id];
-    const finish = h("button", { type: "button", class: "btn primary", onclick: () => {
+    // "Next" finishes a lesson; only the last lesson in the order keeps a button of its own
+    const finish = (nextCore || next) ? null : h("button", { type: "button", class: "btn primary", onclick: () => {
       store.mark("done", L.id, true);
       meter(); nav(L.id); renderDock(L);
       const strip = document.getElementById("dockstrip"); if (strip) { strip.classList.remove("flash"); void strip.offsetWidth; strip.classList.add("flash"); }
       finish.textContent = "Finished"; finish.disabled = true;
       const go = nextCore || next;
       if (go) setTimeout(() => { location.hash = "#" + go.id; }, K.reduceMotion() ? 0 : 650);
-    } }, isDone ? "Finished · next" : "Finish lesson");
-    if (isDone) finish.onclick = () => { const go = nextCore || next; if (go) location.hash = "#" + go.id; };
+    } }, isDone ? "Finished" : "Finish the course");
     const page = h("article", { class: "lesson t-" + t },
       h("header", { class: "lesson-head" },
         h("div", { class: "eyebrow" }, eyebrow),

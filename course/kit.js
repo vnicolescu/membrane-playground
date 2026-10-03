@@ -276,7 +276,10 @@
   B.compare = (b) => figure(h("div", { class: "cx-compare", style: { "--n": (b.cols || []).length } }, (b.cols || []).map((c) =>
     h("div", { class: "col" }, h("h4", null, inline(c.title)), c.text ? h("p", null, inline(c.text)) : null, c.items ? h("ul", null, c.items.map((t) => h("li", null, inline(t)))) : null))), b.caption);
   B.takeaways = (b) => h("section", { class: "cx-take" }, h("h4", null, "Keep"), h("ol", null, (b.items || []).map((t) => h("li", null, inline(t)))));
-  B.deeper = (b) => h("section", { class: "cx-deeper" }, h("h4", null, "Go deeper"), h("div", { class: "chips" }, (b.links || []).map((l) => {
+  B.deeper = (b) => h("section", { class: "cx-deeper" }, h("h4", null, "Go deeper"), h("ul", { class: "deeper-list" }, (b.links || []).map((l) => {
+    const a = deeperLink(l); if (a) a.classList.remove("chip"); return h("li", null, a);
+  })));
+  const deeperLink = (l) => {
     if (l.ref) return refChip(l.ref);
     if (l.research) { const src = M.sources[l.research]; return h("a", { class: "chip ref", href: REPO + (src && src.file || ""), target: "_blank", rel: "noopener" }, l.label || (l.research + (src ? " · " + src.title : ""))); }
     if (l.scenario) { const sc = M.scenarios.find((s) => s.id === l.scenario); return h("a", { class: "chip ref play", href: playLink("playground/" + l.scenario), target: "_blank", rel: "noopener", title: "Opens the Playground" }, "Playground · " + (sc ? sc.title : l.scenario)); }
@@ -284,7 +287,7 @@
     if (l.lesson) return h("a", { class: "chip lessonlink", href: "#" + l.lesson }, l.label || l.lesson);
     if (l.playground != null) return h("a", { class: "chip ref play", href: playLink(l.playground || ""), target: "_blank", rel: "noopener" }, l.label || "The Playground");
     return h("a", { class: "chip ref", href: l.href, target: "_blank", rel: "noopener" }, l.label || l.href);
-  })));
+  };
   B.tutor = (b, ctx) => { if (ctx) ctx.tutorPrompts = (ctx.tutorPrompts || []).concat(b.prompts || []); return null; };
 
   /* quiz */
@@ -499,30 +502,41 @@
       return h("li", { class: "tr " + st + (st === "dec" ? " d-" + dc : "") + (later ? " later" : ""), style: { "--i": n } },
         h("span", { class: "tr-n num" }, n + 1), h("span", { class: "tr-i", "aria-hidden": "true" }, icon),
         h("span", { class: "tr-l" }, window.Gate.STEPS[id].label),
-        h("span", { class: "tr-note" }, later ? h("a", { class: "later-link", href: "#" + later.lesson.id }, "taught in lesson " + later.n + " · " + later.lesson.title) : s ? s.note || "" : "not reached"),
+        h("span", { class: "tr-note" }, later ? h("a", { class: "later-link", href: "#" + later.lesson.id }, "taught in lesson " + later.n + " · " + later.lesson.title) : s ? sensorNote(id, s, trace) : "not reached"),
         h("span", { class: "tr-ref" }, later ? null : ref));
     }));
     if (!reduceMotion()) rows.classList.add("anim");
     const fold = h("details", { class: "trace-fold", open: window.innerWidth >= 900 ? true : null }, h("summary", null, "All 21 steps"), rows);
     return h("div", { class: "tracebox" }, bar, fold);
   }
-  /* the trace bar as a membrane: 21 heads in two leaflets, the envelope parked at the deciding step */
+  // the sensor row prints all four label fields, so a reader can see which one the hold rule read
+  function sensorNote(id, s, trace) {
+    const L = trace.sensor;
+    if (id !== "sensor" || !L || !/^impact /.test(s.note || "")) return s.note || "";
+    return "impact " + L.impact + ", reach " + L.reach + ", asks_for_action " + !!L.asks_for_action + ", injection_suspected " + !!L.injection_suspected + (s.ok === true ? "" : ": hold");
+  }
+  /* the trace bar as a membrane: 21 heads in two leaflets, the envelope parked at the deciding step.
+     On a phone the membrane folds into two rows (steps 1–11, 12–21) so heads and numerals keep a readable size. */
   function membraneBar(trace, byId) {
-    const W = 640, H = 66, x0 = 22, dx = (W - 44) / 20;
+    const narrow = window.innerWidth <= 560, perRow = narrow ? 11 : 21, rowH = 70;
+    const W = narrow ? 340 : 640, H = narrow ? 2 * rowH - 4 : 66, x0 = 22, dx = (W - 44) / (perRow - 1);
+    const at = (n) => ({ x: x0 + (n % perRow) * dx, y: Math.floor(n / perRow) * rowH });
     const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, class: "tmem", role: "img", "aria-label": "The gate's 21 steps; the message stopped at step " + (STEP_ORDER.indexOf(trace.decisiveStep) + 1) });
     const dIdx = STEP_ORDER.indexOf(trace.decisiveStep), dc = dispClass(trace.disposition);
     const DC = { admitted: "--admitted", held: "--held", refused: "--refused", expired: "--expired", logged: "--logged" };
     STEP_ORDER.forEach((id, n) => {
-      const s = byId.get(id), x = x0 + n * dx;
+      const s = byId.get(id), { x, y: oy } = at(n);
       const st = !s ? "skip" : n === dIdx ? "dec" : s.ok === true ? "pass" : s.ok === "flag" ? "flag" : "fail";
       const fill = st === "pass" ? "var(--lipid)" : st === "flag" ? "var(--accent)" : st === "dec" ? "var(" + (DC[dc] || "--ink") + ")" : st === "fail" ? "var(--ink)" : "none";
       const stroke = st === "skip" ? "var(--rule-strong)" : "none";
-      svgEl("path", { d: `M${x - 2},20 Q${x - 4},28 ${x - 2},33 M${x + 2},20 Q${x + 4},28 ${x + 2},33 M${x - 2},37 Q${x - 4},40 ${x - 2},46 M${x + 2},37 Q${x + 4},40 ${x + 2},46`, fill: "none", stroke: st === "skip" ? "var(--rule)" : "var(--lipid)", "stroke-width": .9, opacity: st === "skip" ? .5 : .6 }, svg);
-      svgEl("circle", { cx: x, cy: 16, r: 5.2, fill, stroke, "stroke-width": 1.2 }, svg);
-      svgEl("circle", { cx: x, cy: 50, r: 5.2, fill, stroke, "stroke-width": 1.2 }, svg);
-      if ([0, 4, 9, 14, 20].includes(n) || n === dIdx) { const t = svgEl("text", { x, y: 64, "text-anchor": "middle" }, svg); t.textContent = String(n + 1); }
+      svgEl("path", { d: `M${x - 2},${oy + 20} Q${x - 4},${oy + 28} ${x - 2},${oy + 33} M${x + 2},${oy + 20} Q${x + 4},${oy + 28} ${x + 2},${oy + 33} M${x - 2},${oy + 37} Q${x - 4},${oy + 40} ${x - 2},${oy + 46} M${x + 2},${oy + 37} Q${x + 4},${oy + 40} ${x + 2},${oy + 46}`, fill: "none", stroke: st === "skip" ? "var(--rule)" : "var(--lipid)", "stroke-width": .9, opacity: st === "skip" ? .5 : .6 }, svg);
+      svgEl("circle", { cx: x, cy: oy + 16, r: 5.2, fill, stroke, "stroke-width": 1.2 }, svg);
+      svgEl("circle", { cx: x, cy: oy + 50, r: 5.2, fill, stroke, "stroke-width": 1.2 }, svg);
+      // numerals: every step on a phone; on a wide bar the landmarks and the deciding step, never two side by side
+      const landmark = [0, 4, 9, 14, 20].includes(n) && Math.abs(n - dIdx) > 1;
+      if (narrow || landmark || n === dIdx) { const t = svgEl("text", { x, y: oy + 64, "text-anchor": "middle", "font-weight": n === dIdx ? 600 : null }, svg); t.textContent = String(n + 1); }
     });
-    if (dIdx >= 0) { const env = window.Glyphs.envelope(svg, { x: x0 + dIdx * dx, y: 33, w: 22, h: 15, state: dc === "logged" ? "sent" : dc }); env.classList.add("tmem-env"); }
+    if (dIdx >= 0) { const p = at(dIdx); const env = window.Glyphs.envelope(svg, { x: p.x, y: p.y + 33, w: 22, h: 15, state: dc === "logged" ? "sent" : dc }); env.classList.add("tmem-env"); }
     return svg;
   }
 
@@ -559,7 +573,30 @@
     if (!st) return "";
     const n = STEP_ORDER.indexOf(st.id) + 1;
     const what = trace.disposition == null ? "logged it and sent nothing" : trace.disposition === "admitted" ? "admitted it" : trace.disposition === "held" ? "held it" : trace.disposition === "expired" ? "let it expire" : "refused it";
-    return "The gate " + what + " at step " + n + ", " + window.Gate.STEPS[st.id].label + (st.note ? ": " + st.note : "") + (trace.reason ? " (reason code `" + trace.reason + "`)." : ".");
+    const lead = trace.disposition === "held" && trace.awaiting ? "Held, waiting on " + (trace.awaiting === "owner" ? "the owner" : "a second signal") + ". " : "";
+    return lead + "The gate " + what + " at step " + n + ", " + window.Gate.STEPS[st.id].label + (st.note ? ": " + st.note : "") + (trace.reason ? " (reason code `" + trace.reason + "`)." : ".");
+  }
+  /* why one predicted part came out as it did, read from the field and the step that set it, so a wrong part is explained by its own cause */
+  function partWhy(dim, t) {
+    const at = (id) => t.steps.find((s) => s.id === id), num = (id) => STEP_ORDER.indexOf(id) + 1, lab = (id) => window.Gate.STEPS[id].label;
+    const stoppedBefore = (id) => !at(id) ? "The message stopped at step " + num(t.decisiveStep) + ", " + lab(t.decisiveStep) + ", before step " + num(id) + " reads it." : null;
+    const said = (id) => { const st = at(id); return "Step " + num(id) + ", " + lab(id) + (st && st.note ? ": " + st.note : "") + "."; };
+    switch (dim) {
+      case "tier": return stoppedBefore("effect") || said("effect") + (at("sensor") && at("sensor").note && /T\d/.test(at("sensor").note) ? " " + said("sensor") : "");
+      case "reason": return t.reason ? "Step " + num(t.decisiveStep) + ", " + lab(t.decisiveStep) + ", returned `" + t.reason + "`." : "No step returned a code: codes come with a refusal or a hold.";
+      case "decisiveStep": return said(t.decisiveStep);
+      case "standing": return stoppedBefore("standing") || said("standing");
+      case "answerScope": return stoppedBefore("release") || (t.disposition === "admitted" ? said("release") : "Only an admitted request is answered.");
+      case "awaiting": return t.disposition === "held" ? said(t.decisiveStep) : "Only a held message waits on anyone; this one was " + (t.disposition || "logged only") + ".";
+      case "admittedAs": return t.disposition !== "admitted" ? "Only an admitted message enters memory." : "The act decides it: an `assert` enters as a fact only with evidence a reader can check, otherwise as a claim; a `request` as a proposal; a `commit` as a commitment.";
+      case "receiptOwed":
+        if (t.disposition == null) return "A message with no disposition gets no receipt.";
+        if (t.ackDeferred) return "An admitted message is acknowledged cumulatively, inside the next message to its sender, so nothing goes back now.";
+        if (t.disposition === "admitted") return "With cumulative acknowledgement off, an admitted message gets its receipt at once.";
+        if (t.reason === "rate") return "Past the rate limit, one refusal receipt goes back at the limit and then nothing.";
+        return t.receiptOwed ? "A verified sender gets a receipt for a " + t.disposition + " message at once." : "Receipts never earn receipts.";
+      default: return "";
+    }
   }
 
   const CTX_LABEL = { standing: "standing", holdsToday: "holds today", rateToday: "messages today", acceptedContracts: "accepted contract", seenIds: "seen ids", expiredBodies: "expired bodies", paused: "pause", shareable: "shareable data", ownerSigned: "owner signed", secondSignals: "second signals", capabilities: "capabilities", ceiling: "urgency ceiling", interruptsThisWeek: "interrupts this week", trustRoot: "trust root", now: "receiver clock", measurements: "named measurements", contractEffects: "contract effects" };
@@ -595,18 +632,18 @@
   const REASONS = () => (M.groups.find((g) => g.id === "reasons") || { items: [] }).items.map((i) => i.name);
   const DIMS = {
     disposition: { label: "Disposition", opts: () => [["admitted"], ["held"], ["refused"], ["expired"], [null, "no disposition · logged only"]], get: (t) => t.disposition, chip: true },
-    tier: { label: "Tier", opts: () => ["T0", "T1", "T2", "T3", "T4"].map((x) => [x]).concat([[null, "no tier: stops before step 16"]]), get: (t) => (t.steps && t.steps.some((s) => s.id === "effect") ? t.tier : null) },
+    tier: { label: "Tier", opts: () => ["T0", "T1", "T2", "T3", "T4"].map((x) => [x]).concat([[null, "not read: stops before step 16"]]), get: (t) => (t.steps && t.steps.some((s) => s.id === "effect") ? t.tier : null) },
     reason: { label: "Reason code", select: true, opts: () => [[null, "none"]].concat(REASONS().map((r) => [r])), get: (t) => t.reason || null },
     decisiveStep: { label: "Deciding step", select: true, opts: () => STEP_ORDER.map((id, n) => [id, (n + 1) + " · " + window.Gate.STEPS[id].label]), get: (t) => t.decisiveStep },
     receiptOwed: { label: "A receipt now?", opts: () => [[true, "yes, a receipt is owed"], [false, "no receipt now"]], get: (t) => !!t.receiptOwed },
     admittedAs: { label: "Enters as", opts: () => [["fact"], ["claim"], ["proposal"], ["commitment"], ["declaration"], [null, "nothing: not admitted"]], get: (t) => t.admittedAs || null },
-    standing: { label: "Standing", opts: () => ["S0", "S1", "S2", "S3"].map((x) => [x]), get: (t) => t.standing },
+    standing: { label: "Standing", opts: () => ["S0", "S1", "S2", "S3"].map((x) => [x]).concat([[null, "not read: stops before step 18"]]), get: (t) => (t.steps && t.steps.some((s) => s.id === "standing") ? t.standing : null) },
     awaiting: { label: "Waiting on", opts: () => [["owner", "the owner"], ["second-signal", "a second signal"], [null, "nothing: not held"]], get: (t) => t.awaiting || null },
     answerScope: { label: "Answered by", opts: () => [["shareable", "a quarantined run"], ["privileged", "the privileged agent"], [null, "nobody: not a request"]], get: (t) => t.answerScope || null },
     page: { label: "Page the owner?", opts: () => [[true, "pages the owner"], [false, "no page"]], get: (p) => !!p.page },
     level: { label: "Delivered at", opts: () => [["cycle"], ["prompt"], ["interrupt"]], get: (p) => p.level }
   };
-  const showVal = (dim, v) => { const o = DIMS[dim].opts().find((x) => x[0] === v); return o ? (o[1] || String(o[0])) : String(v); };
+  const showVal = (dim, v) => { const o = DIMS[dim].opts().find((x) => x[0] === v); return o ? (o[1] || String(o[0])) : v == null ? "nothing" : String(v); };
 
   B.gate = (b, ctx, i) => {
     const key = blockKey(ctx, i);
@@ -618,6 +655,7 @@
     const cases = [{ label: b.presetLabel || "The clean case", change: {}, expect: b.expect, explain: b.explain }].concat(b.variants || []);
     const editable = b.editable === "wire" || goals.length > 0;
     let ci = 0, pred = {}, editedWire = null, rehash = true, knobState = {};
+    let goalTries = 0, solutionNote = null; const shown = new Set(); // "Show one way" appears after a run that missed; a goal reached from a shown solution is recorded as shown, never as made
     const answers = store.get("answers", {});
     const caseBar = h("div", { class: "cases", role: "tablist" });
     const msgBox = h("div", { class: "lab-msg" });
@@ -649,13 +687,20 @@
       if (!goals.length) return;
       goalBox.appendChild(h("div", { class: "lab-k" }, "Make the gate do this"));
       goals.forEach((g, gi) => {
-        const done = !!(answers[key + ":goal:" + gi] && answers[key + ":goal:" + gi].ok);
-        const show = g.solution && !done ? h("button", { type: "button", class: "btn ghost small", onclick: () => {
+        const rec = answers[key + ":goal:" + gi], done = !!(rec && rec.ok), wasShown = !!(rec && rec.kind === "shown");
+        const show = g.solution && !rec && goalTries > 0 && !shown.has(gi) ? h("button", { type: "button", class: "btn ghost small", onclick: () => {
+          const before = currentBuild();
           const sol = S.build(S.merge(descriptor(), g.solution));
           editedWire = S.toWire(sol.msg); if (g.solution.params) Object.assign(knobState, g.solution.params);
-          renderCase(); editedWire = editedWire || null;
+          shown.add(gi);
+          const bh = before.msg ? before.msg.header : {}, sh = sol.msg.header;
+          const changed = Object.keys(Object.assign({}, bh, sh)).filter((k) => k !== "body" && JSON.stringify(bh[k]) !== JSON.stringify(sh[k]));
+          if (sol.msg.bodyText !== (before.msg && before.msg.bodyText)) changed.push("the body");
+          const knobs = g.solution.params ? Object.keys(g.solution.params) : [];
+          solutionNote = "One way: " + [changed.length ? "changed " + changed.map((k) => k === "the body" ? k : "`" + k + "`").join(", ") : "", knobs.length ? "set the knob " + knobs.map((k) => "`" + k + "`").join(", ") : ""].filter(Boolean).join("; ") + ". Run it to see the gate's answer; a goal reached this way counts as shown.";
+          renderCase();
         } }, "Show one way") : null;
-        goalBox.appendChild(h("div", { class: "goal" + (done ? " done" : "") }, h("span", { class: "goal-box", "aria-hidden": "true" }, done ? "✓" : ""), h("span", null, inline(g.text)), show));
+        goalBox.appendChild(h("div", { class: "goal" + (done ? " done" : wasShown ? " shown" : "") }, h("span", { class: "goal-box", "aria-hidden": "true" }, done ? "✓" : wasShown ? "·" : ""), h("span", null, inline(g.text), wasShown ? h("span", { class: "muted small" }, " · shown") : null), show));
       });
     }
     function renderPredict() {
@@ -685,7 +730,7 @@
     function renderCase() {
       caseBar.textContent = "";
       cases.forEach((c, j) => caseBar.appendChild(h("button", { type: "button", role: "tab", class: "case" + (j === ci ? " on" : "") + (answers[key + ":" + j] ? (answers[key + ":" + j].ok ? " got" : " miss") : ""), "aria-selected": j === ci ? "true" : "false",
-        onclick: () => { ci = j; editedWire = null; pred = {}; knobState = {}; renderCase(); } }, inline(c.label))));
+        onclick: () => { ci = j; editedWire = null; pred = {}; knobState = {}; solutionNote = null; renderCase(); } }, inline(c.label))));
       const built = currentBuild();
       msgBox.textContent = "";
       const wireText = editedWire != null ? editedWire : S.toWire(built.msg);
@@ -693,12 +738,13 @@
       if (editable) {
         const ta = h("textarea", { class: "wire-edit", rows: Math.min(18, wireText.split("\n").length + 1), spellcheck: "false", "aria-label": "Edit the message" });
         ta.value = wireText;
-        ta.addEventListener("input", () => { editedWire = ta.value; resultBox.textContent = ""; });
+        ta.addEventListener("input", () => { editedWire = ta.value; resultBox.textContent = ""; solutionNote = null; });
         const cb = h("input", { type: "checkbox", id: key + "-rh" }); cb.checked = rehash;
         cb.addEventListener("change", () => { rehash = cb.checked; });
         msgBox.appendChild(ta);
         msgBox.appendChild(h("div", { class: "row small" }, h("label", { class: "switch", for: key + "-rh" }, cb, h("span", null, "Recompute the body hash when I edit")),
-          h("button", { type: "button", class: "btn ghost small", onclick: () => { editedWire = null; renderCase(); } }, "Reset")));
+          h("button", { type: "button", class: "btn ghost small", onclick: () => { editedWire = null; knobState = {}; solutionNote = null; renderCase(); } }, "Reset")));
+        if (solutionNote) msgBox.appendChild(h("div", { class: "diff-note" }, inline(solutionNote)));
       } else msgBox.appendChild(wireView(wireText, cases[ci].mark, ci > 0 ? caseDiff(built) : null));
       if (ci > 0 && !editable) { const df = caseDiff(built); const note = [df.keys.size ? "changed: " + [...df.keys].join(", ") : "", df.removed.length ? "removed: " + df.removed.join(", ") : "", df.body ? "the body" : "", df.msg.length ? df.msg.join(", ") : ""].filter(Boolean).join(" · "); if (note) msgBox.appendChild(h("div", { class: "diff-note" }, "Against the clean case, " + note + ".")); }
       const extras = [];
@@ -749,13 +795,17 @@
       [...caseBar.children][ci].classList.add(answers[k].ok ? "got" : "miss");
     }
     function checkGoals(get) {
-      const made = [];
+      const made = [], seen = [];
       goals.forEach((g, gi) => {
         const k = key + ":goal:" + gi;
-        if (answers[k] && answers[k].ok) return;
-        if (!S.check(isPage ? { page: get } : { trace: get }, g.want || {}).length && tinkered()) { answers[k] = { ok: true, kind: "make" }; store.mark("answers", k, answers[k]); made.push(g); }
+        if (answers[k]) return;
+        if (!S.check(isPage ? { page: get } : { trace: get }, g.want || {}).length && tinkered()) {
+          answers[k] = shown.has(gi) ? { ok: false, kind: "shown" } : { ok: true, kind: "make" };
+          store.mark("answers", k, answers[k]); (shown.has(gi) ? seen : made).push(g);
+        }
       });
-      return made;
+      if (goals.some((g, gi) => !answers[key + ":goal:" + gi])) goalTries++;
+      return { made, seen };
     }
     function run(withPrediction) {
       const built = currentBuild();
@@ -765,13 +815,15 @@
       const out = isPage ? window.Gate.pageDecision(built.msg, built.ctx, built.params) : window.Gate.evaluate(built.msg, built.ctx, built.params);
       if (withPrediction && dims.length) {
         const sc = scorePrediction(out);
-        const lines = sc.wrong.map((d) => DIMS[d].label + ": you said " + showVal(d, pred[d]) + "; the answer is " + showVal(d, DIMS[d].get(out)) + ".");
-        resultBox.appendChild(verdict(sc.ok, sc.ok ? (dims.length > 1 ? "Every part of your prediction holds. " : "") + (isPage ? out.note + "." : whyLine(out)) : lines.join(" ") + " " + (isPage ? "Why: " + out.note + "." : whyLine(out))));
+        const lines = sc.wrong.map((d) => DIMS[d].label.replace(/\?$/, "") + ": you said " + showVal(d, pred[d]) + "; it is " + showVal(d, DIMS[d].get(out)) + "." + (isPage || d === "disposition" ? "" : " " + partWhy(d, out)));
+        const whole = isPage ? "Why: " + out.note + "." : (sc.wrong.includes("disposition") || sc.wrong.length === 0 ? whyLine(out) : "");
+        resultBox.appendChild(verdict(sc.ok, sc.ok ? (dims.length > 1 ? "Every part of your prediction holds. " : "") + (isPage ? out.note + "." : whyLine(out)) : [lines.join(" "), whole, c.whyNot || ""].filter(Boolean).join(" ")));
         recordCase(sc.ok);
       }
-      const made = checkGoals(out);
+      const { made, seen } = checkGoals(out);
       made.forEach((g) => resultBox.appendChild(h("div", { class: "fb ok" }, h("b", null, "Made it. "), inline(g.text))));
-      if (goals.length && !made.length && tinkered()) {
+      seen.forEach((g) => resultBox.appendChild(h("div", { class: "fb no" }, h("b", null, "Shown. "), inline(g.text), " The gate agrees with the shown edit; the goal is marked shown, not made.")));
+      if (goals.length && !made.length && !seen.length && tinkered()) {
         const open = goals.filter((g, gi) => !(answers[key + ":goal:" + gi] && answers[key + ":goal:" + gi].ok));
         if (open.length) resultBox.appendChild(h("div", { class: "fb no" }, h("b", null, "Not yet. "), isPage ? out.note : whyLine(out)));
       }
