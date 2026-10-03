@@ -207,4 +207,4 @@ The working paper (draft 0.2) is linked from the footer and from every `P§` ref
 
 ## Images
 
-The hero is a generated image of a membrane with five envelopes, with the project's typefaces and disposition colours set over it. Its source is `docs/readme/hero-src/hero.html`, which also says how to render it. The rest are screenshots of this repository running, with no mock data.
+The hero is a generated image of a membrane with five envelopes, with the project's typefaces and disposition colours set over it. Its source is `docs/readme/hero-src/hero.html`, which also says how to render it. The rest are screenshots and a screen recording of this repository running in dark mode, with no mock data. The recording plays at 1.6 times the Playground's 1× speed.

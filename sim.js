@@ -532,7 +532,7 @@
     D.svg = svg("svg", { viewBox: "0 0 640 380", class: "sim-svg", role: "img", "aria-label": "Simulation stage" });
     ["links", "membranes", "nodes", "overlay", "env"].forEach((k) => { D[k] = svg("g", { class: "sim-" + k }, D.svg); });
     if (window.ResizeObserver) new ResizeObserver(updateLabelScale).observe(D.svg);
-    D.stage = h("figure", { class: "sim-stage card" }, D.svg, D.stageNote = h("figcaption", { class: "sim-stage-note muted" }, ""));
+    D.stage = h("figure", { class: "sim-stage card night" }, D.svg, D.stageNote = h("figcaption", { class: "sim-stage-note muted" }, ""));
     D.strip = h("div", { class: "sim-strip", "aria-label": "Gate steps for the latest message" });
     D.shows = h("div", { class: "sim-shows" });
 
@@ -862,18 +862,19 @@
     let a = S.pool.find((x) => x.free);
     if (!a) {
       if (S.pool.length >= MAX_ENV) return null;
+      const trail = svg("path", { class: "sim-trail", fill: "none", "stroke-width": 1.3, "stroke-linecap": "round", "stroke-dasharray": "0.6 4.4" }, S.dom.env);
       const g = svg("g", { class: "sim-env" }, S.dom.env);
       const inner = svg("g", {}, g);
       const env = Gl.envelope(inner, { x: 0, y: 0, w: 26, h: 18, state: "sent" });
       const dots = svg("g", { class: "sim-dots" }, g);
       const label = svg("text", { y: 25, "text-anchor": "middle", "font-family": "var(--mono)", "font-size": 9.5, fill: "var(--ink-2)" }, g);
-      a = { g, inner, env, dots, label };
+      a = { g, inner, env, dots, label, trail };
       S.pool.push(a);
     }
-    a.free = false; a.g.style.display = ""; a.g.setAttribute("opacity", 1); a.inner.setAttribute("transform", ""); a.label.textContent = ""; a.dots.textContent = ""; a.env.setState("sent");
+    a.free = false; a.trail.setAttribute("d", ""); a.trail.setAttribute("opacity", .9); a.trail.style.color = "var(--ink-3)"; a.trail.style.display = ""; a.g.style.display = ""; a.g.setAttribute("opacity", 1); a.inner.setAttribute("transform", ""); a.label.textContent = ""; a.dots.textContent = ""; a.env.setState("sent");
     return a;
   }
-  function freeEnv(p) { p.free = true; p.g.style.display = "none"; }
+  function freeEnv(p) { p.free = true; p.g.style.display = "none"; if (p.trail) p.trail.style.display = "none"; }
   function clearAnims() { S.anims.forEach((a) => a.p && freeEnv(a.p)); S.anims = []; S.stripAnim = null; }
   const ease = (x) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
   const COLOR = { admitted: "--admitted", held: "--held", refused: "--refused", expired: "--expired", logged: "--ink-3", duplicate: "--ink-3", dropped: "--ink-3", unread: "--ink-3" };
@@ -931,6 +932,7 @@
         const tt = g.t0 + (g.t1 - g.t0) * k;
         const pt = g.q(tt);
         p.g.setAttribute("transform", `translate(${pt.x},${pt.y})`);
+        { let d = ""; for (let i = 0; i <= 14; i++) { const s = g.q(g.t0 + (tt - g.t0) * (i / 14)); d += (i ? "L" : "M") + s.x.toFixed(1) + "," + s.y.toFixed(1); } p.trail.setAttribute("d", d); } // the path it has flown, as a dotted wake
         if (v.outcome === "dropped" && k > .5) { p.g.setAttribute("opacity", Math.max(0, 1 - (k - .5) * 2)); p.label.textContent = "lost"; }
         return true;
       }
@@ -948,11 +950,12 @@
           a.stage = 2; paintDots(a, a.n); if (S.stripAnim === a) setStrip(v, Infinity);
           flashMembrane(v.to, false);
           const st = v.outcome;
-          if (DISP.includes(st)) p.env.setState(st);
+          if (DISP.includes(st)) { p.env.setState(st); p.trail.style.color = `var(${COLOR[st] || "--ink-3"})`; }
           p.label.textContent = st === "refused" || st === "held" ? v.trace.reason || st : st === "admitted" ? "" : st;
           p.label.setAttribute("fill", `var(${COLOR[st] || "--ink-3"})`);
           renderNodes();
         }
+        p.trail.setAttribute("opacity", Math.max(0, .9 * (1 - q)));
         const B = S.pos[v.to], A = S.pos[v.from];
         let x = stop.x, y = stop.y, sc = 1, op = 1;
         if (v.outcome === "admitted") { x = stop.x + (B.x - stop.x) * k; y = stop.y + (B.y - stop.y) * k; sc = 1 - .7 * k; op = q < .7 ? 1 : 1 - (q - .7) / .3; }
@@ -973,7 +976,7 @@
     const steps = a.v.trace.steps; const dots = a.p.dots.children;
     for (let i = 0; i < dots.length; i++) {
       let fill = "var(--rule-strong)";
-      if (i < k) fill = steps[i].ok === true ? "var(--accent)" : steps[i].ok === "flag" ? "var(--lipid)" : `var(${COLOR[a.v.outcome] || "--ink-3"})`;
+      if (i < k) fill = steps[i].ok === true ? "var(--accent)" : steps[i].ok === "flag" ? "var(--held)" : `var(${COLOR[a.v.outcome] || "--ink-3"})`;
       dots[i].setAttribute("fill", fill);
     }
   }
