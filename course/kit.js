@@ -388,11 +388,14 @@
 
   /* machine */
   B.machine = (b, ctx, i) => {
-    const vertical = window.innerWidth < 640; // on a phone the graph turns on its side so labels keep their size
-    const W = vertical ? 380 : 640, H = vertical ? 600 : 340, PAD = vertical ? 60 : 46;
+    const narrow = window.innerWidth < 640; // on a phone the graph becomes an ordered list of states; the transition buttons carry the edges
+    const W = 640, H = 340, PAD = 46;
     const states = b.states || [], edges = b.edges || [];
-    const pos = vertical ? (s) => ({ x: PAD + (s.y / 100) * (W - 2 * PAD), y: PAD * 0.6 + (s.x / 100) * (H - 1.2 * PAD) }) : (s) => ({ x: PAD + (s.x / 100) * (W - 2 * PAD), y: PAD * 0.7 + (s.y / 100) * (H - 1.4 * PAD) });
-    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, class: "machine-svg" + (vertical ? " vertical" : ""), role: "img", "aria-label": b.title || "State machine" });
+    const pos = (s) => ({ x: PAD + (s.x / 100) * (W - 2 * PAD), y: PAD * 0.7 + (s.y / 100) * (H - 1.4 * PAD) });
+    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, class: "machine-svg", role: "img", "aria-label": b.title || "State machine" });
+    const KIND_ORDER = { start: 0, active: 1, interrupted: 2, terminal: 3 };
+    const listEl = h("ol", { class: "m-list", "aria-label": "States" }, states.slice().sort((a, c) => (KIND_ORDER[a.kind] ?? 1) - (KIND_ORDER[c.kind] ?? 1) || a.x - c.x || a.y - c.y).map((st) =>
+      h("li", { class: "m-item k-" + (st.kind || "active"), dataset: { id: st.id } }, h("span", { class: "m-item-l" }, st.label || st.id), h("span", { class: "m-item-k" }, st.kind === "terminal" ? "terminal" : st.kind === "interrupted" ? "waits" : st.kind === "start" ? "start" : ""))));
     const defs = svgEl("defs", {}, svg);
     const mk = svgEl("marker", { id: "arr-" + i, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs);
     svgEl("path", { d: "M0,0 L10,5 L0,10 z", fill: "var(--ink-3)" }, mk);
@@ -430,6 +433,7 @@
     const note = h("div", { class: "m-note", "aria-live": "polite" });
     function render() {
       Object.entries(nodeG).forEach(([id, g]) => { g.classList.toggle("cur", id === cur); g.classList.toggle("seen", trail.includes(id) && id !== cur); });
+      [...listEl.children].forEach((li) => { li.classList.toggle("cur", li.dataset.id === cur); li.classList.toggle("seen", trail.includes(li.dataset.id) && li.dataset.id !== cur); });
       edgeG.forEach(({ e, g }) => g.classList.toggle("live", e.from === cur));
       const s = states.find((x) => x.id === cur);
       note.textContent = "";
@@ -442,7 +446,7 @@
     }
     render();
     return h("div", { class: "cx-check machine" }, h("div", { class: "check-k" }, inline(b.title || "State machine")), b.prompt ? h("div", { class: "check-q" }, inline(b.prompt)) : null,
-      h("div", { class: "scroll" }, svg), note, choices, b.caption ? h("div", { class: "cap" }, inline(b.caption)) : null);
+      narrow ? listEl : h("div", { class: "scroll" }, svg), note, choices, b.caption ? h("div", { class: "cap" }, inline(b.caption)) : null);
   };
 
   /* widgets and figures */

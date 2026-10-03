@@ -230,7 +230,7 @@
         (L.objectives || []).length ? h("div", { class: "objectives" }, h("h4", null, "You will be able to"), h("ul", null, L.objectives.map((o) => h("li", null, inline(o))))) : null),
       body,
       h("footer", { class: "lesson-foot" },
-        h("div", { class: "row" }, finish, (L.stamps || []).length ? h("span", { class: "muted small" }, "Stamps ", (L.stamps || []).map((f) => h("code", null, f)), " on the envelope") : null),
+        h("div", { class: "row" }, finish, (L.stamps || []).length ? h("span", { class: "muted small stamps-line" }, "Stamps ", (L.stamps || []).map((f, j) => [j ? " " : "", h("code", null, f)]), " on the envelope") : null),
         h("nav", { class: "pn", "aria-label": "Lesson navigation" },
           prev ? h("a", { class: "pn-prev", href: "#" + prev.id }, h("span", { class: "muted" }, "Previous"), h("span", null, prev.title)) : h("span"),
           (nextCore || next) ? h("a", { class: "pn-next", href: "#" + (nextCore || next).id, onclick: () => { store.mark("done", L.id, true); } }, h("span", { class: "muted" }, "Next"), h("span", null, (nextCore || next).title)) : h("span"))));

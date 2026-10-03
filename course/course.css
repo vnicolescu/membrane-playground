@@ -586,3 +586,13 @@ a.btn{text-decoration:none}
 .hero .hero-svg{overflow:visible}
 .wire .wl.mark{padding-left:calc(16px + 2ch)}
 .dockwire .wl.fresh{padding-left:calc(14px + 2ch)}
+.stamps-line{min-width:0;flex:1 1 220px}
+.m-list{list-style:none;margin:0 0 6px;padding:0;display:flex;flex-wrap:wrap;gap:5px}
+.m-item{display:inline-flex;align-items:baseline;gap:6px;font-family:var(--mono);font-size:11.5px;padding:5px 9px;border-radius:99px;border:1.2px solid var(--rule-strong);color:var(--ink-2);background:var(--surface)}
+.m-item.k-terminal{border-radius:4px;background:var(--surface-2)}
+.m-item.k-interrupted{border-color:var(--held);background:var(--held-bg)}
+.m-item.k-start{border-style:dashed}
+.m-item-k{font-size:10px;color:var(--ink-3)}
+.m-item.seen{border-color:var(--accent-2)}
+.m-item.cur{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.m-item.cur .m-item-k{color:var(--on-accent)}
