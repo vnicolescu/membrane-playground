@@ -596,3 +596,6 @@ a.btn{text-decoration:none}
 .m-item.seen{border-color:var(--accent-2)}
 .m-item.cur{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .m-item.cur .m-item-k{color:var(--on-accent)}
+/* inline code wraps anywhere inside a lesson (sort items, options, buckets, cells); wire and code blocks wrap and keep their highlight bleed inside */
+.lesson code{white-space:normal;overflow-wrap:anywhere}
+.wire,.code{overflow-x:hidden}
