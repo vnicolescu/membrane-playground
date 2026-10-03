@@ -80,7 +80,7 @@
     },
     alert: {
       header: { membrane: 0, id: "hermes-20260922-31f0c8e2a9b74d15", from: "hermes", to: ["brainboi"], act: "assert", form: "alert", at: "2026-09-22T09:50:00Z",
-        expires: "2026-09-22T21:50:00Z", evidence: "measured", urgency: "immediate", severity: "severe", certainty: "observed", body: "$body" },
+        expires: "2026-09-22T21:50:00Z", evidence: "measured", measurement: "push-probe", urgency: "immediate", severity: "severe", certainty: "observed", body: "$body" },
       body: "The shared pilot remote rejected two pushes in a row; lanes may be stale.\n",
       msg: {}
     }
