@@ -48,8 +48,10 @@
 }
 .sim-stage-note{font-size:12px;line-height:1.45;padding:2px 8px 0;margin:0}
 .sim-membrane{transition:filter .2s var(--ease)}
-.sim-membrane.is-active{filter:drop-shadow(0 0 3px var(--lipid)) drop-shadow(0 0 1px var(--lipid))}
+.sim-membrane.is-active{filter:drop-shadow(0 0 4px var(--lipid)) brightness(1.25)}
 .sim-env{will-change:transform}
+.sim-trail{stroke:currentColor;transition:color .25s var(--ease)}
+.night .sim-trail{filter:drop-shadow(0 0 2px currentColor)}
 
 /* ---- gate step strip ---- */
 .sim-strip{background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius);padding:10px 14px;min-height:64px}
@@ -62,7 +64,7 @@
 .sim-st{font-family:var(--mono);font-size:10.5px;line-height:1;padding:4px 6px;border-radius:5px;background:var(--surface-2);color:var(--ink-3);border:1px solid transparent;transition:background .15s var(--ease),color .15s var(--ease)}
 .sim-st.is-skip{background:transparent;border:1px dashed var(--rule-strong);color:var(--ink-3)}
 .sim-st-skip{margin-left:3px}
-.sim-st.is-flag{background:var(--lipid-soft);color:var(--ink-2);border-color:var(--lipid)}
+.sim-st.is-flag{background:var(--held-bg);color:var(--ink-2);border-color:var(--held)}
 .sim-st.is-ok{background:var(--accent-soft);color:var(--accent)}
 .sim-st.is-now{border-color:var(--accent)}
 .sim-steps[data-outcome="refused"] .sim-st.is-fail{background:var(--refused-bg);color:var(--refused)}

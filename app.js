@@ -767,7 +767,7 @@
       GROUPS.get("dispositions").items.map((d) => h("button", { class: "d " + d.name, type: "button", title: d.def, onclick: () => openItemDrawer(d) }, d.name)));
     playBtn.hidden = REDUCED;
     const bar = h("div", { class: "stage-bar" }, playBtn, dots, legend);
-    const el = h("figure", { class: "stage" }, svg, cap, bar);
+    const el = h("figure", { class: "stage night" }, svg, cap, bar);
 
     STEPS.forEach((s, i) => dots.appendChild(h("button", { type: "button", "aria-label": `Step ${i + 1}: ${s.title}`, title: s.title, onclick: () => jump(i) }, String(i + 1))));
 

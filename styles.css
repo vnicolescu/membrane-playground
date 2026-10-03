@@ -4,7 +4,7 @@
   --ground:#f3f5f4; --surface:#ffffff; --surface-2:#eaefec; --surface-3:#dfe6e2;
   --ink:#111a17; --ink-2:#44514c; --ink-3:#5a6762; --rule:#d5ddd9; --rule-strong:#b9c4bf;
   --accent:#0e5a62; --accent-2:#137a84; --accent-soft:#d6e8e9; --on-accent:#ffffff;
-  --lipid:#c9853a; --lipid-soft:#f3e3cf; --lipid-ink:#80521a;
+  --lipid:#1f8f93; --lipid-soft:#d6eeee; --lipid-ink:#0e5a62; --lipid-hi:#ffffff; --env-flap:rgba(255,255,255,.28); --env-crease:rgba(17,26,23,.55); --glow:0;
   --sealed:#4f63a0; --held:#805406; --admitted:#276e44; --refused:#b3372e; --expired:#5a6461;
   --sealed-bg:#e3e7f3; --held-bg:#f5e9d3; --admitted-bg:#dff0e5; --refused-bg:#f6e0dd; --expired-bg:#e6e9e8;
   --shadow: 0 1px 2px rgba(17,26,23,.06), 0 8px 24px rgba(17,26,23,.06);
@@ -23,7 +23,7 @@
     --ground:#0b1110; --surface:#121a18; --surface-2:#18221f; --surface-3:#212c28;
     --ink:#e3ebe7; --ink-2:#aab7b2; --ink-3:#8d9a95; --rule:#26312d; --rule-strong:#35423d;
     --accent:#5fb5bb; --accent-2:#7ccad0; --accent-soft:#16373a; --on-accent:#08110f;
-    --lipid:#e0a55c; --lipid-soft:#3a2a15; --lipid-ink:#e0a55c;
+    --lipid:#6fd0cc; --lipid-soft:#12383a; --lipid-ink:#7ccad0; --lipid-hi:#e6fbf8; --env-flap:rgba(255,255,255,.2); --env-crease:rgba(8,14,13,.7); --glow:1;
     --sealed:#9aaae0; --held:#e2aa4e; --admitted:#6cc08f; --refused:#ee7d72; --expired:#9ba6a2;
     --sealed-bg:#1d2338; --held-bg:#33260f; --admitted-bg:#14301f; --refused-bg:#3a1c19; --expired-bg:#232b29;
     --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
@@ -34,7 +34,7 @@
   --ground:#0b1110; --surface:#121a18; --surface-2:#18221f; --surface-3:#212c28;
   --ink:#e3ebe7; --ink-2:#aab7b2; --ink-3:#8d9a95; --rule:#26312d; --rule-strong:#35423d;
   --accent:#5fb5bb; --accent-2:#7ccad0; --accent-soft:#16373a; --on-accent:#08110f;
-  --lipid:#e0a55c; --lipid-soft:#3a2a15; --lipid-ink:#e0a55c;
+  --lipid:#6fd0cc; --lipid-soft:#12383a; --lipid-ink:#7ccad0; --lipid-hi:#e6fbf8; --env-flap:rgba(255,255,255,.2); --env-crease:rgba(8,14,13,.7); --glow:1;
   --sealed:#9aaae0; --held:#e2aa4e; --admitted:#6cc08f; --refused:#ee7d72; --expired:#9ba6a2;
   --sealed-bg:#1d2338; --held-bg:#33260f; --admitted-bg:#14301f; --refused-bg:#3a1c19; --expired-bg:#232b29;
   --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
@@ -139,3 +139,32 @@ table.t tr:last-child td{border-bottom:0}
 .foot{max-width:var(--page-max);margin:0 auto;padding:24px var(--page-pad) 48px;font-size:12.5px;color:var(--ink-3);display:flex;gap:16px;flex-wrap:wrap;position:relative}
 .foot::before{content:"";position:absolute;top:0;left:var(--page-pad);right:var(--page-pad);border-top:1px solid var(--rule)}
 .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+
+/* ---- the night stage: the Abstract and Playground stages always render on the hero's dark ground, whatever the page theme ---- */
+.night{
+  color-scheme: dark;
+  --ground:#0b1110; --surface:#121a18; --surface-2:#18221f; --surface-3:#212c28;
+  --ink:#e3ebe7; --ink-2:#aab7b2; --ink-3:#8d9a95; --rule:#26312d; --rule-strong:#35423d;
+  --accent:#5fb5bb; --accent-2:#7ccad0; --accent-soft:#16373a; --on-accent:#08110f;
+  --lipid:#6fd0cc; --lipid-soft:#12383a; --lipid-ink:#7ccad0; --lipid-hi:#e6fbf8; --env-flap:rgba(255,255,255,.2); --env-crease:rgba(8,14,13,.7); --glow:1;
+  --sealed:#9aaae0; --held:#e2aa4e; --admitted:#6cc08f; --refused:#ee7d72; --expired:#9ba6a2;
+  --sealed-bg:#1d2338; --held-bg:#33260f; --admitted-bg:#14301f; --refused-bg:#3a1c19; --expired-bg:#232b29;
+  color:var(--ink);
+  background:
+    radial-gradient(60% 70% at 50% 42%, rgba(95,181,187,.10), transparent 70%),
+    radial-gradient(1px 1px at 12% 22%, rgba(111,208,204,.5), transparent 60%),
+    radial-gradient(1px 1px at 31% 71%, rgba(111,208,204,.35), transparent 60%),
+    radial-gradient(1.2px 1.2px at 58% 16%, rgba(111,208,204,.4), transparent 60%),
+    radial-gradient(1px 1px at 77% 63%, rgba(111,208,204,.45), transparent 60%),
+    radial-gradient(1.2px 1.2px at 90% 28%, rgba(111,208,204,.3), transparent 60%),
+    radial-gradient(1px 1px at 44% 88%, rgba(111,208,204,.3), transparent 60%),
+    #0b1110;
+  border-color:#1d2a27;
+  box-shadow: inset 0 0 120px rgba(0,0,0,.55), var(--shadow);
+}
+.night .glyph-bilayer{filter:drop-shadow(0 0 3px rgba(111,208,204,.55))}
+.night .glyph-envelope{filter:drop-shadow(0 0 5px currentColor)}
+.night .glyph-envelope[data-state="sent"]{filter:drop-shadow(0 0 3px rgba(227,235,231,.25))}
+.night .glyph-envelope[data-state="expired"]{filter:none;opacity:.8}
+.night .glyph-agent > circle:nth-of-type(2){filter:drop-shadow(0 0 6px rgba(111,208,204,.18))}
+@media (prefers-reduced-motion: reduce){ .night .glyph-bilayer,.night .glyph-envelope{filter:none} }
