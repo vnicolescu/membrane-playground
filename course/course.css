@@ -599,3 +599,9 @@ a.btn{text-decoration:none}
 /* inline code wraps anywhere inside a lesson (sort items, options, buckets, cells); wire and code blocks wrap and keep their highlight bleed inside */
 .lesson code{white-space:normal;overflow-wrap:anywhere}
 .wire,.code{overflow-x:hidden}
+.table-more{display:none}
+@media (max-width:560px){
+  .cx-fig:not(.expanded) .longtable tbody tr:nth-child(n+5){display:none}
+  .table-more{display:inline-flex;margin-top:6px}
+  .figscroll>.w-svg.tall{min-width:0}
+}

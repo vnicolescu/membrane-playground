@@ -53,8 +53,9 @@
 
   /* ---------- dispositions ---------- */
   C.widget("dispositions", () => {
-    const W = 680, H = 272;
-    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "w-svg", role: "img", "aria-label": "Dispositions: received, sealed, held, then admitted, refused or expired" });
+    const narrow = window.innerWidth < 640; // on a phone the flow runs top to bottom so all five endings show at rest
+    const W = narrow ? 360 : 680, H = narrow ? 540 : 272;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "w-svg" + (narrow ? " tall" : ""), role: "img", "aria-label": "Dispositions: received, sealed, held, then admitted, refused or expired" });
     const ex = explainer("Every message the gate accepts for handling is sealed, may be held, and ends in exactly one of admitted, refused or expired. Tap a state.");
     const N = {
       received: { x: 56, y: 118, s: "sent", say: "**Received.** The message has arrived in the transport. Nothing has read it yet." },
@@ -65,6 +66,8 @@
       refused: { x: 616, y: 118, s: "refused", say: "**{{disp.refused|refused}}.** Terminal, with a reason code from the registry and no prose. A reason in prose is a map for getting around the refusal [[P§6.1]]." },
       expired: { x: 616, y: 200, s: "expired", say: "**{{disp.expired|expired}}.** Held past its expiry. One honest resend under a new id is allowed; a third copy of the same body is refused with `expired-before`." }
     };
+    if (narrow) Object.assign(N.received, { x: 90, y: 44 }), Object.assign(N.logged, { x: 270, y: 44 }), Object.assign(N.sealed, { x: 90, y: 180 }), Object.assign(N.held, { x: 260, y: 300 }),
+      Object.assign(N.admitted, { x: 56, y: 470 }), Object.assign(N.refused, { x: 180, y: 470 }), Object.assign(N.expired, { x: 300, y: 470 });
     const edges = [["received", "sealed", "checks pass", -1], ["received", "logged", "unsigned or malformed", 1], ["sealed", "admitted", "low tier, released by the gate", -1], ["sealed", "refused", "a rule refuses", -1], ["sealed", "held", "needs the owner or a signal", 1], ["held", "admitted", "released", -1], ["held", "refused", "refused", 1], ["held", "expired", "clock runs out", 1]];
     const defs = el("defs", {}, svg);
     const mk = el("marker", { id: "dz-arr", viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs);
