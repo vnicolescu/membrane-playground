@@ -11,7 +11,7 @@ Course.lesson({
   ],
   summary: "Saltzer and Schroeder's 1975 principles (economy of mechanism, fail-safe defaults, complete mediation, open design, separation of privilege, least privilege, least common mechanism, psychological acceptability) each name a Membrane rule. Object capabilities make authority come only from references held, so a confused deputy cannot arise. Attenuable credentials (macaroons, Biscuit, UCAN) let a holder narrow a grant; MCP's audience binding forbids passing a received token upstream. Membrane's no-passthrough rule says authority received is not forwarded and delegation beyond one hop happens only if the contract names it. A T2 capability is a grant bound to its grantee that the gate checks at the reversible tier for peers at S2; brobber's vectors show it is not consumed by use, and propose single-use grants.",
   blocks: [
-    { t: "p", text: "Half a century before anyone wrote an agent, Saltzer and Schroeder wrote down eight principles for protecting information in a computer system. Every one of them names a rule in Membrane, and matching them is the fastest audit of the design this course can offer. The second half of the lesson is the capability model, which turns the confused deputy from the foundation into a solved problem." },
+    { t: "p", text: "Half a century before anyone wrote an agent, Saltzer and Schroeder wrote down eight principles for protecting information in a computer system. Every one of them names a rule in Membrane. The second half of the lesson is the capability model, which gives the confused deputy from the foundation a known shape and a known fix." },
     { t: "h", text: "Saltzer and Schroeder's principles" },
     { t: "table", head: ["Principle", "Saltzer and Schroeder", "In Membrane"], rows: [
       ["Economy of mechanism", "keep the design as simple and small as possible", "a waist the size of SMTP's core; seven invariants; a gate of 21 steps in one file"],
@@ -54,7 +54,7 @@ Course.lesson({
       { text: "Boundary effects need a second independent signal", bucket: "separation", why: "Two keys from sources that cannot produce each other." },
       { text: "The answering run has no memory loaded and no outbound channel", bucket: "least", why: "Only the authority the job needs." },
       { text: "The gate runs as a separate operating-system user", bucket: "common", why: "The agent and its gate share no mechanism the agent could subvert." },
-      { text: "Every message, including a resend, goes through all 21 steps", bucket: "mediation", why: "No access is grandfathered by an earlier approval." },
+      { text: "Every new message goes through every step; a resend gets the earlier verdict and causes nothing new", bucket: "mediation", why: "No access is grandfathered by an earlier approval; a resend asks for none." },
       { text: "Unknown peers start at S0", bucket: "failsafe", why: "A stranger is given nothing by default; permission is earned or granted." }
     ] },
     { t: "takeaways", items: [

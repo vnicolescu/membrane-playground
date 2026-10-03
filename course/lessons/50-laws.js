@@ -11,7 +11,7 @@ Course.lesson({
   ],
   summary: "Each of the nine laws was reached in at least two fields outside the paper before it was written down; the convergence is the evidence and the protocol consequence is what Membrane takes. L1 messages trigger without instructing; L2 the reader of hostile content holds no authority; L3 completion is declared by the other party; L4 the sender claims urgency and the receiver caps it; L5 absence is a signal; L6 consequential release needs two independent signals; L7 records are permanent and their weight forgets; L8 shape checks can be imitated; L9 format travels and meaning stays local. Immunology supplies presentation, missing self, danger over novelty, costimulation and named failure modes. The boundary agent's charter ranks four goals: protect the kernel, represent, probe, keep compatibility.",
   blocks: [
-    { t: "p", text: "Every rule in the last nine lessons traces to one of nine laws, and the paper's claim for them is specific: each was reached in at least two fields outside its own record before it appeared here [[P§2]]. Before the table, one question to carry: which law does the hold budget serve? It is a rule about owner attention, and none of the nine mentions attention. The sort at the end asks it." },
+    { t: "p", text: "Every rule in the last nine lessons traces to one of nine laws, and the paper's claim for them is specific: each was reached in at least two fields outside its own record before it appeared here [[P§2]]. Before the table, one question to carry: which law does the hold budget serve? Two answers are defensible. The sort at the end keys one, and its explanation names the other." },
     { t: "table", head: ["Law", "Fields that reached it", "Protocol consequence"], rows: [
       ["{{L1}}", "theoretical biology (structural determinism); sociology (Luhmann's irritation); cybernetics (Bateson's news of a difference); diplomacy (non-interference, Vienna Convention Art. 41); AI security (Dual LLM, CaMeL) and the confused deputy", "Inbound content carries no authority. A request is a proposal the receiver may re-issue inside its own boundary."],
       ["{{L2}}", "AI security (Dual LLM, CaMeL, FIDES); defence cross-domain engineering; formal integrity models (Biba); mail security (users may request release of quarantined malware and cannot release it themselves)", "A model may raise a hold. Only a deterministic gate or a named anchor releases."],
@@ -41,7 +41,17 @@ Course.lesson({
     ], caption: "From [[P§8.4]]." },
     { t: "callout", kind: "field", title: "A warning from the artificial immune systems", text: "Forrest and colleagues defined a process's self as its normal sequences of system calls (1996); mimicry attacks padded malicious sequences with harmless calls until they looked normal [[R5·F12]]. The original authors' retrospective records that per-installation diversity was adopted while graduated response and adaptability stayed controversial [[R5·F14]]. The paper's reading, offered as its own synthesis, is that shape-defined self was the weak point and the principles outlived the algorithms." },
     { t: "h", text: "The charter" },
-    { t: "p", text: "The seed list asked what a boundary agent is for. Sociology, diplomacy and biology agree on a fourth goal the list lacked: represent, which is to put approved fragments of the inside on the outside in a form others can read [[P§11]]. In rank order: protect the kernel; represent; probe; keep compatibility. The charter gives the agent seven authorities (check marks and return a disposition; refuse with a code and keep the reason text at home; hold until an anchor clears; raise a tier, with no power to lower one; start the escalation timer; redact outbound content to approved fragments; write the receipts owed) and forbids seven things:" },
+    { t: "p", text: "The seed list asked what a boundary agent is for. Sociology, diplomacy and biology agree on a fourth goal the list lacked: represent, which is to put approved fragments of the inside on the outside in a form others can read [[P§11]]. In rank order: protect the kernel; represent; probe; keep compatibility. The charter gives the agent seven authorities:" },
+    { t: "list", items: [
+      "check marks and return a disposition;",
+      "refuse with a code and keep the reason text at home;",
+      "hold until an anchor clears;",
+      "raise a tier, with no power to lower one;",
+      "start the escalation timer;",
+      "redact outbound content to approved fragments;",
+      "write the receipts owed."
+    ] },
+    { t: "p", text: "It forbids seven things:" },
     { t: "list", items: [
       "write to the kernel, or execute an inbound message as an instruction;",
       "accept a sender's claim of urgency as urgency;",
@@ -54,7 +64,7 @@ Course.lesson({
     { t: "p", text: "The sort below uses mechanisms from the earlier lessons; the law table above names none of them." },
     { t: "sort", prompt: "Nine Membrane mechanisms from the earlier lessons, none of them named in the law table above. Which law does each serve first? The hold budget from the opening question is among them.", buckets: [ { id: "L2", label: "L2 reader holds no authority" }, { id: "L3", label: "L3 the other party declares" }, { id: "L5", label: "L5 absence is a signal" }, { id: "L7", label: "L7 weight forgets" }, { id: "L8", label: "L8 shape can be imitated" }, { id: "L9", label: "L9 format travels" } ], items: [
       { text: "The sensor returns `{ impact, reach, asks_for_action, injection_suspected }` and may raise a tier or hold", bucket: "L2", why: "The one component that reads hostile prose can tighten and cannot release." },
-      { text: "Three holds per sender per day, then `hold-budget`", bucket: "L2", why: "The budget bounds what the hostile-text reader can cost the owner; it is the cost side of L2, since the sensor's holds spend attention." },
+      { text: "Three holds per sender per day, then `hold-budget`", bucket: "L2", why: "The budget bounds what the hostile-text reader can cost the owner; it is the cost side of L2, since the sensor's holds spend attention. L4 is the other defensible answer: the budget is a per-sender ceiling on attention." },
       { text: "A verdict receipt is judged only against the acceptance line written before the work", bucket: "L3", why: "Completion is the requester's declaration, against a criterion fixed in advance." },
       { text: "Rung R2 of the ladder probes the lease instead of resending the message", bucket: "L5", why: "Silence past a deadline has a name and a procedure; SWIM's suspicion." },
       { text: "A `missed` row for a scheduled run that never fired", bucket: "L5", why: "An absent message is written down as an event." },
