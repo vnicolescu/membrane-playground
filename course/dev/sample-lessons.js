@@ -32,6 +32,11 @@ Course.lesson({ id: "dev-blocks", part: "waist", title: "Every block", kicker: "
       variants: [{ label: "CR in the body", change: { body: "x\r\n" }, expect: { disposition: null, reason: "malformed" }, explain: "CR breaks the byte rules." },
         { label: "No effect", change: { unset: ["effect"] }, expect: { disposition: "held", reason: "awaiting-owner" } },
         { label: "Stranger", change: { ctx: { standing: { hermes: "S0" } } }, expect: { disposition: "held" } }] },
+    { t: "gate", title: "Two-part prediction", preset: {}, expect: { disposition: "admitted", tier: "T1" }, predict: ["disposition", "tier", "decisiveStep"],
+      variants: [{ label: "No effect", change: { unset: ["effect"] }, expect: { disposition: "held", tier: "T4" } }] },
+    { t: "gate", title: "Make it happen", predict: false, preset: {}, expect: { disposition: "admitted" }, knobs: ["holdBudget"],
+      goals: [{ text: "Make brainboi hold the ask for its owner.", want: { disposition: "held", awaiting: "owner" }, solution: { unset: ["effect"] } },
+        { text: "Make the gate log it and send nothing.", want: { disposition: null }, solution: { body: "x\r\n" } }] },
     { t: "takeaways", items: ["One.", "Two {{env.body}}."] },
     { t: "deeper", links: [{ ref: "P§4.1" }, { research: "R11" }, { scenario: "happy" }, { challenge: "g3" }, { href: "https://www.rfc-editor.org/rfc/rfc9413", label: "RFC 9413" }] },
     { t: "tutor", prompts: ["Why does a CR make a message malformed?"] }

@@ -458,3 +458,23 @@ button.wk{background:none;padding:0;text-decoration:none;border-bottom:1px dotte
 .af-t.d.refused{background:var(--refused);color:var(--surface)}
 .af-t.d.expired{background:var(--expired);color:var(--surface)}
 .af-legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--ink-3);margin-top:4px}
+
+/* ---- round-0 additions: predictions on several dimensions, goal mode, untaught steps, the dock's gate ---- */
+.predict-box{display:grid;gap:8px}
+.predict select{font-size:13px;padding:5px 8px;width:auto;max-width:100%}
+.pickopt{font:inherit;font-size:12.5px;padding:5px 10px;border-radius:99px;border:1.5px solid var(--rule-strong);background:var(--surface);color:var(--ink-2);cursor:pointer}
+.pickopt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.predict-l{min-width:110px}
+.goals{display:grid;gap:6px}
+.goals:empty{display:none}
+.goal{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 12px;border-radius:8px;background:var(--held-bg);font-size:14px}
+.goal.done{background:var(--admitted-bg)}
+.goal-box{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:5px;border:1.5px solid var(--held);color:var(--admitted);font-weight:700}
+.goal.done .goal-box{border-color:var(--admitted)}
+.cx-lab.goal-mode{border-color:var(--held)}
+.tr.later{opacity:.5}
+.tr.later .later-link{color:var(--ink-3);font-style:italic}
+.dock-gate{display:grid;gap:6px;margin-top:10px}
+.dock-steps{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.dstep{display:grid;place-items:center;height:22px;border-radius:4px;background:var(--surface-3);color:var(--ink-3);font-family:var(--mono);font-size:10px;text-decoration:none}
+.dstep.on{background:var(--lipid);color:var(--surface)}

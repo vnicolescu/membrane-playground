@@ -255,13 +255,14 @@
     const key = blockKey(ctx, i);
     const prior = (store.get("answers", {}))[key];
     const out = h("div", { class: "fbwrap" });
+    let firstOk = prior && prior.kind === "quiz" ? prior.ok : undefined; // the first attempt counts; later choices only show feedback
     const opts = (b.options || []).map((o, j) => h("button", { type: "button", class: "opt", onclick: () => choose(j) }, h("span", { class: "opt-l" }, String.fromCharCode(65 + j)), h("span", null, inline(o))));
     function choose(j, silent) {
       opts.forEach((btn, k) => { btn.classList.toggle("chosen", k === j); btn.classList.toggle("right", k === b.answer); btn.classList.toggle("wrong", k === j && j !== b.answer); btn.setAttribute("aria-pressed", k === j ? "true" : "false"); });
       out.textContent = "";
       const why = b.why && b.why[j] ? b.why[j] + " " : "";
       out.appendChild(verdict(j === b.answer, why + (b.explain || "")));
-      if (!silent) store.mark("answers", key, { ok: j === b.answer, choice: j, kind: "quiz" });
+      if (!silent) { if (firstOk === undefined) firstOk = j === b.answer; store.mark("answers", key, { ok: firstOk, choice: j, kind: "quiz" }); }
     }
     const el = h("div", { class: "cx-check quiz" }, h("div", { class: "check-k" }, "Check"), h("div", { class: "check-q" }, inline(b.q)), h("div", { class: "opts" }, opts), out);
     if (prior && prior.kind === "quiz") choose(prior.choice, true);
@@ -271,7 +272,7 @@
   /* sort */
   B.sort = (b, ctx, i) => {
     const key = blockKey(ctx, i);
-    let sel = null;
+    let sel = null, misses = 0;
     const placed = new Map();
     const fb = h("div", { class: "fbwrap" });
     const pool = h("div", { class: "sort-pool", "aria-label": "Items to place" });
@@ -293,11 +294,11 @@
       fb.textContent = "";
       fb.appendChild(verdict(ok, x.it.why || ""));
       if (ok) { placed.set(sel, bid); x.btn.classList.remove("sel"); x.btn.classList.add("done"); x.btn.disabled = true; bucketEls[bid].querySelector(".bucket-items").appendChild(x.btn); }
-      else { x.btn.classList.add("shake"); setTimeout(() => x.btn.classList.remove("shake"), 400); }
+      else { misses++; x.btn.classList.add("shake"); setTimeout(() => x.btn.classList.remove("shake"), 400); }
       sel = null;
       items.forEach((y) => y.btn.classList.remove("sel"));
       Object.values(bucketEls).forEach((bk) => bk.classList.remove("armed"));
-      if (placed.size === items.length) { fb.appendChild(h("div", { class: "fb ok" }, h("b", null, "All placed."))); store.mark("answers", key, { ok: true, kind: "sort" }); }
+      if (placed.size === items.length) { fb.appendChild(h("div", { class: "fb ok" }, h("b", null, "All placed. "), misses ? misses + (misses === 1 ? " item" : " items") + " needed a second try." : "First time, every one.")); const prev = store.get("answers", {})[key]; if (!prev) store.mark("answers", key, { ok: misses === 0, misses, kind: "sort" }); }
     }
     items.forEach((x) => pool.appendChild(x.btn));
     const buckets = h("div", { class: "sort-buckets", style: { "--n": (b.buckets || []).length } }, (b.buckets || []).map((bk) => {
@@ -413,14 +414,30 @@
 
   /* ---------- the gate lab ---------- */
   const STEP_ORDER = Object.keys(window.Gate.STEPS);
-  const DISP_OPTIONS = [
-    { v: "admitted", label: "admitted" }, { v: "held", label: "held" }, { v: "refused", label: "refused" },
-    { v: "expired", label: "expired" }, { v: null, label: "logged only" }
-  ];
   const dispClass = (d) => (d == null ? "logged" : d);
-  const dispName = (d) => (d == null ? "logged only" : d);
+  const dispName = (d) => (d == null ? "no disposition (logged only)" : d);
+  /* which lesson teaches each gate step: a lesson may list its own in `gateSteps`; this is the fallback */
+  const STEP_LESSON = { signature: "gatekeeper", lane: "gatekeeper", scope: "gatekeeper", syntax: "envelope", version: "envelope", addressed: "envelope", duplicate: "dispositions", clock: "envelope",
+    expiry: "dispositions", contract: "contracts", crit: "envelope", turn: "contracts", rate: "gatekeeper", paused: "gatekeeper", seal: "dispositions", effect: "effects", evidence: "evidence",
+    standing: "standing", sensor: "gatekeeper", budget: "gatekeeper", release: "effects" };
+  function teacherOfStep(id) {
+    const own = LESSONS.find((L) => (L.gateSteps || []).includes(id));
+    return own || LESSONS.find((L) => L.id === STEP_LESSON[id]) || null;
+  }
+  const coreIds = () => (Course.coreIds || LESSONS.map((L) => L.id));
+  /* a step is "later" for a reader on lesson `cur` when the lesson that teaches it comes after `cur` in the core and is not finished */
+  function stepLater(id, cur) {
+    if (!cur) return null;
+    const T = teacherOfStep(id); if (!T) return null;
+    const ids = coreIds(), ti = ids.indexOf(T.id), ci = ids.indexOf(cur.id);
+    if (ti < 0 || ci < 0 || ti <= ci) return null;
+    if ((store.get("done", {}))[T.id]) return null;
+    return { lesson: T, n: ti + 1 };
+  }
+  Course.teacherOfStep = teacherOfStep;
 
-  function traceView(trace) {
+  function traceView(trace, opts) {
+    const cur = opts && opts.lesson;
     const byId = new Map(trace.steps.map((s) => [s.id, s]));
     const decisive = trace.decisiveStep;
     const dc = dispClass(trace.disposition);
@@ -432,11 +449,13 @@
       const s = byId.get(id);
       const st = !s ? "skip" : s.id === decisive ? "dec" : s.ok === true ? "pass" : s.ok === "flag" ? "flag" : "fail";
       const icon = { skip: "·", dec: "◆", pass: "✓", flag: "⚑", fail: "✕" }[st];
+      const later = st !== "dec" ? stepLater(id, cur) : null;
       const ref = s && s.ref && itemFor(s.ref) ? term(s.ref, s.ref) : null;
-      return h("li", { class: "tr " + st + (st === "dec" ? " d-" + dc : ""), style: { "--i": n } },
+      return h("li", { class: "tr " + st + (st === "dec" ? " d-" + dc : "") + (later ? " later" : ""), style: { "--i": n } },
         h("span", { class: "tr-n num" }, n + 1), h("span", { class: "tr-i", "aria-hidden": "true" }, icon),
-        h("span", { class: "tr-l" }, window.Gate.STEPS[id].label), h("span", { class: "tr-note" }, s ? s.note || "" : "not reached"),
-        h("span", { class: "tr-ref" }, ref));
+        h("span", { class: "tr-l" }, window.Gate.STEPS[id].label),
+        h("span", { class: "tr-note" }, later ? h("a", { class: "later-link", href: "#" + later.lesson.id }, "taught in lesson " + later.n + " · " + later.lesson.title) : s ? s.note || "" : "not reached"),
+        h("span", { class: "tr-ref" }, later ? null : ref));
     }));
     if (!reduceMotion()) rows.classList.add("anim");
     return h("div", { class: "tracebox" }, bar, rows);
@@ -452,12 +471,21 @@
         trace.reason ? term("rc." + trace.reason, trace.reason) : null,
         h("span", { class: "res-tier" }, term("tier." + (trace.tier || "T0"), trace.tier || "T0"))),
       h("dl", { class: "res-kv" },
-        h("div", null, h("dt", null, "deciding step"), h("dd", null, trace.decisiveStep ? window.Gate.STEPS[trace.decisiveStep].label : "–")),
+        h("div", null, h("dt", null, "deciding step"), h("dd", null, trace.decisiveStep ? (STEP_ORDER.indexOf(trace.decisiveStep) + 1) + " · " + window.Gate.STEPS[trace.decisiveStep].label : "–")),
         trace.admittedAs ? h("div", null, h("dt", null, "enters as"), h("dd", null, trace.admittedAs)) : null,
         trace.awaiting ? h("div", null, h("dt", null, "waiting on"), h("dd", null, trace.awaiting === "owner" ? "the owner" : "a second independent signal")) : null,
         trace.answerScope ? h("div", null, h("dt", null, "answered by"), h("dd", null, trace.answerScope === "shareable" ? "a quarantined run over shareable data" : "the privileged agent, memory loaded")) : null,
         h("div", null, h("dt", null, "receipt"), h("dd", null, receipt))),
       trace.notes && trace.notes.length ? h("ul", { class: "res-notes" }, trace.notes.map((n) => h("li", { class: /FAILURE/.test(n) ? "bad" : "" }, n))) : null);
+  }
+
+  /* why the gate decided what it did, in one sentence built from the trace */
+  function whyLine(trace) {
+    const st = trace.steps.find((s) => s.id === trace.decisiveStep);
+    if (!st) return "";
+    const n = STEP_ORDER.indexOf(st.id) + 1;
+    const what = trace.disposition == null ? "logged it and sent nothing" : trace.disposition === "admitted" ? "admitted it" : trace.disposition === "held" ? "held it" : trace.disposition === "expired" ? "let it expire" : "refused it";
+    return "The gate " + what + " at step " + n + ", " + window.Gate.STEPS[st.id].label + (st.note ? ": " + st.note : "") + (trace.reason ? " (reason code `" + trace.reason + "`)." : ".");
   }
 
   const CTX_LABEL = { standing: "standing", holdsToday: "holds today", rateToday: "messages today", acceptedContracts: "accepted contract", seenIds: "seen ids", expiredBodies: "expired bodies", paused: "pause", shareable: "shareable data", ownerSigned: "owner signed", secondSignals: "second signals", capabilities: "capabilities", ceiling: "urgency ceiling", interruptsThisWeek: "interrupts this week", trustRoot: "trust root", now: "receiver clock", measurements: "named measurements", contractEffects: "contract effects" };
@@ -471,40 +499,63 @@
     return String(v);
   }
 
-  function knobControl(p, state, onchange) {
+  function knobControl(p, value, onchange) {
     const id = "k-" + p.id + "-" + Math.random().toString(36).slice(2, 7);
-    const val = state[p.id] !== undefined ? state[p.id] : p.def;
     if (p.type === "bool") {
-      const inp = h("input", { type: "checkbox", id, role: "switch" }); inp.checked = !!val;
-      inp.addEventListener("change", () => { state[p.id] = inp.checked; onchange(); });
+      const inp = h("input", { type: "checkbox", id, role: "switch" }); inp.checked = !!value;
+      inp.addEventListener("change", () => onchange(inp.checked));
       return h("label", { class: "switch knob", for: id, title: p.why || "" }, inp, h("span", null, p.label));
     }
     if (p.type === "range") {
-      const out = h("output", { class: "num" }, String(val));
-      const inp = h("input", { type: "range", id, min: p.min, max: p.max, value: val });
-      inp.addEventListener("input", () => { state[p.id] = Number(inp.value); out.textContent = inp.value; onchange(); });
+      const out = h("output", { class: "num" }, String(value));
+      const inp = h("input", { type: "range", id, min: p.min, max: p.max, value });
+      inp.addEventListener("input", () => { out.textContent = inp.value; onchange(Number(inp.value)); });
       return h("label", { class: "knob range", for: id }, h("span", null, p.label, " ", out), inp);
     }
-    const sel = h("select", { id }, (p.options || []).map((o) => h("option", { value: o, selected: o === val ? true : null }, o)));
-    sel.addEventListener("change", () => { state[p.id] = sel.value; onchange(); });
+    const sel = h("select", { id }, (p.options || []).map((o) => h("option", { value: o, selected: o === value ? true : null }, o)));
+    sel.addEventListener("change", () => onchange(sel.value));
     return h("label", { class: "knob sel", for: id }, h("span", null, p.label), sel);
   }
+
+  /* what a reader may predict: each dimension reads one field of the trace (or of the page decision) */
+  const REASONS = () => (M.groups.find((g) => g.id === "reasons") || { items: [] }).items.map((i) => i.name);
+  const DIMS = {
+    disposition: { label: "Disposition", opts: () => [["admitted"], ["held"], ["refused"], ["expired"], [null, "no disposition · logged only"]], get: (t) => t.disposition, chip: true },
+    tier: { label: "Tier", opts: () => ["T0", "T1", "T2", "T3", "T4"].map((x) => [x]), get: (t) => t.tier },
+    reason: { label: "Reason code", select: true, opts: () => [[null, "none"]].concat(REASONS().map((r) => [r])), get: (t) => t.reason || null },
+    decisiveStep: { label: "Deciding step", select: true, opts: () => STEP_ORDER.map((id, n) => [id, (n + 1) + " · " + window.Gate.STEPS[id].label]), get: (t) => t.decisiveStep },
+    receiptOwed: { label: "A receipt now?", opts: () => [[true, "yes, a receipt is owed"], [false, "no receipt now"]], get: (t) => !!t.receiptOwed },
+    admittedAs: { label: "Enters as", opts: () => [["fact"], ["claim"], ["proposal"], ["commitment"], ["declaration"], [null, "nothing: not admitted"]], get: (t) => t.admittedAs || null },
+    standing: { label: "Standing", opts: () => ["S0", "S1", "S2", "S3"].map((x) => [x]), get: (t) => t.standing },
+    awaiting: { label: "Waiting on", opts: () => [["owner", "the owner"], ["second-signal", "a second signal"], [null, "nothing: not held"]], get: (t) => t.awaiting || null },
+    answerScope: { label: "Answered by", opts: () => [["shareable", "a quarantined run"], ["privileged", "the privileged agent"], [null, "nobody: not a request"]], get: (t) => t.answerScope || null },
+    page: { label: "Page the owner?", opts: () => [[true, "pages the owner"], [false, "no page"]], get: (p) => !!p.page },
+    level: { label: "Delivered at", opts: () => [["cycle"], ["prompt"], ["interrupt"]], get: (p) => p.level }
+  };
+  const showVal = (dim, v) => { const o = DIMS[dim].opts().find((x) => x[0] === v); return o ? (o[1] || String(o[0])) : String(v); };
 
   B.gate = (b, ctx, i) => {
     const key = blockKey(ctx, i);
     const S = window.Scenario;
+    const lesson = ctx && ctx.lesson;
+    const isPage = !!(b.preset && b.preset.call === "page");
+    const goals = b.goals || [];
+    const dims = b.predict === false ? [] : Array.isArray(b.predict) ? b.predict.filter((d) => DIMS[d]) : [isPage ? "page" : "disposition"];
     const cases = [{ label: b.presetLabel || "The clean case", change: {}, expect: b.expect, explain: b.explain }].concat(b.variants || []);
-    let ci = 0, predicted, editedWire = null, rehash = true;
-    const knobState = {};
+    const editable = b.editable === "wire" || goals.length > 0;
+    let ci = 0, pred = {}, editedWire = null, rehash = true, knobState = {};
     const answers = store.get("answers", {});
     const caseBar = h("div", { class: "cases", role: "tablist" });
     const msgBox = h("div", { class: "lab-msg" });
     const ctxBox = h("div", { class: "lab-ctx" });
-    const predictRow = h("div", { class: "predict", role: "group", "aria-label": "Your prediction" });
-    const runBtn = h("button", { type: "button", class: "btn primary run" }, "Run the gate");
+    const predictBox = h("div", { class: "predict-box", role: "group", "aria-label": "Your prediction" });
+    const goalBox = h("div", { class: "goals" });
+    const runBtn = h("button", { type: "button", class: "btn primary run" }, goals.length ? "Run the gate" : "Run the gate");
     const skip = h("button", { type: "button", class: "btn ghost small" }, "Run without predicting");
     const resultBox = h("div", { class: "lab-out", "aria-live": "polite" });
+    const caseParams = () => (S.merge(b.preset || {}, cases[ci].change || {}).params || {});
     const descriptor = () => S.merge(b.preset || {}, cases[ci].change || {});
+    const tinkered = () => editedWire != null || Object.keys(knobState).length > 0;
 
     function currentBuild() {
       const d = descriptor();
@@ -519,18 +570,55 @@
       }
       return built;
     }
+    function renderGoals() {
+      goalBox.textContent = "";
+      if (!goals.length) return;
+      goalBox.appendChild(h("div", { class: "lab-k" }, "Make the gate do this"));
+      goals.forEach((g, gi) => {
+        const done = !!(answers[key + ":goal:" + gi] && answers[key + ":goal:" + gi].ok);
+        const show = g.solution && !done ? h("button", { type: "button", class: "btn ghost small", onclick: () => {
+          const sol = S.build(S.merge(descriptor(), g.solution));
+          editedWire = S.toWire(sol.msg); if (g.solution.params) Object.assign(knobState, g.solution.params);
+          renderCase(); editedWire = editedWire || null;
+        } }, "Show one way") : null;
+        goalBox.appendChild(h("div", { class: "goal" + (done ? " done" : "") }, h("span", { class: "goal-box", "aria-hidden": "true" }, done ? "✓" : ""), h("span", null, inline(g.text)), show));
+      });
+    }
+    function renderPredict() {
+      predictBox.textContent = "";
+      if (!dims.length) { runBtn.disabled = false; skip.hidden = true; return; }
+      dims.forEach((dim) => {
+        const D = DIMS[dim];
+        const row = h("div", { class: "predict" }, h("span", { class: "predict-l" }, D.label));
+        if (D.select) {
+          const sel = h("select", { "aria-label": D.label }, [h("option", { value: "", selected: true }, "choose…")].concat(D.opts().map(([v, l]) => h("option", { value: JSON.stringify(v) }, l || String(v)))));
+          if (dim in pred) sel.value = JSON.stringify(pred[dim]);
+          sel.addEventListener("change", () => { if (sel.value === "") delete pred[dim]; else pred[dim] = JSON.parse(sel.value); markRun(); });
+          row.appendChild(sel);
+        } else {
+          D.opts().forEach(([v, l]) => {
+            const btn = h("button", { type: "button", class: D.chip ? "d pick " + dispClass(v) : "pickopt", "aria-pressed": dim in pred && pred[dim] === v ? "true" : "false" }, l || String(v));
+            btn.addEventListener("click", () => { pred[dim] = v; [...row.querySelectorAll("button")].forEach((x) => x.setAttribute("aria-pressed", "false")); btn.setAttribute("aria-pressed", "true"); markRun(); });
+            row.appendChild(btn);
+          });
+        }
+        predictBox.appendChild(row);
+      });
+      markRun();
+    }
+    function markRun() { runBtn.disabled = dims.length > 0 && dims.some((d) => !(d in pred)); }
     function renderCase() {
       caseBar.textContent = "";
       cases.forEach((c, j) => caseBar.appendChild(h("button", { type: "button", role: "tab", class: "case" + (j === ci ? " on" : "") + (answers[key + ":" + j] ? (answers[key + ":" + j].ok ? " got" : " miss") : ""), "aria-selected": j === ci ? "true" : "false",
-        onclick: () => { ci = j; editedWire = null; predicted = undefined; renderCase(); } }, inline(c.label))));
+        onclick: () => { ci = j; editedWire = null; pred = {}; knobState = {}; renderCase(); } }, inline(c.label))));
       const built = currentBuild();
       msgBox.textContent = "";
       const wireText = editedWire != null ? editedWire : S.toWire(built.msg);
       msgBox.appendChild(h("div", { class: "lab-k" }, "Message from ", h("b", null, built.msg.signer || "?"), built.msg.lane !== built.msg.signer ? " in lane " + built.msg.lane : "", built.msg.sigValid === false ? " · signature invalid" : ""));
-      if (b.editable === "wire") {
+      if (editable) {
         const ta = h("textarea", { class: "wire-edit", rows: Math.min(18, wireText.split("\n").length + 1), spellcheck: "false", "aria-label": "Edit the message" });
         ta.value = wireText;
-        ta.addEventListener("input", () => { editedWire = ta.value; predicted = undefined; markPredict(); resultBox.textContent = ""; });
+        ta.addEventListener("input", () => { editedWire = ta.value; resultBox.textContent = ""; });
         const cb = h("input", { type: "checkbox", id: key + "-rh" }); cb.checked = rehash;
         cb.addEventListener("change", () => { rehash = cb.checked; });
         msgBox.appendChild(ta);
@@ -548,67 +636,79 @@
       if (m.capability) extras.push(["capability", m.capability]);
       if (extras.length) msgBox.appendChild(h("dl", { class: "kv small" }, extras.map(([k, v]) => h("div", null, h("dt", null, k), h("dd", null, v)))));
       ctxBox.textContent = "";
-      ctxBox.appendChild(h("div", { class: "lab-k" }, "brainboi's gate · receiver state"));
+      ctxBox.appendChild(h("div", { class: "lab-k" }, (built.ctx.receiver || "brainboi") + "'s gate · receiver state"));
       const keys = b.showCtx || ["standing", "acceptedContracts", "holdsToday"];
       ctxBox.appendChild(h("dl", { class: "kv" }, keys.map((k) => h("div", null, h("dt", null, CTX_LABEL[k] || k), h("dd", null, ctxValue(k, built.ctx[k]))))));
       if (b.knobs && b.knobs.length) {
         ctxBox.appendChild(h("div", { class: "lab-k" }, "Contract knobs"));
-        ctxBox.appendChild(h("div", { class: "knobs" }, b.knobs.map((id) => M.params.find((p) => p.id === id)).filter(Boolean).map((p) => knobControl(p, knobState, () => { predicted = undefined; markPredict(); resultBox.textContent = ""; }))));
+        const cp = caseParams();
+        ctxBox.appendChild(h("div", { class: "knobs" }, b.knobs.map((id) => M.params.find((p) => p.id === id)).filter(Boolean).map((p) => {
+          const val = p.id in knobState ? knobState[p.id] : p.id in cp ? cp[p.id] : p.def;
+          return knobControl(p, val, (v) => { knobState[p.id] = v; resultBox.textContent = ""; });
+        })));
       }
       resultBox.textContent = "";
-      markPredict();
+      renderGoals();
+      renderPredict();
     }
-    function markPredict() {
-      [...predictRow.querySelectorAll("button")].forEach((x) => { const v = x.dataset.v === "null" ? null : x.dataset.v; x.setAttribute("aria-pressed", predicted !== undefined && v === predicted ? "true" : "false"); });
-      runBtn.disabled = predicted === undefined;
+    function scorePrediction(get) {
+      const wrong = dims.filter((d) => JSON.stringify(DIMS[d].get(get)) !== JSON.stringify(pred[d]));
+      return { ok: wrong.length === 0, wrong };
     }
-    const isPage = (b.preset && b.preset.call === "page");
-    const OPTIONS = isPage ? [{ v: "page", label: "pages the owner", cls: "refused" }, { v: "nopage", label: "no page", cls: "admitted" }] : DISP_OPTIONS.map((o) => ({ v: o.v, label: o.label, cls: dispClass(o.v) }));
-    append(predictRow, [h("span", { class: "predict-l" }, "Your prediction"), OPTIONS.map((o) => h("button", { type: "button", class: "d pick " + o.cls, dataset: { v: String(o.v) }, onclick: () => { predicted = o.v; markPredict(); } }, o.label))]);
+    function recordCase(ok) {
+      if (tinkered()) return;
+      const k = key + ":" + ci;
+      if (!answers[k]) { answers[k] = { ok, kind: "gate" }; store.mark("answers", k, answers[k]); } // the first attempt counts
+      [...caseBar.children][ci].classList.add(answers[k].ok ? "got" : "miss");
+    }
+    function checkGoals(get) {
+      const made = [];
+      goals.forEach((g, gi) => {
+        const k = key + ":goal:" + gi;
+        if (answers[k] && answers[k].ok) return;
+        if (!S.check(isPage ? { page: get } : { trace: get }, g.want || {}).length && tinkered()) { answers[k] = { ok: true, kind: "make" }; store.mark("answers", k, answers[k]); made.push(g); }
+      });
+      return made;
+    }
     function run(withPrediction) {
       const built = currentBuild();
       resultBox.textContent = "";
       if (built.error) { resultBox.appendChild(h("div", { class: "fb no" }, h("b", null, "The text does not parse. "), built.error)); return; }
       const c = cases[ci];
+      const out = isPage ? window.Gate.pageDecision(built.msg, built.ctx, built.params) : window.Gate.evaluate(built.msg, built.ctx, built.params);
+      if (withPrediction && dims.length) {
+        const sc = scorePrediction(out);
+        const lines = sc.wrong.map((d) => DIMS[d].label + ": you said " + showVal(d, pred[d]) + "; the answer is " + showVal(d, DIMS[d].get(out)) + ".");
+        resultBox.appendChild(verdict(sc.ok, sc.ok ? (dims.length > 1 ? "Every part of your prediction holds. " : "") + (isPage ? out.note + "." : whyLine(out)) : lines.join(" ") + " " + (isPage ? "Why: " + out.note + "." : whyLine(out))));
+        recordCase(sc.ok);
+      }
+      const made = checkGoals(out);
+      made.forEach((g) => resultBox.appendChild(h("div", { class: "fb ok" }, h("b", null, "Made it. "), inline(g.text))));
+      if (goals.length && !made.length && tinkered()) {
+        const open = goals.filter((g, gi) => !(answers[key + ":goal:" + gi] && answers[key + ":goal:" + gi].ok));
+        if (open.length) resultBox.appendChild(h("div", { class: "fb no" }, h("b", null, "Not yet. "), isPage ? out.note : whyLine(out)));
+      }
+      if (goals.length) renderGoals();
       if (isPage) {
-        const pd = window.Gate.pageDecision(built.msg, built.ctx, built.params);
-        const got = pd.page ? "page" : "nopage";
-        if (withPrediction) {
-          const ok = predicted === got;
-          resultBox.appendChild(verdict(ok, ok ? "The receiver did what you predicted." : "You predicted " + (predicted === "page" ? "a page" : "no page") + "; the receiver's answer is " + (pd.page ? "a page" : "no page") + "."));
-          if (editedWire == null && !Object.keys(knobState).length) { store.mark("answers", key + ":" + ci, { ok, kind: "gate" }); answers[key + ":" + ci] = { ok }; }
-          [...caseBar.children][ci].classList.add(ok ? "got" : "miss");
-        }
-        resultBox.appendChild(h("div", { class: "result " + (pd.page ? "d-refused" : "d-admitted") },
-          h("div", { class: "res-main" }, h("span", { class: "d big " + (pd.page ? "refused" : "admitted") }, pd.page ? "page the owner" : "no page"), h("span", { class: "res-tier" }, "delivered at ", term("ch.axes", pd.level))),
-          h("dl", { class: "res-kv" }, h("div", null, h("dt", null, "why"), h("dd", null, pd.note)), h("div", null, h("dt", null, "decided by"), h("dd", null, h("code", null, "Gate.pageDecision"), ", after the gate admits the alert")))));
-        if (c.explain && editedWire == null) resultBox.appendChild(h("div", { class: "lab-explain" }, inline(c.explain)));
-        if (c.expect && editedWire == null && !Object.keys(knobState).length) { const miss = S.check({ page: pd }, c.expect); if (miss.length) console.warn("[course] gate case mismatch", key, c.label, JSON.stringify(miss)); }
-        return;
+        resultBox.appendChild(h("div", { class: "result " + (out.page ? "d-refused" : "d-admitted") },
+          h("div", { class: "res-main" }, h("span", { class: "d big " + (out.page ? "refused" : "admitted") }, out.page ? "page the owner" : "no page"), h("span", { class: "res-tier" }, "delivered at ", term("ch.axes", out.level))),
+          h("dl", { class: "res-kv" }, h("div", null, h("dt", null, "why"), h("dd", null, out.note)), h("div", null, h("dt", null, "decided by"), h("dd", null, h("code", null, "Gate.pageDecision"), ", after the gate admits the alert")))));
+      } else {
+        resultBox.appendChild(resultView(out));
+        resultBox.appendChild(traceView(out, { lesson }));
       }
-      const trace = window.Gate.evaluate(built.msg, built.ctx, built.params);
-      if (withPrediction) {
-        const ok = predicted === trace.disposition;
-        resultBox.appendChild(verdict(ok, ok ? "The gate did what you predicted." : "You predicted " + dispName(predicted) + "; the gate's answer is " + dispName(trace.disposition) + "."));
-        if (editedWire == null && !Object.keys(knobState).length) { store.mark("answers", key + ":" + ci, { ok, kind: "gate" }); answers[key + ":" + ci] = { ok }; }
-        [...caseBar.children][ci].classList.add(ok ? "got" : "miss");
-      }
-      resultBox.appendChild(resultView(trace));
-      resultBox.appendChild(traceView(trace));
-      if (c.explain && editedWire == null) resultBox.appendChild(h("div", { class: "lab-explain" }, inline(c.explain)));
-      if (c.expect && editedWire == null && !Object.keys(knobState).length) {
-        const miss = S.check({ trace }, c.expect);
-        if (miss.length) console.warn("[course] gate case mismatch", key, c.label, JSON.stringify(miss));
-      }
+      if (c.explain && !tinkered()) resultBox.appendChild(h("div", { class: "lab-explain" }, inline(c.explain)));
+      if (c.expect && !tinkered()) { const miss = S.check(isPage ? { page: out } : { trace: out }, c.expect); if (miss.length) console.warn("[course] gate case mismatch", key, c.label, JSON.stringify(miss)); }
     }
     runBtn.addEventListener("click", () => run(true));
     skip.addEventListener("click", () => run(false));
     renderCase();
-    return h("div", { class: "cx-lab" },
-      h("div", { class: "lab-head" }, h("div", { class: "check-k" }, "Gate lab"), h("div", { class: "lab-title" }, inline(b.title || "Run it through the gate")), b.intro ? h("p", { class: "lab-intro" }, inline(b.intro)) : null),
+    return h("div", { class: "cx-lab" + (goals.length ? " goal-mode" : "") },
+      h("div", { class: "lab-head" }, h("div", { class: "check-k" }, goals.length ? "Gate lab · make it happen" : "Gate lab"), h("div", { class: "lab-title" }, inline(b.title || "Run it through the gate")), b.intro ? h("p", { class: "lab-intro" }, inline(b.intro)) : null),
       cases.length > 1 ? caseBar : null,
+      goalBox,
       h("div", { class: "lab-grid" }, msgBox, ctxBox),
-      h("div", { class: "lab-act" }, predictRow, h("div", { class: "row" }, runBtn, skip)),
+      h("div", { class: "lab-act" }, predictBox, h("div", { class: "row" }, runBtn, skip)),
       resultBox);
   };
 
@@ -623,5 +723,5 @@
     });
   }
 
-  Course.kit = { playLink, h, append, svgEl, inline, term, refChip, itemFor, wireView, codeView, traceView, resultView, figure, verdict, store, renderBlocks, blocks: B, REPO, reduceMotion, closePop };
+  Course.kit = { playLink, h, append, svgEl, inline, term, refChip, itemFor, wireView, codeView, traceView, resultView, whyLine, figure, verdict, store, renderBlocks, blocks: B, REPO, reduceMotion, closePop, STEP_ORDER };
 })();

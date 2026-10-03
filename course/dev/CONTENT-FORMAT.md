@@ -93,6 +93,12 @@ Every block is `{ t: "<type>", ... }`.
 }
 ```
 
+**Predicting more than the disposition** (added after panel round 0). `predict: ["disposition", "tier"]` asks for each named part, and a prediction scores right only when every part is right. Parts: `disposition`, `tier`, `reason` (a select of every reason code), `decisiveStep` (a select of the 21 steps), `receiptOwed`, `admittedAs`, `standing`, `awaiting`, `answerScope`; for `call: "page"`: `page`, `level`. `predict: false` turns prediction off. Ask for the part the lab's text asks about: a lab that says "predict the tier" must name `tier`.
+
+**Goal mode: the reader makes the gate do something.** `goals: [{ text, want, solution }]` shows a checklist above an editable message. The reader edits the wire (or a knob) and runs it; a goal ticks when the real gate's result matches `want` (any `expect` keys). `solution` is a descriptor patch on the preset that reaches the goal: the checker runs it to prove the goal is reachable and fails if the unedited preset already meets it; the page offers it as "Show one way". Goal mode sets `editable: "wire"`. Combine with `predict: false` for a pure making lab, or keep a prediction for the preset.
+
+**Untaught steps.** The trace dims any step whose teaching lesson comes later in the core and links to it. A lesson may list the gate steps it teaches in `gateSteps: ["lane", "scope"]` (ids from `Gate.STEPS`); otherwise a built-in map is used.
+
 The reader chooses a case, predicts one of: `admitted`, `held`, `refused`, `expired`, `logged only` (no receipt is sent: `disposition: null`), and runs it. The trace shows all 21 steps, the deciding step, the reason code and the tier. **Every case states `expect`, and `node course/dev/check.js` runs it through the real gate.** `expect` may name any of: `disposition`, `reason`, `decisiveStep`, `tier`, `admittedAs`, `receiptOwed`, `awaiting`, `answerScope`, `evidence`, `standing`, `flags: { … }`; with `call: "page"` in the descriptor: `page`, `level`.
 
 A descriptor (full list in the header of `course/scenario.js`): `base` (`ask`, `accept`, `reply`, `claim`, `receipt`, `alert`), `header` overrides, `unset`, `body`, `keepHash`, `msg` (signer, sigValid, lane, touchedPaths, reads, sources, origin, recordOk, secondSignal, capability), `ctx` (receiver state), `params` (contract knobs), `call`.

@@ -65,6 +65,18 @@ for (const L of lessons) {
       };
       runCase("preset", b.preset || {}, b.expect);
       (b.variants || []).forEach((v) => runCase(v.label || "variant", S.merge(b.preset || {}, v.change || {}), v.expect));
+      const DIMS = ["disposition", "tier", "reason", "decisiveStep", "receiptOwed", "admittedAs", "standing", "awaiting", "answerScope", "page", "level"];
+      if (Array.isArray(b.predict)) b.predict.forEach((d) => { if (!DIMS.includes(d)) err(w, "predict names an unknown dimension " + d + " (allowed: " + DIMS.join(", ") + ")"); });
+      (b.goals || []).forEach((g, gi) => {
+        const gw = w + " · goal " + (gi + 1);
+        if (!g.text || !g.want) return err(gw, "a goal needs text and want");
+        if (!g.solution) return err(gw, "a goal needs a solution (a descriptor patch on the preset) that proves it can be reached");
+        cases++;
+        let r; try { r = S.run(S.merge(b.preset || {}, g.solution)); } catch (e) { return err(gw, "solution threw: " + e.message); }
+        const miss = S.check(r, g.want);
+        if (miss.length) err(gw, "the solution does not reach the goal: " + miss.map((x) => x.key + " want " + JSON.stringify(x.want) + " got " + JSON.stringify(x.got)).join("; "));
+        else { ok++; const pre = S.check(S.run(b.preset || {}), g.want); if (!pre.length) err(gw, "the preset already meets this goal, so the reader has nothing to make"); }
+      });
     }
   });
 }

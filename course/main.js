@@ -22,6 +22,7 @@
   function computeOrder() {
     const pIndex = new Map(C.PARTS.map((p, i) => [p.id, i]));
     ORDER = C.LESSONS.slice().sort((a, b) => (TRACK_ORDER[trackOf(a)] - TRACK_ORDER[trackOf(b)]) || ((pIndex.get(a.part) ?? 99) - (pIndex.get(b.part) ?? 99)) || (C.LESSONS.indexOf(a) - C.LESSONS.indexOf(b)));
+    C.coreIds = ORDER.filter((L) => trackOf(L) === "core").map((L) => L.id);
   }
   const core = () => ORDER.filter((L) => trackOf(L) === "core");
   const done = () => store.get("done", {});
@@ -29,9 +30,17 @@
 
   /* ---------- the running envelope ---------- */
   const ENV_FIELDS = ["membrane", "id", "from", "to", "act", "form", "at", "by", "effect", "contract", "context", "acceptance", "turn", "body"];
+  /* a lesson's stamps light when it is finished and, if it has scored checks, at least one of them was answered right */
+  const SCORED = ["quiz", "sort", "gate"];
+  function earned(L) {
+    if (!done()[L.id]) return false;
+    if (!(L.blocks || []).some((b) => SCORED.includes(b.t))) return true;
+    const ans = store.get("answers", {});
+    return Object.keys(ans).some((k) => k.startsWith(L.id + ":") && ans[k].ok);
+  }
   function stamped() {
-    const d = done(), set = new Set();
-    C.LESSONS.forEach((L) => { if (d[L.id]) (L.stamps || []).forEach((f) => set.add(f)); });
+    const set = new Set();
+    C.LESSONS.forEach((L) => { if (earned(L)) (L.stamps || []).forEach((f) => set.add(f)); });
     return set;
   }
   function teacherOf(field) { return core().find((L) => (L.stamps || []).includes(field)) || C.LESSONS.find((L) => (L.stamps || []).includes(field)); }
@@ -61,7 +70,23 @@
       h("div", { class: "dock-meter", role: "meter", "aria-valuemin": 0, "aria-valuemax": ENV_FIELDS.length, "aria-valuenow": n }, h("span", { style: { width: (100 * n / ENV_FIELDS.length) + "%" } })),
       h("div", { class: "dock-n num" }, n + " of " + ENV_FIELDS.length + " fields learned"),
       pre,
-      n === ENV_FIELDS.length ? h("a", { class: "btn primary small", href: "#" + (core().slice(-1)[0] || {}).id }, "Send it through the gate") : null);
+      gateSide(),
+      n === ENV_FIELDS.length ? h("a", { class: "btn primary small", href: "#" + (C.LESSONS.some((L) => L.id === "capstone") ? "capstone" : (core().slice(-1)[0] || {}).id) }, "Send it through the gate") : null);
+  }
+
+  /* the receiver side of the dock: brainboi's 21 gate steps, lit as the lessons that teach them are finished */
+  function gateSide() {
+    const steps = C.kit.STEP_ORDER;
+    const d = done();
+    const lit = steps.map((id) => { const T = C.teacherOfStep && C.teacherOfStep(id); return !!(T && d[T.id]); });
+    const n = lit.filter(Boolean).length;
+    return h("div", { class: "dock-gate" },
+      h("div", { class: "dock-k" }, "brainboi's gate"),
+      h("div", { class: "dock-steps", role: "img", "aria-label": n + " of 21 gate steps learned" }, steps.map((id, i) => {
+        const T = C.teacherOfStep && C.teacherOfStep(id);
+        return h("a", { class: "dstep" + (lit[i] ? " on" : ""), href: T ? "#" + T.id : null, title: (i + 1) + " · " + window.Gate.STEPS[id].label + (T ? " · taught in " + T.title : "") }, String(i + 1));
+      })),
+      h("div", { class: "dock-n num" }, n + " of 21 steps learned"));
   }
 
   /* ---------- progress meter ---------- */
@@ -107,7 +132,7 @@
     const svg = K.svgEl("svg", { viewBox: `0 0 ${W} ${H}`, class: "hero-svg", role: "img", "aria-label": "Envelopes cross a membrane and receive one of five dispositions" });
     const bil = K.svgEl("g", {}, svg);
     const lanes = [
-      { y: 62, state: "sealed", end: 0.42 }, { y: 132, state: "held", end: 0.5 }, { y: 202, state: "admitted", end: 0.8 },
+      { y: 62, state: "sealed", end: 0.42 }, { y: 132, state: "held", end: 0.5 }, { y: 202, state: "admitted", end: 0.7 },
       { y: 272, state: "refused", end: 0.36 }, { y: 342, state: "expired", end: 0.44 }];
     const envs = lanes.map((l, i) => {
       const g = window.Glyphs.envelope(svg, { x: 30, y: l.y, w: 44, h: 31, state: "sent" });
