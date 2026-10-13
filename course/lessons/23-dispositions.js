@@ -1,0 +1,84 @@
+Course.lesson({
+  id: "dispositions", part: "waist", title: "Dispositions and receipts",
+  kicker: "Five words for what became of a message",
+  minutes: 11,
+  refs: ["P§6.1", "P§4.2", "Rev02·#1", "Rev02·#10", "Rev02·#11", "R6·F7", "R6·F8", "R6·F9", "R5·F4", "RFC 3834", "RFC 8098"],
+  objectives: [
+    "Name the five dispositions and say which are terminal, and what a malformed message gets instead.",
+    "Predict when a receipt is owed and when nothing goes back.",
+    "Explain duplicate handling: same body, different body, outside the window.",
+    "State the expiry rule and the one honest resend."
+  ],
+  prereq: ["delivery"],
+  gateSteps: ["addressed", "duplicate", "expiry"],
+  summary: "A message the gate accepts is sealed, may be held, and reaches exactly one of admitted, refused or expired. Sealed means stored verbatim with its hash before any model reads it; held means quarantined outside memory and outside the transport; admitted means entered at its tier, with execution a separate matter; refused is terminal with a reason code and no prose; expired is held past expires. A malformed or unsigned message gets no disposition and is logged only. The receiver owes a receipt when a message is held, refused or expired; admission is acknowledged cumulatively by any later message in the context. Receipts, quiet and not-understood never earn receipts. A duplicate (same from, id, body) gets the original receipt resent; same id with a different body is id-reuse; older than the window is stale. An expired message may be resent once under a new id; a third copy is refused expired-before.",
+  blocks: [
+    { t: "gate", title: "A receipt for nothing", intro: "Hermes sends brainboi a receipt about a message brainboi never sent. Say what the gate does and whether anything goes back.", preset: { base: "receipt", header: { re: "brainboi-20260922-0000000000000000" } }, predict: ["disposition", "receiptOwed"], expect: { disposition: null, decisiveStep: "addressed", receiptOwed: false }, explain: "Logged and ignored at step 6: no disposition, no receipt. A receipt that could be answered would be a way to make brainboi talk about messages it never sent." },
+    { t: "p", text: "The ask has passed the gate. What does Hermes learn, and when? Membrane's answer is a vocabulary of five words and a small set of rules about when one of them is sent back." },
+    { t: "p", text: "The vocabulary is the waist; what each receiver does inside is its own policy." },
+    { t: "figure", name: "dispositions", caption: "received → sealed → held → admitted, refused or expired. A structural failure after the signer is verified (lane, scope, size, version, addressee) is refused with a receipt. A malformed or unsigned message gets no disposition and is logged only." },
+    { t: "h", text: "The five words" },
+    { t: "p", text: "{{disp.sealed}} happens to every message that passes the fourteen stopping checks, before any model reads it; the trace's `seal` step records the hash. {{disp.held}} is a waiting state with a clock. {{disp.admitted}}, {{disp.refused}} and {{disp.expired}} end the matter. The five words are an invariant; A2A's view of them is the nine TaskState names, with `held` stretched onto AUTH_REQUIRED and marked as a stretch." },
+    { t: "p", text: "Two kinds of message get none of the five. A message whose signature fails and a message whose bytes or header fail the grammar are logged and earn nothing, because a refusal mailed to whatever `from` claims would make the receiver a source of backscatter against a forged address [[P§4.2]]. The prediction row in every lab sets that outcome apart as no disposition." },
+    { t: "define", terms: [
+      { term: "sealed", def: "Stored verbatim with its hash before any model reads it.", ref: "P§6.1" },
+      { term: "held", def: "Quarantined outside memory and outside the transport, with a clock.", ref: "P§6.1" },
+      { term: "admitted", def: "Entered the constructed layer at its tier; execution is a separate matter.", ref: "P§6.2" },
+      { term: "refused", def: "Terminal, with a registry code and no prose.", ref: "P§6.1" },
+      { term: "expired", def: "Held past `expires` without release.", ref: "P§6.1" },
+      { term: "receipt", def: "A declare about one message, naming it in `re` and echoing its body hash.", ref: "P§4.2" },
+      { term: "echo", def: "The body hash of the message a receipt is about." }
+    ] },
+    { t: "h", text: "Reason codes" },
+    { t: "p", text: "A refusal carries a code and nothing else. A receiving state may refuse an envoy without giving reasons (Vienna Convention, Arts. 4 and 9), and a reason in prose is a map for getting around the refusal [[P§6.1]]." },
+    { t: "table", head: ["Group", "Codes", "Who learns what"], rows: [
+      ["structure (logged only)", "{{rc.unsigned}}, {{rc.malformed}}", "nobody: no receipt goes back"],
+      ["structure (receipt)", "{{rc.lane}}, {{rc.scope}}, {{rc.size}}, {{rc.version}}, {{rc.not-addressed}}, {{rc.unsupported-extension}}", "the sender learns which step stopped it"],
+      ["bookkeeping", "{{rc.duplicate}}, {{rc.id-reuse}}, {{rc.stale}}, {{rc.clock}}, {{rc.expired-before}}, {{rc.history-rewrite}}", "the sender learns a counter or clock disagreed"],
+      ["contract and limits", "{{rc.contract-mismatch}}, {{rc.turn}}, {{rc.rate}}, {{rc.paused}}, {{rc.effect-exceeds-tier}}", "the sender learns a limit it already knew from the contract"],
+      ["holds, and the budget that ends them", "{{rc.awaiting-owner}}, {{rc.awaiting-signal}}, {{rc.hold-budget}}", "the sender learns who must act, and when the owner's attention is spent"],
+      ["policy", "{{rc.policy}}", "the sender learns only that the receiver declined; also the code on a sensor hold"]
+    ], caption: "The two hold codes are new in 0.3, so a sender knows who must act without learning how to get around it [[Rev02·#21]]." },
+    { t: "h", text: "Receipts" },
+    { t: "p", text: "The receiver owes the sender a disposition receipt when a message becomes held and when it reaches refused or expired. Admission is acknowledged cumulatively: any message the receiver sends in a context acknowledges, as admitted, every earlier message it received in that context, and a separate admitted receipt is owed only when nothing else goes back within the receiver's `cycle` [[P§6.1]]. In the clean exchange, brainboi's `accept` acknowledges the ask, and Hermes' verdict acknowledges the accept and the reply; no receipt form appears." },
+    { t: "p", text: "Receipts are kept from feeding on themselves by rule. Messages of form `receipt`, `quiet` and `not-understood` never earn a receipt. A receipt is about one message: it names it in `re`, echoes its body hash, and carries exactly one of a disposition or a verdict. A receipt whose `re` names a message the receiver never sent, or whose `echo` does not match what it sent, is logged and ignored, as the cold case was [[P§4.2]]. Email learned the same lessons decades ago: automatic responses should not answer automatic responses (RFC 3834 §2), and a disposition notification is never sent for a disposition notification (RFC 8098 §2.1). The paper's second reviewer found the loop that the first rule closes, receipts of receipts that never terminate [[Rev02·#1]]." },
+    { t: "widget", name: "receiptLoop", props: {} },
+    { t: "p", text: "`echo` is aviation's read-back in one hash [[R6·F7]]. The acknowledgement that matters says what became of the message, which is more than that it arrived [[R6·F8]]; on the git binding the sender also compares blobs after pushing." },
+    { t: "h", text: "Duplicates" },
+    { t: "p", text: "The duplicate key is `from` plus `id`. A message with a seen key and the same `body` is a duplicate: the receiver resends its original receipt, if one was owed, and does nothing else. A seen key with a different `body` is refused with {{rc.id-reuse}} and logged, since one identifier naming two bodies breaks every receipt that cites it [[Rev02·#10]]. Receivers keep seen identifiers for a window (starting value 30 days) and refuse messages older than the window as {{rc.stale}}, because past the window a duplicate can no longer be recognised. Duplicates being harmless is what makes resending the recovery for every lost receipt [[R6·F9]]; [[lesson:delivery|the foundation on delivery]] has the general form of the argument." },
+    { t: "h", text: "Expiry and the honest resend" },
+    { t: "p", text: "An absent `expires` means `at` plus 48 hours, a starting value, judged against the receiver's clock at fetch time. Expiry is often the receiver's own doing, a missed read or a failed fetch, so a sender may resend an expired message once, under a new `id`, with the expired message named in `re`, and the receiver judges it afresh. A third copy of the same body hash is refused with {{rc.expired-before}} [[P§6.1]]. The rule borrows from T-cell anergy, where a cell that received the antigen signal without the costimulatory signal stays unresponsive to that antigen [[R5·F4]], and stops short of it. The first draft punished the sender after a transport failure; the second reviewer caught it [[Rev02·#11]]." },
+    { t: "gate", title: "What goes back", intro: "For each case, predict the disposition and whether a receipt is owed. Two cases are receipts arriving at brainboi; two are the same ask arriving again; one recalls the envelope lesson.",
+      preset: {}, predict: ["disposition", "receiptOwed"], expect: { disposition: "admitted", receiptOwed: false, decisiveStep: "release" },
+      explain: "Admitted at step 21, and no separate receipt is owed: brainboi's next message in the context will acknowledge it. The trace marks the acknowledgement deferred.",
+      variants: [
+        { label: "Cumulative acknowledgement switched off", change: { params: { cumulativeAck: false } }, expect: { disposition: "admitted", receiptOwed: true }, explain: "Now every admitted message earns its own receipt. The receipt is a message, and with receipts that also earn receipts the context fills until the turn cap." },
+        { label: "The same ask arrives a second time", change: { ctx: { seenIds: { "hermes|hermes-20260922-a41d0e6b9c7f2358": { body: "$body", disposition: "admitted", receiptOwed: false, effect: "disclose" } } } }, expect: { disposition: "admitted", reason: "duplicate", decisiveStep: "duplicate", receiptOwed: false }, explain: "Step 7 recognises `from`, `id` and body. The original disposition stands and the original receipt would be resent if one had been owed." },
+        { label: "Same id, different body", change: { ctx: { seenIds: { "hermes|hermes-20260922-a41d0e6b9c7f2358": { body: "$hash:another body\n", disposition: "admitted" } } } }, expect: { disposition: "refused", reason: "id-reuse", decisiveStep: "duplicate", receiptOwed: true }, explain: "One identifier, two bodies. Step 7 refuses with `id-reuse` and a receipt." },
+        { label: "An ask dated 1 August, arriving 22 September", change: { header: { at: "2026-08-01T09:00:00Z", by: "2026-08-02T09:00:00Z" } }, expect: { disposition: "refused", reason: "stale", decisiveStep: "duplicate" }, explain: "Older than the 30-day window. Step 7 refuses with `stale`, since a replay and a late arrival now look the same." },
+        { label: "Hermes' receipt about brainboi's ask", change: { base: "receipt" }, expect: { disposition: "admitted", admittedAs: "declaration", receiptOwed: false }, explain: "A disposition receipt about a message brainboi did send, with a matching echo. Admitted at step 21 as a declaration, and it earns no receipt." },
+        { label: "From the cold open: a receipt about a message brainboi never sent", change: { base: "receipt", header: { re: "brainboi-20260922-0000000000000000" } }, expect: { disposition: null, decisiveStep: "addressed", receiptOwed: false }, explain: "Step 6 finds no sent message under that `re`. Logged and ignored, no disposition, no receipt." },
+        { label: "The ask fetched on 25 September", change: { ctx: { now: "2026-09-25T10:00:00Z" } }, expect: { disposition: "expired", decisiveStep: "expiry", receiptOwed: true }, explain: "Three days after `at`, past the default 48 hours. Step 9 expires it on the receiver's clock, with a receipt so Hermes knows to resend once." },
+        { label: "The second resend of an expired body", change: { ctx: { expiredBodies: { "$body": 2 } } }, expect: { disposition: "refused", reason: "expired-before", decisiveStep: "expiry" }, explain: "This body hash has expired twice already. Step 9 refuses the third copy with `expired-before`." },
+        { label: "The first resend of an expired body", change: { ctx: { expiredBodies: { "$body": 1 } } }, expect: { disposition: "admitted", decisiveStep: "release" }, explain: "One expiry on record. Step 9 lets the resend through and step 21 admits it." },
+        { label: "From earlier (envelope): membrane: 1", change: { header: { membrane: 1 } }, expect: { disposition: "refused", reason: "version", receiptOwed: true }, explain: "Step 5, with a receipt: the signer was verified, so a code goes back." }
+      ], knobs: ["cumulativeAck", "resendPolicy", "expiryHours"], showCtx: ["seenIds", "expiredBodies"] },
+    { t: "gate", title: "Three things that change what goes back", intro: "The clean ask is in the editor, admitted with nothing owed. Two goals are one header line each; one is a knob. brainboi's clock is 10:00 on 22 September.",
+      preset: {}, predict: false, expect: { disposition: "admitted", receiptOwed: false },
+      goals: [
+        { text: "Make brainboi owe a receipt for this admitted ask, with one knob.", want: { disposition: "admitted", receiptOwed: true }, solution: { params: { cumulativeAck: false } } },
+        { text: "Make it expire on brainboi's clock and read whether a receipt goes back.", want: { disposition: "expired", receiptOwed: true }, solution: { header: { expires: "2026-09-22T09:30:00Z" } } },
+        { text: "Date it outside the thirty-day window.", want: { disposition: "refused", reason: "stale" }, solution: { header: { at: "2026-08-01T09:00:00Z" } } }
+      ], knobs: ["cumulativeAck", "expiryHours"] },
+    { t: "quiz", q: "On one day brainboi receives four messages from Hermes: a `quiet` until Friday, an ask it holds for Vlad, a receipt about brainboi's own reply, and an ask whose header has a stray control character. How many receipts does it owe?", options: [ "Four, one per message", "Two: the held ask and the receipt", "One: the held ask", "None, since Hermes announced quiet" ], answer: 2, explain: "A hold owes a receipt (`held`, with `awaiting-owner`). The quiet and the receipt are forms that never earn one, and the malformed ask is logged only. A sender's `quiet` changes its own obligations and leaves the receiver's as they were.", why: [ "Three of the four earn nothing.", "A receipt is one of the three forms that earn nothing back.", "Correct.", "A quiet exempts Hermes from its lease; it says nothing about what brainboi owes." ] },
+    { t: "takeaways", items: [
+      "Sealed, held, admitted, refused, expired; three are terminal; a malformed or unsigned message gets none and is logged only.",
+      "Held, refused and expired owe a receipt; admission is acknowledged by the next message in the context; receipt, quiet and not-understood never earn one.",
+      "Same from and id: same body is a duplicate, different body is id-reuse, outside the window is stale.",
+      "Expired messages get one honest resend under a new id; the third copy is refused.",
+      "A refusal carries a registry code; the twenty-three codes group by the step that emits them."
+    ] },
+    { t: "deeper", links: [ { ref: "P§6.1" }, { ref: "P§4.2" }, { scenario: "receipt-loop" }, { scenario: "lost-receipt" }, { scenario: "owner-away" }, { href: "https://www.rfc-editor.org/rfc/rfc3834.html", label: "RFC 3834 · automatic responses to email" }, { href: "https://www.rfc-editor.org/rfc/rfc8098.html", label: "RFC 8098 · message disposition notification" } ] },
+    { t: "tutor", prompts: [ "Why is `expired` a disposition and not a refusal code?", "What does cumulative acknowledgement assume about the context, and when does it fail?", "Why does a stale message get a receipt while a malformed one does not?" ] }
+  ]
+});

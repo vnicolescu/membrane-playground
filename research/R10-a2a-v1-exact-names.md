@@ -192,7 +192,7 @@ Blocking `SendMessage` (`returnImmediately` false) waits until terminal or inter
 | `authentication` | `authentication` | no | AuthenticationInfo | P |
 | `configId`, `createdAt` | (none) | | W claims added; NOT in proto | `unverified` (W vs P conflict) |
 
-AuthenticationInfo: `scheme` (REQ, IANA HTTP auth scheme e.g. `Bearer`), `credentials`. Src: P. Webhook: HTTP POST, `Content-Type: application/a2a+json`, body = StreamResponse, at-least-once, client replies 2xx. Src: S 4.3.3.
+AuthenticationInfo: `scheme` (REQ, IANA HTTP auth scheme e.g. `Bearer`), `credentials`. Src: P. Webhook: HTTP POST, `Content-Type: application/a2a+json`, body = StreamResponse, client replies 2xx. Delivery: the agent MUST attempt delivery at least once; retries are optional, it MAY stop after a configured number of consecutive failures, and duplicates are possible, so a client deduplicates and polls `GetTask` for anything it cannot miss. Src: S 4.3.3. (Corrected 2026-10-03 after the course panel: this line earlier read "at-least-once", which the spec does not promise.)
 
 SendMessageConfiguration (JSON `configuration`): `acceptedOutputModes`, `taskPushNotificationConfig` (0.3: `pushNotificationConfig`), `historyLength`, `returnImmediately` (0.3: `blocking`, inverted sense). Src: P, J03.
 
